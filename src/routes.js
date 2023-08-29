@@ -3,12 +3,18 @@ import { Navigate, useRoutes } from 'react-router-dom';
 import DashboardLayout from './layouts/dashboard';
 //
 import UserPage from './pages/UserPage';
+import LoginPage from './pages/LoginPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
   const routes = useRoutes([
+    {
+      path: '/',
+      element: <LoginPage />,
+      index:true
+    },
     {
       path: '/dashboard',
       element: <DashboardLayout />,
