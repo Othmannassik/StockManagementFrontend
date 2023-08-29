@@ -13,9 +13,45 @@ const navConfig = [
   },
   {
     title: 'Matériels',
-    path: '/dashboard/user',
+    path: '/dashboard/materiels',
     icon: icon('ic_user'),
   },
+  // {
+  //   title: 'Affectation',
+  //   path: '/dashboard/Affectations',
+  //   icon: icon('ic_user'),
+  // },
+  {
+    title: 'Commande',
+    path: '/dashboard/Commandes',
+    icon: icon('ic_user'),
+  },
+  {
+    title: 'Etablissement',
+    path: '/dashboard/Etablissements',
+    icon: icon('ic_user'),
+  },
+  {
+    title: 'Livraison',
+    path: '/dashboard/Livraisons',
+    icon: icon('ic_user'),
+  },
+  {
+    title: 'Prestataire',
+    path: '/dashboard/Prestataires',
+    icon: icon('ic_user'),
+  },
+  {
+    title: 'Proprietaire',
+    path: '/dashboard/Proprietaires',
+    icon: icon('ic_user'),
+  },
+  {
+    title: 'Type of Materie',
+    path: '/dashboard/typeMateries',
+    icon: icon('ic_user'),
+  },
+  
 ];
 
 export default navConfig;
