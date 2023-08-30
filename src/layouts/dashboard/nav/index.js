@@ -63,7 +63,7 @@ export default function Nav({ openNav, onCloseNav }) {
       }}
     >
       
-      <Box sx={{ px: 2.5, py: 3, display: 'inline-flex'}}>
+      <Box sx={{ px: 4, py: 1, display: 'inline-flex'}}>
         <img src={logo} alt='' />
       </Box>
 
