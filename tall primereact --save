@@ -1,0 +1,23 @@
+[33mcommit 42c9e2ff7130a885f322b9e8921d60a1d64f06af[m[33m ([m[1;36mHEAD -> [m[1;32mdevelopement[m[33m, [m[1;31morigin/developement[m[33m)[m
+Author: A.AJDIR <abdelaliajdir@gmail.com>
+Date:   Tue Aug 29 17:21:54 2023 +0100
+
+    Update in NavBar
+
+[33mcommit 9af989a2ea73184c658b909d52e7b7506f92ae39[m
+Author: A.AJDIR <abdelaliajdir@gmail.com>
+Date:   Tue Aug 29 16:38:36 2023 +0100
+
+    Update in loginPage remove the icons of media
+
+[33mcommit a88b6396736dfa3c4012b79a2f97a5dd7f67fb8e[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m
+Author: A.AJDIR <abdelaliajdir@gmail.com>
+Date:   Tue Aug 29 15:18:32 2023 +0100
+
+    loginPage and dashboard show in load
+
+[33mcommit 84d1c7a279dba1edae9e4e392340ba92e919f879[m
+Author: Othman Nassik <othmannassik1@gmail.com>
+Date:   Tue Aug 29 13:59:43 2023 +0100
+
+    initial commit
