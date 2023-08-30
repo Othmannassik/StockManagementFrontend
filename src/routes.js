@@ -11,7 +11,7 @@ import Etablissements from './pages/Etablissements';
 import Livraison from './pages/Livraison';
 import Prestataires from './pages/Prestataires';
 import Proprietaires from './pages/Proprietaires';
-import TypeMateries from './pages/TypeMateries';
+import TypeMateriels from './pages/TypeMateriels';
 
 // ----------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ export default function Router() {
         { path: 'Livraisons', element: <Livraison />},
         { path: 'prestataires',element: <Prestataires />},
         { path: 'proprietaires', element: <Proprietaires />},
-        { path: 'typeMateries', element: <TypeMateries />}
+        { path: 'typeMateriels', element: <TypeMateriels />}
       ],
     },
     {

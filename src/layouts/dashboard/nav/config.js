@@ -14,7 +14,7 @@ const navConfig = [
   {
     title: 'Matériels',
     path: '/dashboard/materiels',
-    icon: icon('ic_user'),
+    icon: icon('ic_materiel'),
   },
   // {
   //   title: 'Affectation',
@@ -24,17 +24,17 @@ const navConfig = [
   {
     title: 'Commande',
     path: '/dashboard/Commandes',
-    icon: icon('ic_user'),
+    icon: icon('ic_commande'),
   },
   {
     title: 'Etablissement',
     path: '/dashboard/Etablissements',
-    icon: icon('ic_user'),
+    icon: icon('ic_etablissement'),
   },
   {
     title: 'Livraison',
     path: '/dashboard/Livraisons',
-    icon: icon('ic_user'),
+    icon: icon('ic_livraison'),
   },
   {
     title: 'Prestataire',
@@ -44,12 +44,12 @@ const navConfig = [
   {
     title: 'Proprietaire',
     path: '/dashboard/Proprietaires',
-    icon: icon('ic_user'),
+    icon: icon('ic_proprietaire'),
   },
   {
-    title: 'Type of Materie',
-    path: '/dashboard/typeMateries',
-    icon: icon('ic_user'),
+    title: 'Type of Materiels',
+    path: '/dashboard/typeMateriels ',
+    icon: icon('ic_type'),
   },
   
 ];
