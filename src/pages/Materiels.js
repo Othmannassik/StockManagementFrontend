@@ -198,10 +198,10 @@ export default function MaterielsDemo() {
 
     const actionBodyTemplate = (rowData) => {
         return (
-            <fragment>
+            <>
                 <Button icon="pi pi-pencil" rounded className="mr-2" onClick={() => editMateriel(rowData)} />
                 <Button icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeleteMateriel(rowData)} />
-            </fragment>
+            </>
         );
     };
 
@@ -227,22 +227,22 @@ export default function MaterielsDemo() {
         </div>
     );
     const materielDialogFooter = (
-        <fragment>
+        <>
             <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDialog} />
             <Button label="Enregistrer" icon="pi pi-check" onClick={saveMateriel} />
-        </fragment>
+        </>
     );
     const deleteMaterielDialogFooter = (
-        <fragment>
+        <>
             <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteMaterielDialog} />
             <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteMateriel} />
-        </fragment>
+        </>
     );
     const deleteMaterielsDialogFooter = (
-        <fragment>
+        <>
             <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteMaterielsDialog} />
             <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteSelectedMateriels} />
-        </fragment>
+        </>
     );
 
     return (
