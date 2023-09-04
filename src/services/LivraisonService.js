@@ -1,35 +1,73 @@
 export const LivraisonService = {
-    getMaterielData() {
-        return [
-            {
-                "id": 1,
-                "numBonLiv": 4005,
-                "numBonCom": 48,
-                "date:":9/5/2023,
-                "quantity": "7594",
-                "BonLiv":"Dell",
-              },
-              {
-                "id": 2,
-                "numBonLiv": 4006,
-                "numBonCom": 49,
-                "date:":9/5/2023,
-                "quantity": "7595",
-                "BonLiv":"Hp",
-              },
-              {
-                "id": 3,
-                "numBonLiv": 4007,
-                "numBonCom": 50,
-                "date:":10/5/2023,
-                "quantity": "7596",
-                "BonLiv":"Dell"
-              },
-        ];
-    },
-
-    getMateriels() {
-        return Promise.resolve(this.getMaterielData());
-    },
+  getLivraisonsData() {
+      return [
+          {
+            id: '1000',
+            numBl: 'f230fh0g3',
+            numBc:209398,
+            date: '19/08/2023',
+            quantity: 1
+          },
+          {
+            id: '1001',
+            numBl: 'f230fh0g3',
+            numBc:209398,
+            date: '19/08/2023',
+            quantity: 1
+          },
+          {
+            id: '1002',
+            numBl: 'f230fh0g3',
+            numBc:209398,
+            date: '19/08/2023',
+            quantity: 1
+          },
+          {
+            id: '1003',
+            numBl: 'f230fh0g3',
+            numBc:209398,
+            date: '19/08/2023',
+            quantity: 1
+          },
+          {
+            id: '1004',
+            numBl: 'f230fh0g3',
+            numBc:209398,
+            date: '19/08/2023',
+            quantity: 1
+          },
+          {
+            id: '1005',
+            numBl: 'f230fh0g3',
+            numBc:209398,
+            date: '19/08/2023',
+            quantity: 1
+          },
+          {
+            id: '1006',
+            numBl: 'f230fh0g3',
+            numBc:209398,
+            date: '19/08/2023',
+            quantity: 1
+          },
+          {
+            id: '1007',
+            numBl: 'f230fh0g3',
+            numBc:209398,
+            date: '19/08/2023',
+            quantity: 1
+          },
+          {
+            id: '1008',
+            numBl: 'f230fh0g3',
+            numBc:209398,
+            date: '19/08/2023',
+            quantity: 1
+          },
+      ];
+  },
+    getLivraisons(){
+        return Promise.resolve(this.getLivraisonsData());
+    }
 };
 
