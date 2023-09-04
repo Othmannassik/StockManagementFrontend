@@ -8,103 +8,100 @@ import { Toolbar } from 'primereact/toolbar';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { Tag } from 'primereact/tag';
 import { EtablissementService } from '../services/EtablissementService';
 
-
-export default function MaterielsDemo() {
-    const emptyMateriel = {
-        id: null,
-        model: '',
-        numSerie: null,
-        inventaireCih: '',
-        quantity: 0,
+export default function Etablissements() {
+    const emptyEtablissement = {
+        idEtb: null,
+        name: '',
+        adresse: '',
+        ville: '',
+        nb_Materiel: 0,
     };
 
-    const [materiels, setMateriels] = useState(null);
-    const [materielDialog, setMaterielDialog] = useState(false);
-    const [deleteMaterielDialog, setDeleteMaterielDialog] = useState(false);
-    const [deleteMaterielsDialog, setDeleteMaterielsDialog] = useState(false);
-    const [materiel, setMateriel] = useState(emptyMateriel);
-    const [selectedMateriels, setSelectedMateriels] = useState(null);
+    const [etablissements, setEtablissements] = useState(null);
+    const [etablissementDialog, setEtablissementDialog] = useState(false);
+    const [deleteEtablissementDialog, setDeleteEtablissementDialog] = useState(false);
+    const [deleteEtablissementsDialog, setDeleteEtablissementsDialog] = useState(false);
+    const [etablissement, setEtablissement] = useState(emptyEtablissement);
+    const [selectedEtablissements, setSelectedEtablissements] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
 
     useEffect(() => {
-        EtablissementService.getMateriels().then((data) => setMateriels(data));
+        EtablissementService.getEtablissements().then((data) => setEtablissements(data));
     }, []);
 
 
     const openNew = () => {
-        setMateriel(emptyMateriel);
+        setEtablissement(emptyEtablissement);
         setSubmitted(false);
-        setMaterielDialog(true);
+        setEtablissementDialog(true);
     };
 
     const hideDialog = () => {
         setSubmitted(false);
-        setMaterielDialog(false);
+        setEtablissementDialog(false);
     };
 
-    const hideDeleteMaterielDialog = () => {
-        setDeleteMaterielDialog(false);
+    const hideDeleteEtablissementDialog = () => {
+        setDeleteEtablissementDialog(false);
     };
 
-    const hideDeleteMaterielsDialog = () => {
-        setDeleteMaterielsDialog(false);
+    const hideDeleteEtablissementsDialog = () => {
+        setDeleteEtablissementsDialog(false);
     };
 
-    const saveMateriel = () => {
+    const saveEtablissement = () => {
         setSubmitted(true);
 
-        if (materiel.name.trim()) {
-            const _materiels = [...materiels];
-            const _materiel = { ...materiels };
+        if (etablissement.name.trim()) {
+            const _etablissements = [...etablissements];
+            const _etablissement = { ...etablissement };
 
-            if (materiel.id) {
-                const index = findIndexById(materiel.id);
+            if (etablissement.idEtb) {
+                const index = findIndexById(etablissement.idEtb);
 
-                _materiels[index] = _materiel;
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Modifié', life: 3000 });
+                _etablissements[index] = _etablissement;
+                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Etablissement Updated', life: 3000 });
             } else {
-                _materiel.id = createId();
-                _materiel.image = 'product-placeholder.svg';
-                _materiels.push(_materiel);
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Creé', life: 3000 });
+                _etablissement.idEtb = createId(1,1000);
+                _etablissements.push(_etablissement);
+                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Etablissement Created', life: 3000 });
             }
 
-            setMateriels(_materiels);
-            setMaterielDialog(false);
-            setMateriel(emptyMateriel);
+            setEtablissements(_etablissements);
+            setEtablissementDialog(false);
+            setEtablissement(emptyEtablissement);
         }
     };
 
-    const editMateriel = (materiel) => {
-        setMateriel({ ...materiel });
-        setMaterielDialog(true);
+    const editEtablissement = (etablissement) => {
+        setEtablissement({ ...etablissement });
+        setEtablissementDialog(true);
     };
 
-    const confirmDeleteMateriel = (materiel) => {
-        setMateriel(materiel);
-        setDeleteMaterielDialog(true);
+    const confirmDeleteEtablissement = (etablissement) => {
+        setEtablissement(etablissement);
+        setDeleteEtablissementDialog(true);
     };
 
-    const deleteMateriel = () => {
-        const _materiels = materiels.filter((val) => val.id !== materiel.id);
+    const deleteEtablissement = () => {
+        const _etablissements = etablissements.filter((val) => val.idEtb !== etablissement.idEtb);
 
-        setMateriels(_materiels);
-        setDeleteMaterielDialog(false);
-        setMateriel(emptyMateriel);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Supprimé', life: 3000 });
+        setEtablissements(_etablissements);
+        setDeleteEtablissementDialog(false);
+        setEtablissement(emptyEtablissement);
+        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Etablissement Deleted', life: 3000 });
     };
 
     const findIndexById = (id) => {
         let index = -1;
 
-        for (let i = 0; i < materiels.length; i+1) {
-            if (materiels[i].id === id) {
+        for (let i = 0; i < etablissements.length; i+1) {
+            if (etablissements[i].idEtb === id) {
                 index = i;
                 break;
             }
@@ -113,15 +110,8 @@ export default function MaterielsDemo() {
         return index;
     };
 
-    const createId = () => {
-        let id = '';
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-        for (let i = 0; i < 5; i+1) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-
-        return id;
+    const createId = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
     const exportCSV = () => {
@@ -129,120 +119,98 @@ export default function MaterielsDemo() {
     };
 
     const confirmDeleteSelected = () => {
-        setDeleteMaterielsDialog(true);
+        setDeleteEtablissementsDialog(true);
     };
 
-    const deleteSelectedMateriels = () => {
-        const _materiels = materiels.filter((val) => !selectedMateriels.includes(val));
+    const deleteSelectedEtablissements = () => {
+        const _etablissements = etablissements.filter((val) => !selectedEtablissements.includes(val));
 
-        setMateriels(_materiels);
-        setDeleteMaterielsDialog(false);
-        setSelectedMateriels(null);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériaux Supprimés', life: 3000 });
+        setEtablissements(_etablissements);
+        setDeleteEtablissementsDialog(false);
+        setSelectedEtablissements(null);
+        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Etablissements Deleted', life: 3000 });
     };
 
-    const onCategoryChange = (e) => {
-        const _materiel = { ...materiel };
-
-        _materiel.category = e.value;
-        setMateriel(_materiel);
-    };
 
     const onInputChange = (e, name) => {
         const val = (e.target && e.target.value) || '';
-        const _materiel = { ...materiel };
+        const _etablissement = { ...etablissement };
 
-        _materiel[`${name}`] = val;
+        _etablissement[`${name}`] = val;
 
-        setMateriel(_materiel);
+        setEtablissement(_etablissement);
     };
 
     const onInputNumberChange = (e, name) => {
         const val = e.value || 0;
-        const _materiel = { ...materiel };
+        const _etablissement = { ...etablissement };
 
-        _materiel[`${name}`] = val;
+        _etablissement[`${name}`] = val;
 
-        setMateriel(_materiel);
+        setEtablissement(_etablissement);
     };
 
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
-                <Button label="Ajouter" icon="pi pi-plus" severity="success" onClick={openNew} />
-                <Button label="Supprimer" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedMateriels || !selectedMateriels.length} />
+                <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
+                <Button
+                    label="Delete"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    onClick={confirmDeleteSelected}
+                    disabled={!selectedEtablissements || !selectedEtablissements.length}
+                />
             </div>
         );
     };
 
     const rightToolbarTemplate = () => {
-        return (
-          <div className="flex flex-wrap gap-2">
-              <Button label="EXCEL" icon="pi pi-download" className="p-button-help" onClick={exportCSV} />
-              <Button label="PDF" icon="pi pi-download" className="p-button-help" onClick={exportCSV} />
-          </div>
-        );
+        return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />;
     };
 
-    const statusBodyTemplate = (rowData) => {
-      let tag;
-        if(rowData.quantity < 5) {
-          tag = <Tag value="In Stock" severity={getSeverity(rowData)} />;
-        } else if (rowData.quantity < 10) {
-          tag = <Tag value="Warning" severity={getSeverity(rowData)} />;
-        } else {
-          tag = <Tag value="Out of Stock" severity={getSeverity(rowData)} />;
-        }
-        return tag;
-    };
 
     const actionBodyTemplate = (rowData) => {
         return (
-            <fragment>
-                <Button icon="pi pi-pencil" rounded className="mr-2" onClick={() => editMateriel(rowData)} />
-                <Button icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeleteMateriel(rowData)} />
-            </fragment>
+            <>
+                <Button icon="pi pi-pencil" rounded  className="mr-2" onClick={() => editEtablissement(rowData)} />
+                <Button
+                    icon="pi pi-trash"
+                    rounded
+                    severity="danger"
+                    onClick={() => confirmDeleteEtablissement(rowData)}
+                />
+            </>
         );
     };
 
-    const getSeverity = (materiel) => {
-      let status;
-      if(materiel.quantity < 5) {
-        status = "danger";
-      } else if (materiel.quantity < 10) {
-        status = "warning";
-      } else {
-        status = "success";
-      }
-      return status;
-    };
 
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <h4 className="m-0">Liste des Matériels</h4>
+            <h4 className="m-0">Manage Etablissements</h4>
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Chercher..." />
+                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
             </span>
         </div>
     );
-    const materielDialogFooter = (
-        <fragment>
-            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDialog} />
-            <Button label="Enregistrer" icon="pi pi-check" onClick={saveMateriel} />
-        </fragment>
+    const etablissementDialogFooter = (
+        <>
+            <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
+            <Button label="Save" icon="pi pi-check" onClick={saveEtablissement} />
+        </>
     );
-    const deleteMaterielDialogFooter = (
-        <fragment>
-            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteMaterielDialog} />
-            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteMateriel} />
-        </fragment>
+    const deleteEtablissementDialogFooter = (
+        <>
+            <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteEtablissementDialog} />
+            <Button label="Yes" icon="pi pi-check" severity="danger" onClick={deleteEtablissement} />
+        </>
     );
-    const deleteMaterielsDialogFooter = (
-        <fragment>
-            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteMaterielsDialog} />
-            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteSelectedMateriels} />
-        </fragment>
+    const deleteEtablissementsDialogFooter = (
+        <>
+            <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteEtablissementsDialog} />
+            <Button label="Yes" icon="pi pi-check" severity="danger" onClick={deleteSelectedEtablissements} />
+        </>
     );
 
     return (
@@ -251,70 +219,134 @@ export default function MaterielsDemo() {
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
 
-                <DataTable ref={dt} value={materiels} selection={selectedMateriels} onSelectionChange={(e) => setSelectedMateriels(e.value)}
-                        dataKey="id"  paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} materiels" globalFilter={globalFilter} header={header}>
+                <DataTable
+                    ref={dt}
+                    value={etablissements}
+                    selection={selectedEtablissements}
+                    onSelectionChange={(e) => setSelectedEtablissements(e.value)}
+                    dataKey="idEtb"
+                    paginator
+                    rows={10}
+                    rowsPerPageOptions={[5, 10, 25]}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} etablissements"
+                    globalFilter={globalFilter}
+                    header={header}
+                >
                     <Column selectionMode="multiple" exportable={false} />
-                    <Column field="model" header="Modèle" sortable style={{ minWidth: '12rem' }} />
-                    <Column field="numSerie" header="N° Série" style={{ minWidth: '16rem' }} />
-                    <Column field="inventaireCih" header="Inventaire CIH" />
-                    <Column field="quantity" header="Quantité" sortable style={{ minWidth: '8rem' }} />
-                    <Column field="" header="Status" body={statusBodyTemplate} style={{ minWidth: '12rem' }} />
+                    <Column field="idEtb" header="idEtb" sortable style={{ minWidth: '12rem' }} />
+                    <Column field="name" header="Name" sortable style={{ minWidth: '16rem' }} />
+                    <Column field="adresse" header="adresse" sortable style={{ minWidth: '16rem' }} />
+                    <Column field="ville" header="ville" sortable style={{ minWidth: '8rem' }} />
+                    <Column field="nb_Materiel" header="nb_Materiel" sortable style={{ minWidth: '10rem' }} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>
             </div>
 
-            <Dialog visible={materielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Matériel Détails" modal className="p-fluid" footer={materielDialogFooter} onHide={hideDialog}>
+            <Dialog
+                visible={etablissementDialog}
+                style={{ width: '32rem' }}
+                breakpoints={{ '960px': '75vw', '641px': '90vw' }}
+                header="Etablissement Details"
+                modal
+                className="p-fluid"
+                footer={etablissementDialogFooter}
+                onHide={hideDialog}
+            >
+
                 <div className="field">
-                    <span htmlFor="model" className="font-bold">
-                        Modèle
+                    <span htmlFor="name" className="font-bold">
+                        Name
                     </span>
-                    <InputText placeholder='Modèle' id="model" value={materiel.model} onChange={(e) => onInputChange(e, 'model')} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.model })} />
-                    {submitted && !materiel.model && <small className="p-error">Model is required.</small>}
+                    <InputText
+                        id="name"
+                        value={etablissement.name}
+                        onChange={(e) => onInputChange(e, 'name')}
+                        required
+                        autoFocus
+                        className={classNames({ 'p-invalid': submitted && !etablissement.name })}
+                    />
+                    {submitted && !etablissement.name && <small className="p-error">Required.</small>}
                 </div>
+
                 <div className="field">
-                    <span htmlFor="numSerie" className="font-bold">
-                        N° Série
+                    <span htmlFor="adresse" className="font-bold">
+                        Adresse
                     </span>
-                    <InputText placeholder='N° Série' id="numSerie" value={materiel.numSerie} onChange={(e) => onInputChange(e, 'numSerie')} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.numSerie })} />
-                    {submitted && !materiel.numSerie && <small className="p-error">N° Série is required.</small>}
+                    <InputText
+                        id="adresse"
+                        value={etablissement.adresse}
+                        onChange={(e) => onInputChange(e, 'adresse')}
+                        required
+                        autoFocus
+                        className={classNames({ 'p-invalid': submitted && !etablissement.adresse })}
+                    />
+                    {submitted && !etablissement.adresse && <small className="p-error">Required.</small>}
                 </div>
+
                 <div className="field">
-                    <span htmlFor="inventaireCih" className="font-bold">
-                        N° Série
+                    <span htmlFor="ville" className="font-bold">
+                        Ville
                     </span>
-                    <InputText placeholder='Inventaire Cih' id="inventaireCih" value={materiel.inventaireCih} onChange={(e) => onInputChange(e, 'inventaireCih')} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.inventaireCih })} />
-                    {submitted && !materiel.inventaireCih && <small className="p-error">Inventaire Cih is required.</small>}
+                    <InputText
+                        id="ville"
+                        value={etablissement.ville}
+                        onChange={(e) => onInputChange(e, 'ville')}
+                        required
+                        autoFocus
+                        className={classNames({ 'p-invalid': submitted && !etablissement.ville })}
+                    />
+                    {submitted && !etablissement.ville && <small className="p-error">Required.</small>}
                 </div>
-                <div className="formgrid grid">
-                    <div className="field col">
-                        <span htmlFor="quantity" className="font-bold">
-                            Quantité
-                        </span>
-                        <InputNumber id="quantity" value={materiel.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} />
-                    </div>
+
+
+                <div className="field">
+                    <span htmlFor="quantity" className="font-bold">
+                        Quantity
+                    </span>
+                    <InputNumber
+                        id="quantity"
+                        value={etablissement.nb_Materiel}
+                        onValueChange={(e) => onInputNumberChange(e, 'quantity')}
+                    />
+                    {submitted && !etablissement.nb_Materiel && <small className="p-error">Required.</small>}
                 </div>
             </Dialog>
 
-            <Dialog visible={deleteMaterielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteMaterielDialogFooter} onHide={hideDeleteMaterielDialog}>
+            <Dialog
+                visible={deleteEtablissementDialog}
+                style={{ width: '32rem' }}
+                breakpoints={{ '960px': '75vw', '641px': '90vw' }}
+                header="Confirm"
+                modal
+                footer={deleteEtablissementDialogFooter}
+                onHide={hideDeleteEtablissementDialog}
+            >
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {materiel && (
+                    {etablissement && (
                         <span>
-                            Vous Voulez Vraiment Supprimer <b>{materiel.name}</b> ?
+                            Are you sure you want to delete <b>{etablissement.name}</b>?
                         </span>
                     )}
                 </div>
             </Dialog>
 
-            <Dialog visible={deleteMaterielsDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteMaterielsDialogFooter} onHide={hideDeleteMaterielsDialog}>
+            <Dialog
+                visible={deleteEtablissementsDialog}
+                style={{ width: '32rem' }}
+                breakpoints={{ '960px': '75vw', '641px': '90vw' }}
+                header="Confirm"
+                modal
+                footer={deleteEtablissementsDialogFooter}
+                onHide={hideDeleteEtablissementsDialog}
+            >
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {materiel && <span>Vous Voulez Vraiment Effectuer La Suppression ?</span>}
+                    {etablissement && <span>Are you sure you want to delete the selected etablissements?</span>}
                 </div>
             </Dialog>
         </div>
     );
 }
-        
+
