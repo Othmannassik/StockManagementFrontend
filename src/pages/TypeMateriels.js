@@ -52,42 +52,65 @@ export default function TypeMateriels() {
     setDeleteTypeMaterielsDialog(false);
   };
 
+  // const saveTypeMateriel = () => {
+  //   setSubmitted(true);
+
+  //   if (Typemateriel.name.trim()) {
+  //     const _Typemateriels = [...Typemateriels];
+  //     const _Typemateriel = {
+  //       ...Typemateriels
+  //     };
+
+  //     if (Typemateriel.idTypeMat) {
+  //       const index = findIndexById(Typemateriel.idTypeMat);
+
+  //       _Typemateriels[index] = _Typemateriel;
+  //       toast.current.show({
+  //         severity: 'success',
+  //         summary: 'Succès !',
+  //         detail: 'Type Materiel Modifié',
+  //         life: 3000
+  //       });
+  //     } else {
+  //       _Typemateriel.id = createId();
+  //       _Typemateriels.push(_Typemateriel);
+  //       toast.current.show({
+  //         severity: 'success',
+  //         summary: 'Succès !',
+  //         detail: 'Type Materiel Creé',
+  //         life: 3000
+  //       });
+  //     }
+
+  //     setTypeMateriels(_Typemateriels);
+  //     setTypeMaterielDialog(false);
+  //     setTypeMateriel(emptyTypeMateriel);
+  //   }
+  // };
+
   const saveTypeMateriel = () => {
     setSubmitted(true);
 
     if (Typemateriel.name.trim()) {
-      const _Typemateriels = [...Typemateriels];
-      const _Typemateriel = {
-        ...Typemateriels
-      };
+        const _Typemateriels = [...Typemateriels];
+        const _Typemateriel = { ...Typemateriel };
 
-      if (Typemateriel.ididTypeMat) {
-        const index = findIndexById(Typemateriel.idTypeMat);
+        if (Typemateriel.idTypeMat) {
+            const index = findIndexById(Typemateriel.idTypeMat);
 
-        _Typemateriels[index] = _Typemateriel;
-        toast.current.show({
-          severity: 'success',
-          summary: 'Succès !',
-          detail: 'Type Materiel Modifié',
-          life: 3000
-        });
-      } else {
-        _Typemateriel.id = createId();
-        _Typemateriel.image = 'product-placeholder.svg';
-        _Typemateriels.push(_Typemateriel);
-        toast.current.show({
-          severity: 'success',
-          summary: 'Succès !',
-          detail: 'Type Materiel Creé',
-          life: 3000
-        });
-      }
+            _Typemateriels[index] = _Typemateriel;
+            toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
+        } else {
+            _Typemateriel.idTypeMat = createId(1,1000)
+            _Typemateriels.push(_Typemateriel);
+            toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
+        }
 
       setTypeMateriels(_Typemateriels);
       setTypeMaterielDialog(false);
       setTypeMateriel(emptyTypeMateriel);
     }
-  };
+};
 
   const editTypeMateriel = (Typemateriel) => {
     setTypeMateriel({
@@ -102,7 +125,7 @@ export default function TypeMateriels() {
   };
 
   const deleteTypeMateriel = () => {
-    const _Typemateriels = Typemateriels.filter((val) => val.id !== Typemateriel.idTypeMat);
+    const _Typemateriels = Typemateriels.filter((val) => val.idTypeMat !== Typemateriel.idTypeMat);
 
     setTypeMateriels(_Typemateriels);
     setDeleteTypeMaterielDialog(false);
@@ -271,9 +294,9 @@ export default function TypeMateriels() {
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Typemateriels" globalFilter={globalFilter} header={header}>
           <Column selectionMode="multiple" exportable={false} />
-          <Column field="idTypeMat" header="ID" sortable style={{ minWidth: '12rem' }} />
-          <Column field="name" header="Name" style={{ minWidth: '16rem' }} />
-          <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
+          <Column key="idTypeMat" field="idTypeMat" header="ID" sortable style={{ minWidth: '12rem' }} />
+          <Column key="name" field="name" header="Name" style={{ minWidth: '16rem' }} />
+          <Column key="actions" body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
         </DataTable>
       </div>
 

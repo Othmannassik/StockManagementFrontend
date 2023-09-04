@@ -206,6 +206,5 @@ export const TypeMaterielService = {
 
     getTypeMateriels(){
         return Promise.resolve(TypeMaterielService.getTypeMaterielService());
-
     },
 };
