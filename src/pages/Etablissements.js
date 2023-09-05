@@ -224,7 +224,6 @@ export default function Etablissements() {
                     value={etablissements}
                     selection={selectedEtablissements}
                     onSelectionChange={(e) => setSelectedEtablissements(e.value)}
-                    dataKey="idEtb"
                     paginator
                     rows={10}
                     rowsPerPageOptions={[5, 10, 25]}
@@ -234,7 +233,6 @@ export default function Etablissements() {
                     header={header}
                 >
                     <Column selectionMode="multiple" exportable={false} />
-                    <Column field="idEtb" header="idEtb" sortable style={{ minWidth: '12rem' }} />
                     <Column field="name" header="Name" sortable style={{ minWidth: '16rem' }} />
                     <Column field="adresse" header="adresse" sortable style={{ minWidth: '16rem' }} />
                     <Column field="ville" header="ville" sortable style={{ minWidth: '8rem' }} />

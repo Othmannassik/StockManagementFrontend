@@ -45,7 +45,7 @@ export default function LoginPage() {
   return (
     <>
       <Helmet>
-        <title> Login | Minimal UI </title>
+        <title> Login CIH BANK </title>
       </Helmet>
 
       <StyledRoot>
@@ -69,7 +69,7 @@ export default function LoginPage() {
         <Container maxWidth="sm">
           <StyledContent>
             <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
+              Sign in 
             </Typography>
             
             {/* formulaire de login */}

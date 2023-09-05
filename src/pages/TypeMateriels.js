@@ -294,7 +294,6 @@ export default function TypeMateriels() {
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Typemateriels" globalFilter={globalFilter} header={header}>
           <Column selectionMode="multiple" exportable={false} />
-          <Column key="idTypeMat" field="idTypeMat" header="ID" sortable style={{ minWidth: '12rem' }} />
           <Column key="name" field="name" header="Name" style={{ minWidth: '16rem' }} />
           <Column key="actions" body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
         </DataTable>
