@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { classNames } from 'primereact/utils';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
@@ -9,103 +11,137 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
+import { Calendar } from 'primereact/calendar';
+import { Dropdown } from 'primereact/dropdown';
+import { FileUpload } from 'primereact/fileupload';
 import { LivraisonService } from '../services/LivraisonService';
 
-
-export default function LivraisonDemo() {
+export default function LivraisonsDemo() {
     const emptyLivraison = {
         id: null,
-        numBonLiv: null,
-        numBonCom: null,
-        date: "",
+        numBL: null,
+        numBC: null,
+        model: '',
+        date: null,
         quantity: 0,
-        Bonliv: '',
     };
 
-    const [materiels, setMateriels] = useState(null);
-    const [materielDialog, setMaterielDialog] = useState(false);
-    const [deleteMaterielDialog, setDeleteMaterielDialog] = useState(false);
-    const [deleteMaterielsDialog, setDeleteMaterielsDialog] = useState(false);
-    const [materiel, setMateriel] = useState(emptyLivraison);
-    const [selectedMateriels, setSelectedMateriels] = useState(null);
+    const [livraisons, setLivraisons] = useState(null);
+    const [livraisonDialog, setLivraisonDialog] = useState(false);
+    const [deleteLivraisonDialog, setDeleteLivraisonDialog] = useState(false);
+    const [deleteLivraisonsDialog, setDeleteLivraisonsDialog] = useState(false);
+    const [livraison, setLivraison] = useState(emptyLivraison);
+    const [expandedRows, setExpandedRows] = useState(null);
+    const [selectedLivraisons, setSelectedLivraisons] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
+    const _livraison = LivraisonsDemo;
 
     useEffect(() => {
-        LivraisonService.getMateriels().then((data) => setMateriels(data));
+        LivraisonService.getLivraisons().then((data) => setLivraisons(data));
     }, []);
 
+    const addLivraison = () => {
+        if (!livraison.model || !livraison.date || livraison.quantity <= 0) {
+            toast.current.show({ severity: 'error', summary: 'Erreur !', detail: 'Veuillez remplir tous les champs requis.', life: 3000 });
+            return;
+        }
+
+        const newId = createId();
+
+        const newLivraison = {
+            id: newId,
+            numBL: livraison.numBL,
+            numBC: livraison.numBC,
+            model: livraison.model,
+            date: livraison.date,
+            quantity: livraison.quantity,
+            // Ajoutez d'autres propriétés de livraison ici
+        };
+
+        const updatedLivraisons = [...livraisons, newLivraison];
+        setLivraisons(updatedLivraisons);
+
+        setLivraison(emptyLivraison);
+
+        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison ajoutée avec succès.', life: 3000 });
+    };
 
     const openNew = () => {
-        setMateriel(emptyLivraison);
+        setLivraison(emptyLivraison);
         setSubmitted(false);
-        setMaterielDialog(true);
+        setLivraisonDialog(true);
     };
 
     const hideDialog = () => {
         setSubmitted(false);
-        setMaterielDialog(false);
+        setLivraisonDialog(false);
     };
 
-    const hideDeleteMaterielDialog = () => {
-        setDeleteMaterielDialog(false);
+    const hideDeleteLivraisonDialog = () => {
+        setDeleteLivraisonDialog(false);
     };
 
-    const hideDeleteMaterielsDialog = () => {
-        setDeleteMaterielsDialog(false);
+    const hideDeleteLivraisonsDialog = () => {
+        setDeleteLivraisonsDialog(false);
     };
 
-    const saveMateriel = () => {
+    const saveLivraison = () => {
         setSubmitted(true);
-
-        if (materiel.name.trim()) {
-            const _materiels = [...materiels];
-            const _materiel = { ...materiels };
-
-            if (materiel.id) {
-                const index = findIndexById(materiel.id);
-
-                _materiels[index] = _materiel;
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Modifié', life: 3000 });
+    
+        if (livraison.date && livraison.date instanceof Date) {
+            // Formatage de la date en "jour/mois/année" avec la localisation française
+            const formattedDate = format(livraison.date, 'dd/MM/yyyy', { locale: fr });
+    
+            const _livraisons = [...livraisons];
+            const _livraison = { ...livraison, date: formattedDate };
+    
+            if (livraison.id) {
+                const index = findIndexById(livraison.id);
+    
+                _livraisons[index] = _livraison;
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Modifié', life: 3000 });
             } else {
-                _materiel.id = createId();
-                _materiel.image = 'product-placeholder.svg';
-                _materiels.push(_materiel);
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Creé', life: 3000 });
+                _livraison.id = createId();
+                _livraison.image = 'product-placeholder.svg';
+                _livraisons.push(_livraison);
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Créé', life: 3000 });
             }
-
-            setMateriels(_materiels);
-            setMaterielDialog(false);
-            setMateriel(emptyLivraison);
+    
+            setLivraisons(_livraisons);
+            setLivraisonDialog(false);
+            setLivraison(emptyLivraison);
         }
     };
+    
+    
 
-    const editMateriel = (materiel) => {
-        setMateriel({ ...materiel });
-        setMaterielDialog(true);
+    const editLivraison = (livraison) => {
+        setLivraison({ ...livraison });
+        setLivraisonDialog(true);
     };
 
-    const confirmDeleteMateriel = (materiel) => {
-        setMateriel(materiel);
-        setDeleteMaterielDialog(true);
+    const confirmDeleteLivraison = (livraison) => {
+        setLivraison(livraison);
+        setDeleteLivraisonDialog(true);
     };
 
-    const deleteMateriel = () => {
-        const _materiels = materiels.filter((val) => val.id !== materiel.id);
+    const deleteLivraison = () => {
+        const _livraisons = livraisons.filter((val) => val.id !== livraison.id);
 
-        setMateriels(_materiels);
-        setDeleteMaterielDialog(false);
-        setMateriel(emptyLivraison);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Supprimé', life: 3000 });
+        setLivraisons(_livraisons);
+        setDeleteLivraisonDialog(false);
+        setLivraison(emptyLivraison);
+        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Supprimée', life: 3000 });
     };
 
     const findIndexById = (id) => {
         let index = -1;
 
-        for (let i = 0; i < materiels.length; i+1) {
-            if (materiels[i].id === id) {
+        for (let i = 0; i < livraisons.length; i+=1) {
+            if (livraisons[i].id === id) {
                 index = i;
                 break;
             }
@@ -118,7 +154,7 @@ export default function LivraisonDemo() {
         let id = '';
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-        for (let i = 0; i < 5; i+1) {
+        for (let i = 0; i < 5; i+=1) {
             id += chars.charAt(Math.floor(Math.random() * chars.length));
         }
 
@@ -130,48 +166,41 @@ export default function LivraisonDemo() {
     };
 
     const confirmDeleteSelected = () => {
-        setDeleteMaterielsDialog(true);
+        setDeleteLivraisonsDialog(true);
     };
 
-    const deleteSelectedMateriels = () => {
-        const _materiels = materiels.filter((val) => !selectedMateriels.includes(val));
+    const deleteSelectedLivraisons = () => {
+        const _livraisons = livraisons.filter((val) => !selectedLivraisons.includes(val));
 
-        setMateriels(_materiels);
-        setDeleteMaterielsDialog(false);
-        setSelectedMateriels(null);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériaux Supprimés', life: 3000 });
-    };
-
-    const onCategoryChange = (e) => {
-        const _materiel = { ...materiel };
-
-        _materiel.category = e.value;
-        setMateriel(_materiel);
+        setLivraisons(_livraisons);
+        setDeleteLivraisonsDialog(false);
+        setSelectedLivraisons(null);
+        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraisons Supprimées', life: 3000 });
     };
 
     const onInputChange = (e, name) => {
         const val = (e.target && e.target.value) || '';
-        const _materiel = { ...materiel };
+        const _livraison = { ...livraison };
 
-        _materiel[`${name}`] = val;
+        _livraison[`${name}`] = val;
 
-        setMateriel(_materiel);
+        setLivraison(_livraison);
     };
 
     const onInputNumberChange = (e, name) => {
         const val = e.value || 0;
-        const _materiel = { ...materiel };
+        const _livraison = { ...livraison };
 
-        _materiel[`${name}`] = val;
+        _livraison[`${name}`] = val;
 
-        setMateriel(_materiel);
+        setLivraison(_livraison);
     };
 
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
-                <Button label="Ajouter" icon="pi pi-plus" severity="success" onClick={openNew} />
-                <Button label="Supprimer" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedMateriels || !selectedMateriels.length} />
+                <Button label="Ajouter" icon="pi pi-plus" raised severity="success" onClick={openNew} />
+                <Button label="Supprimer" icon="pi pi-trash" raised severity="danger" onClick={confirmDeleteSelected} disabled={!selectedLivraisons || !selectedLivraisons.length} />
             </div>
         );
     };
@@ -179,43 +208,157 @@ export default function LivraisonDemo() {
     const rightToolbarTemplate = () => {
         return (
           <div className="flex flex-wrap gap-2">
-              <Button label="EXCEL" icon="pi pi-download" className="p-button-help" onClick={exportCSV} />
-              <Button label="PDF" icon="pi pi-download" className="p-button-help" onClick={exportCSV} />
+              <Button icon="pi pi-download" severity="secondary" onClick={exportCSV} />
           </div>
         );
     };
 
-    const statusBodyTemplate = (rowData) => {
-      let tag;
-        if(rowData.quantity < 5) {
-          tag = <Tag value="In Stock" severity={getSeverity(rowData)} />;
-        } else if (rowData.quantity < 10) {
-          tag = <Tag value="Warning" severity={getSeverity(rowData)} />;
-        } else {
-          tag = <Tag value="Out of Stock" severity={getSeverity(rowData)} />;
-        }
-        return tag;
+    const bonLivAction = () => {
+        return (
+            <fragment>
+                <Button label='Bon Liv' icon="pi pi-download" rounded className="mr-2" />
+            </fragment>
+        );
+    };
+
+    const getSeverity = (rowData) => {
+      let status;
+      if(rowData.status === "CREATED") {
+        status = "info";
+      } else if (rowData.status === "PENDING") {
+        status = "warning";
+      } else if (rowData.status === "DELIVERED") {
+        status = "success";
+      } else {
+        status = "danger";
+      }
+      return status;
     };
 
     const actionBodyTemplate = (rowData) => {
         return (
             <fragment>
-                <Button icon="pi pi-pencil" rounded className="mr-2" onClick={() => editMateriel(rowData)} />
-                <Button icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeleteMateriel(rowData)} />
+                <Button icon="pi pi-pencil" rounded className="mr-2" onClick={() => editLivraison(rowData)} />
+                <Button icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeleteLivraison(rowData)} />
             </fragment>
         );
     };
 
-    const getSeverity = (materiel) => {
-      let status;
-      if(materiel.quantity < 5) {
-        status = "danger";
-      } else if (materiel.quantity < 10) {
-        status = "warning";
-      } else {
-        status = "success";
-      }
-      return status;
+    const statusBodyTemplate = (rowData) => {
+        let tag;
+          if(rowData.status === "CREATED") {
+            tag = <Tag value="CRÉÉ" severity={getSeverity(rowData)} />;
+          } else if (rowData.status === "PENDING") {
+            tag = <Tag value="EN ATTENTE" severity={getSeverity(rowData)} />;
+          } else if (rowData.status === "DELIVERED") {
+            tag = <Tag value="LIVRÉ" severity={getSeverity(rowData)} />;
+          }else {
+            tag = <Tag value="ANNULÉ" severity={getSeverity(rowData)} />;
+          }
+          return tag;
+      };
+
+    const prestataires = [
+        { name: 'Hicham' },
+        { name: 'Haitem' },
+        { name: 'Soufiane' },
+        { name: 'Khalil' },
+        { name: 'Adam' },
+        { name: 'Akram' },
+        { name: 'Bader' },
+    ];
+
+    const selectedPrestataireTemplate = (option, props) => {
+        if (option) {
+            return (
+                <div className="flex align-items-center">
+                    <div>{option.name}</div>
+                </div>
+            );
+        }
+
+        return <span>{props.placeholder}</span>;
+    };
+
+    const prestataireOptionTemplate = (option) => {
+        return (
+            <div className="flex align-items-center">
+                <div>{option.name}</div>
+            </div>
+        );
+    };
+
+    const typeMateriels = [
+        { name: 'Laptop' },
+        { name: 'PC Bureau' },
+        { name: 'Lecteur NFC' },
+        { name: 'Imprimante' },
+        { name: 'Scanner' },
+        
+    ];
+
+    const selectedTypeMaterielTemplate = (option, props) => {
+        if (option) {
+            return (
+                <div className="flex align-items-center">
+                    <div>{option.name}</div>
+                </div>
+            );
+        }
+
+        return <span>{props.placeholder}</span>;
+    };
+
+    const typeMaterielOptionTemplate = (option) => {
+        return (
+            <div className="flex align-items-center">
+                <div>{option.name}</div>
+            </div>
+        );
+    };
+
+    const Etablissements = [
+        { name: 'Agence Anassi' },
+        { name: 'Siege Casa' },
+        { name: 'DG Khouribga' },
+        { name: 'Agence Maarif' },
+        
+    ];
+
+    const selectedEtablissementTemplate = (option, props) => {
+        if (option) {
+            return (
+                <div className="flex align-items-center">
+                    <div>{option.name}</div>
+                </div>
+            );
+        }
+
+        return <span>{props.placeholder}</span>;
+    };
+
+    const EtablissementOptionTemplate = (option) => {
+        return (
+            <div className="flex align-items-center">
+                <div>{option.name}</div>
+            </div>
+        );
+    };
+
+    const allowExpansion = (rowData) => {
+        return true;
+    };
+
+    const rowExpansionTemplate = (data) => {
+        return (
+            <div className="p-2">
+                <div className="formgrid grid">
+                    <div className="field col">
+                        <h4>Livraisons du :  {data.numBC}</h4>
+                    </div>
+                </div>
+            </div>
+        );
     };
 
     const header = (
@@ -227,22 +370,25 @@ export default function LivraisonDemo() {
             </span>
         </div>
     );
-    const materielDialogFooter = (
+
+    const livraisonDialogFooter = (
         <fragment>
             <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDialog} />
-            <Button label="Enregistrer" icon="pi pi-check" onClick={saveMateriel} />
+            <Button label="Enregistrer" icon="pi pi-check" onClick={saveLivraison} />
         </fragment>
     );
-    const deleteMaterielDialogFooter = (
+
+    const deleteLivraisonDialogFooter = (
         <fragment>
-            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteMaterielDialog} />
-            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteMateriel} />
+            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteLivraisonDialog} />
+            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteLivraison} />
         </fragment>
     );
-    const deleteMaterielsDialogFooter = (
+
+    const deleteLivraisonsDialogFooter = (
         <fragment>
-            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteMaterielsDialog} />
-            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteSelectedMateriels} />
+            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteLivraisonsDialog} />
+            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteSelectedLivraisons} />
         </fragment>
     );
 
@@ -252,71 +398,67 @@ export default function LivraisonDemo() {
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
 
-                <DataTable ref={dt} value={materiels} selection={selectedMateriels} onSelectionChange={(e) => setSelectedMateriels(e.value)}
-                        dataKey="id"  paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} materiels" globalFilter={globalFilter} header={header}>
-                    <Column selectionMode="multiple" exportable={false} />
-                    <Column field="numBonLiv" header="N° BonLiv" sortable style={{ minWidth: '12rem' }} />
-                    <Column field="numBonCom" header="N° BonCom" style={{ minWidth: '16rem' }} />
-                    <Column field="Date" header="Date" />
-                    <Column field="quantity" header="Quantité" sortable style={{ minWidth: '8rem' }} />
-                    <Column field="" header="BonLivraison"  style={{ minWidth: '12rem' }} />
-                    <Column field="" header="Status" body={statusBodyTemplate} style={{ minWidth: '12rem' }} />
-                    <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
-                </DataTable>
+                <DataTable value={livraisons} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)}
+                    rowExpansionTemplate={rowExpansionTemplate} selection={selectedLivraisons} onSelectionChange={(e) => setSelectedLivraisons(e.value)}
+                    dataKey="id" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} livraisons" globalFilter={globalFilter}  header={header} tableStyle={{ minWidth: '60rem' }}>
+                <Column selectionMode="multiple" exportable={false} />
+                {/* <Column expander={allowExpansion} style={{ width: '5rem' }} /> */}
+                <Column field="numBl" header="N° BL" />
+                <Column field="numBc" header="N° BC" />
+                <Column field="date" header="Date" sortable/>
+                <Column field="quantity" header="Quantité" sortable />
+                <Column field="" header="Bon Livraison" body={bonLivAction} />
+                <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
+            </DataTable>
             </div>
-
-            <Dialog visible={materielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Matériel Détails" modal className="p-fluid" footer={materielDialogFooter} onHide={hideDialog}>
+            <Dialog visible={livraisonDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Matériel Détails" modal className="p-fluid" footer={livraisonDialogFooter} onHide={hideDialog}>
                 <div className="field">
-                    <span htmlFor="model" className="font-bold">
-                        numBonLiv
-                    </span>
-                    <InputText placeholder='numBonLiv' id="model" value={materiel.model} onChange={(e) => onInputChange(e, 'model')} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.model })} />
-                    {submitted && !materiel.model && <small className="p-error">Model is required.</small>}
-                </div>
-                <div className="field">
-                    <span htmlFor="numBonCom" className="font-bold">
-                        N° BonCom
-                    </span>
-                    <InputText placeholder='N° Bon Commande' id="numBonCom" value={materiel.numSerie} onChange={(e) => onInputChange(e, 'numBonCom')} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.numSerie })} />
-                    {submitted && !materiel.numSerie && <small className="p-error">N° Série is required.</small>}
-                </div>
-                <div className="field">
-                    <span htmlFor="Date" className="font-bold">
+                    <span htmlFor="date" className="font-bold">
                         Date
                     </span>
-                    <InputText placeholder='Date' id="Date" value={materiel.inventaireCih} onChange={(e) => onInputChange(e, 'Date')} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.Date })} />
-                    {submitted && !materiel.Date && <small className="p-error">Date</small>}
+                    <Calendar value={livraison.date} onChange={(e) => onInputChange(e, 'date')}  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.date })}/>
+                    {submitted && !livraison.date && <small className="p-error">Date is required.</small>}
+                </div>  
+                <div className="field">
+                    <span htmlFor="prestataire" className="font-bold">
+                        Prestataire
+                    </span>
+                    <Dropdown value={livraison.prestataire} onChange={(e) => onInputChange(e, 'prestataire')} options={prestataires} optionLabel="name" placeholder="Select a Prestataire" 
+                            filter valueTemplate={selectedPrestataireTemplate} itemTemplate={prestataireOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.prestataire })} />
+                    {submitted && !_livraison.prestataire && <small className="p-error">Prestataire is required.</small>}
                 </div>
-                <div className="formgrid grid">
-                    <div className="field col">
-                        <span htmlFor="quantity" className="font-bold">
-                            Quantité
-                        </span>
-                        <InputNumber id="quantity" value={materiel.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} />
-                    </div>
+                <div className="field">
+                    <span htmlFor="materiel" className="font-bold">
+                        Matériel
+                    </span>
+                    <InputText placeholder='materiel' id="materiel" value={livraison.materiel} onChange={(e) => onInputChange(e, 'materiel')} required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.materiel })} />
+                    {submitted && !livraison.materiel && <small className="p-error">Matériel is required.</small>}
+                </div>  
+                <div className="field">
+                    <span htmlFor="quantity" className="font-bold">
+                        Quantité
+                    </span>
+                    <InputNumber placeholder='quantity' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus className={classNames({ 'p-invalid': submitted && livraison.quantity <= 0 })} />
+                    {submitted && livraison.quantity <= 0 && <small className="p-error">Quantité must be greater than 0.</small>}
                 </div>
             </Dialog>
 
-            <Dialog visible={deleteMaterielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteMaterielDialogFooter} onHide={hideDeleteMaterielDialog}>
+            <Dialog visible={deleteLivraisonDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteLivraisonDialogFooter} onHide={hideDeleteLivraisonDialog}>
                 <div className="confirmation-content">
-                    <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {materiel && (
-                        <span>
-                            Vous Voulez Vraiment Supprimer <b>{materiel.name}</b> ?
-                        </span>
-                    )}
+                    <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem' }} />
+                    {livraison && <span>Êtes-vous sûr de vouloir supprimer la livraison <b>{livraison.numBL}</b>?</span>}
                 </div>
             </Dialog>
 
-            <Dialog visible={deleteMaterielsDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteMaterielsDialogFooter} onHide={hideDeleteMaterielsDialog}>
+            <Dialog visible={deleteLivraisonsDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteLivraisonsDialogFooter} onHide={hideDeleteLivraisonsDialog}>
                 <div className="confirmation-content">
-                    <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {materiel && <span>Vous Voulez Vraiment Effectuer La Suppression ?</span>}
+                    <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem' }} />
+                    {selectedLivraisons && <span>Êtes-vous sûr de vouloir supprimer les livraisons sélectionnées?</span>}
                 </div>
             </Dialog>
         </div>
     );
 }
-        
+

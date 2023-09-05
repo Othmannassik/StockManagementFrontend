@@ -12,99 +12,100 @@ import { Tag } from 'primereact/tag';
 import { PrestataireService } from '../services/PrestataireService';
 
 
-export default function MaterielsDemo() {
-    const emptyMateriel = {
+export default function MaterielsDemo() { 
+    const emptyPrestataire = {
         id: null,
         model: '',
-        numSerie: null,
-        inventaireCih: '',
-        quantity: 0,
+        Email:'',
+        Tel: null,
+        nbcmd: 0,
+        adresse:'',
     };
 
-    const [materiels, setMateriels] = useState(null);
-    const [materielDialog, setMaterielDialog] = useState(false);
-    const [deleteMaterielDialog, setDeleteMaterielDialog] = useState(false);
-    const [deleteMaterielsDialog, setDeleteMaterielsDialog] = useState(false);
-    const [materiel, setMateriel] = useState(emptyMateriel);
-    const [selectedMateriels, setSelectedMateriels] = useState(null);
+    const [prestataires, setPrestataires] = useState(null);
+    const [prestataireDialog, setPrestataireDialog] = useState(false);
+    const [deletePrestataireDialog, setDeletePrestataireDialog] = useState(false);
+    const [deletePrestatairesDialog, setDeletePrestatairesDialog] = useState(false);
+    const [prestataire, setPrestataire] = useState(emptyPrestataire);
+    const [selectedPrestataires, setSelectedPrestataires] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
 
     useEffect(() => {
-        PrestataireService.getMateriels().then((data) => setMateriels(data));
+        PrestataireService.getPrestataires().then((data) => setPrestataires(data));
     }, []);
 
 
     const openNew = () => {
-        setMateriel(emptyMateriel);
+        setPrestataire(emptyPrestataire);
         setSubmitted(false);
-        setMaterielDialog(true);
+        setPrestataireDialog(true);
     };
 
     const hideDialog = () => {
         setSubmitted(false);
-        setMaterielDialog(false);
+        setPrestataireDialog(false);
     };
 
-    const hideDeleteMaterielDialog = () => {
-        setDeleteMaterielDialog(false);
+    const hideDeletePrestataireDialog = () => {
+        setDeletePrestataireDialog(false);
     };
 
-    const hideDeleteMaterielsDialog = () => {
-        setDeleteMaterielsDialog(false);
+    const hidePrestatairesDialog = () => {
+        setDeletePrestatairesDialog(false);
     };
 
-    const saveMateriel = () => {
+    const savePrestataire = () => {
         setSubmitted(true);
 
-        if (materiel.name.trim()) {
-            const _materiels = [...materiels];
-            const _materiel = { ...materiels };
+        if (prestataire.name.trim()) {
+            const _prestataires = [...prestataires];
+            const _prestataire = { ...prestataires };
 
-            if (materiel.id) {
-                const index = findIndexById(materiel.id);
+            if (prestataire.id) {
+                const index = findIndexById(prestataire.id);
 
-                _materiels[index] = _materiel;
+                _prestataires[index] = _prestataire;
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Modifié', life: 3000 });
             } else {
-                _materiel.id = createId();
-                _materiel.image = 'product-placeholder.svg';
-                _materiels.push(_materiel);
+                _prestataire.id = createId();
+                _prestataire.image = 'product-placeholder.svg';
+                _prestataires.push(_prestataire);
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Creé', life: 3000 });
             }
 
-            setMateriels(_materiels);
-            setMaterielDialog(false);
-            setMateriel(emptyMateriel);
+            setPrestataires(_prestataires);
+            setPrestataireDialog(false);
+            setPrestataire(emptyPrestataire);
         }
     };
 
-    const editMateriel = (materiel) => {
-        setMateriel({ ...materiel });
-        setMaterielDialog(true);
+    const editPrestataire = (prestataire) => {
+        setPrestataire({ ...prestataire });
+        setPrestataireDialog(true);
     };
 
-    const confirmDeleteMateriel = (materiel) => {
-        setMateriel(materiel);
-        setDeleteMaterielDialog(true);
+    const confirmDeletePrestataire = (prestataire) => {
+        setPrestataire(prestataire);
+        setDeletePrestataireDialog(true);
     };
 
-    const deleteMateriel = () => {
-        const _materiels = materiels.filter((val) => val.id !== materiel.id);
+    const deletePrestataire = () => {
+        const _prestataires = prestataires.filter((val) => val.id !== prestataire.id);
 
-        setMateriels(_materiels);
-        setDeleteMaterielDialog(false);
-        setMateriel(emptyMateriel);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Supprimé', life: 3000 });
+        setPrestataires(_prestataires);
+        setDeletePrestataireDialog(false);
+        setPrestataire(emptyPrestataire);
+        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Supprimé', life: 3000 });
     };
 
     const findIndexById = (id) => {
         let index = -1;
 
-        for (let i = 0; i < materiels.length; i+1) {
-            if (materiels[i].id === id) {
+        for (let i = 0; i < prestataires.length; i+1) {
+            if (prestataires[i].id === id) {
                 index = i;
                 break;
             }
@@ -129,48 +130,48 @@ export default function MaterielsDemo() {
     };
 
     const confirmDeleteSelected = () => {
-        setDeleteMaterielsDialog(true);
+        setDeletePrestatairesDialog(true);
     };
 
-    const deleteSelectedMateriels = () => {
-        const _materiels = materiels.filter((val) => !selectedMateriels.includes(val));
+    const deleteSelectedPrestataires = () => {
+        const _prestataires = prestataires.filter((val) => !selectedPrestataires.includes(val));
 
-        setMateriels(_materiels);
-        setDeleteMaterielsDialog(false);
-        setSelectedMateriels(null);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériaux Supprimés', life: 3000 });
+        setPrestataires(_prestataires);
+        setDeletePrestatairesDialog(false);
+        setSelectedPrestataires(null);
+        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Supprimé', life: 3000 });
     };
 
     const onCategoryChange = (e) => {
-        const _materiel = { ...materiel };
+        const _prestataire = { ...prestataire };
 
-        _materiel.category = e.value;
-        setMateriel(_materiel);
+        _prestataire.category = e.value;
+        setPrestataire(_prestataire);
     };
 
     const onInputChange = (e, name) => {
         const val = (e.target && e.target.value) || '';
-        const _materiel = { ...materiel };
+        const _prestataire = { ...prestataire };
 
-        _materiel[`${name}`] = val;
+        _prestataire[`${name}`] = val;
 
-        setMateriel(_materiel);
+        setPrestataire(_prestataire);
     };
 
     const onInputNumberChange = (e, name) => {
         const val = e.value || 0;
-        const _materiel = { ...materiel };
+        const _prestataire = { ...prestataire };
 
-        _materiel[`${name}`] = val;
+        _prestataire[`${name}`] = val;
 
-        setMateriel(_materiel);
+        setPrestataire(_prestataire);
     };
 
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
                 <Button label="Ajouter" icon="pi pi-plus" severity="success" onClick={openNew} />
-                <Button label="Supprimer" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedMateriels || !selectedMateriels.length} />
+                <Button label="Supprimer" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedPrestataires || !selectedPrestataires.length} />
             </div>
         );
     };
@@ -184,64 +185,41 @@ export default function MaterielsDemo() {
         );
     };
 
-    const statusBodyTemplate = (rowData) => {
-      let tag;
-        if(rowData.quantity < 5) {
-          tag = <Tag value="In Stock" severity={getSeverity(rowData)} />;
-        } else if (rowData.quantity < 10) {
-          tag = <Tag value="Warning" severity={getSeverity(rowData)} />;
-        } else {
-          tag = <Tag value="Out of Stock" severity={getSeverity(rowData)} />;
-        }
-        return tag;
-    };
-
     const actionBodyTemplate = (rowData) => {
         return (
             <fragment>
-                <Button icon="pi pi-pencil" rounded className="mr-2" onClick={() => editMateriel(rowData)} />
-                <Button icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeleteMateriel(rowData)} />
+                <Button icon="pi pi-pencil" rounded className="mr-2" onClick={() => editPrestataire(rowData)} />
+                <Button icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeletePrestataire(rowData)} />
             </fragment>
         );
     };
 
-    const getSeverity = (materiel) => {
-      let status;
-      if(materiel.quantity < 5) {
-        status = "danger";
-      } else if (materiel.quantity < 10) {
-        status = "warning";
-      } else {
-        status = "success";
-      }
-      return status;
-    };
 
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <h4 className="m-0">Liste des Matériels</h4>
+            <h4 className="m-0">Liste des Prestataires</h4>
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Chercher..." />
             </span>
         </div>
     );
-    const materielDialogFooter = (
+    const prestataireDialogFooter = (
         <fragment>
             <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDialog} />
-            <Button label="Enregistrer" icon="pi pi-check" onClick={saveMateriel} />
+            <Button label="Enregistrer" icon="pi pi-check" onClick={savePrestataire} />
         </fragment>
     );
-    const deleteMaterielDialogFooter = (
+    const deletePrestataireDialogFooter = (
         <fragment>
-            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteMaterielDialog} />
-            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteMateriel} />
+            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeletePrestataireDialog} />
+            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deletePrestataire} />
         </fragment>
     );
-    const deleteMaterielsDialogFooter = (
+    const deletePrestatairesDialogFooter = (
         <fragment>
-            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteMaterielsDialog} />
-            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteSelectedMateriels} />
+            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeletePrestataireDialog} />
+            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteSelectedPrestataires} />
         </fragment>
     );
 
@@ -251,67 +229,67 @@ export default function MaterielsDemo() {
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
 
-                <DataTable ref={dt} value={materiels} selection={selectedMateriels} onSelectionChange={(e) => setSelectedMateriels(e.value)}
+                <DataTable ref={dt} value={prestataires} selection={selectedPrestataires} onSelectionChange={(e) => setSelectedPrestataires(e.value)}
                         dataKey="id"  paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} materiels" globalFilter={globalFilter} header={header}>
                     <Column selectionMode="multiple" exportable={false} />
-                    <Column field="model" header="Modèle" sortable style={{ minWidth: '12rem' }} />
-                    <Column field="numSerie" header="N° Série" style={{ minWidth: '16rem' }} />
-                    <Column field="inventaireCih" header="Inventaire CIH" />
-                    <Column field="quantity" header="Quantité" sortable style={{ minWidth: '8rem' }} />
-                    <Column field="" header="Status" body={statusBodyTemplate} style={{ minWidth: '12rem' }} />
+                    <Column field="Raison Social" header="Raison Social" sortable style={{ minWidth: '12rem' }} />
+                    <Column field="Email" header="Email" style={{ minWidth: '16rem' }} />
+                    <Column field="Téléphone" header="Téléphone" />
+                    <Column field="Adresse" header="adresse" sortable style={{ minWidth: '8rem' }} />
+                    <Column field="nbcmd" header="nbcmd"  style={{ minWidth: '12rem' }} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>
             </div>
 
-            <Dialog visible={materielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Matériel Détails" modal className="p-fluid" footer={materielDialogFooter} onHide={hideDialog}>
+            <Dialog visible={prestataireDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Matériel Détails" modal className="p-fluid" footer={prestataireDialogFooter} onHide={hideDialog}>
                 <div className="field">
-                    <span htmlFor="model" className="font-bold">
-                        Modèle
+                    <span htmlFor="Raison Social" className="font-bold">
+                        Raison Social
                     </span>
-                    <InputText placeholder='Modèle' id="model" value={materiel.model} onChange={(e) => onInputChange(e, 'model')} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.model })} />
-                    {submitted && !materiel.model && <small className="p-error">Model is required.</small>}
+                    <InputText placeholder='Raison Social' id="model" value={prestataire.model} onChange={(e) => onInputChange(e, 'model')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.model })} />
+                    {submitted && !prestataire.model && <small className="p-error">Raison Social is required.</small>}
                 </div>
                 <div className="field">
-                    <span htmlFor="numSerie" className="font-bold">
-                        N° Série
+                    <span htmlFor="Email" className="font-bold">
+                        Email
                     </span>
-                    <InputText placeholder='N° Série' id="numSerie" value={materiel.numSerie} onChange={(e) => onInputChange(e, 'numSerie')} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.numSerie })} />
-                    {submitted && !materiel.numSerie && <small className="p-error">N° Série is required.</small>}
+                    <InputText placeholder='Email' id="Email" value={prestataire.Email} onChange={(e) => onInputChange(e, 'Email')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.Email })} />
+                    {submitted && !prestataire.Email && <small className="p-error">Email is required.</small>}
                 </div>
                 <div className="field">
-                    <span htmlFor="inventaireCih" className="font-bold">
-                        N° Série
+                    <span htmlFor="Téléphone" className="font-bold">
+                        Téléphone
                     </span>
-                    <InputText placeholder='Inventaire Cih' id="inventaireCih" value={materiel.inventaireCih} onChange={(e) => onInputChange(e, 'inventaireCih')} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.inventaireCih })} />
-                    {submitted && !materiel.inventaireCih && <small className="p-error">Inventaire Cih is required.</small>}
+                    <InputText placeholder='Téléphone' id="Téléphone" value={prestataire.Téléphone} onChange={(e) => onInputChange(e, 'Téléphone')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.Téléphone })} />
+                    {submitted && !prestataire.Téléphone && <small className="p-error">Téléphone is required.</small>}
                 </div>
                 <div className="formgrid grid">
                     <div className="field col">
-                        <span htmlFor="quantity" className="font-bold">
-                            Quantité
+                        <span htmlFor="Adresse" className="font-bold">
+                            Adresse
                         </span>
-                        <InputNumber id="quantity" value={materiel.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} />
+                        <InputNumber id="Adresse" value={prestataire.Adresse} onValueChange={(e) => onInputNumberChange(e, 'Adresse')} />
                     </div>
                 </div>
             </Dialog>
 
-            <Dialog visible={deleteMaterielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteMaterielDialogFooter} onHide={hideDeleteMaterielDialog}>
+            <Dialog visible={deletePrestataireDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deletePrestataireDialogFooter} onHide={hideDeletePrestataireDialog}>
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {materiel && (
+                    {prestataire && (
                         <span>
-                            Vous Voulez Vraiment Supprimer <b>{materiel.name}</b> ?
+                            Vous Voulez Vraiment Supprimer <b>{prestataire.name}</b> ?
                         </span>
                     )}
                 </div>
             </Dialog>
 
-            <Dialog visible={deleteMaterielsDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteMaterielsDialogFooter} onHide={hideDeleteMaterielsDialog}>
+            <Dialog visible={deletePrestatairesDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deletePrestatairesDialogFooter} onHide={hideDeletePrestataireDialog}>
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {materiel && <span>Vous Voulez Vraiment Effectuer La Suppression ?</span>}
+                    {prestataire && <span>Vous Voulez Vraiment Effectuer La Suppression ?</span>}
                 </div>
             </Dialog>
         </div>
