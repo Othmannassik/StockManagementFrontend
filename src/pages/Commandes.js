@@ -185,6 +185,13 @@ export default function CommandesDemo() {
         );
     };
 
+    const bonCmdAction = () => {
+        return (
+            <fragment>
+                <Button label='Bon Cmd' icon="pi pi-download" rounded className="mr-2" />
+            </fragment>
+        );
+    };
     
 
     const bonLivAction = () => {
@@ -392,6 +399,7 @@ export default function CommandesDemo() {
                 <Column field="prestataire" header="Prestataire" />
                 <Column field="materiel" header="Matériel" />
                 <Column field="typeMateriel" header="Type Matériel" />
+                <Column field="" header="Bon Commande" body={bonCmdAction}  />
                 <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
             </DataTable>
             </div>
