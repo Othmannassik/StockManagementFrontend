@@ -231,7 +231,7 @@ export default function TypeMateriels() {
   const rightToolbarTemplate = () => {
     return (
       <div className="flex flex-wrap gap-2">
-        <Button label="EXCEL" icon="pi pi-download" className="p-button-help" onClick={exportCSV} />
+        <Button icon="pi pi-download" severity="secondary" onClick={exportCSV} />
       </div>
     );
   };

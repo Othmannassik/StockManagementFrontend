@@ -166,7 +166,7 @@ export default function Etablissements() {
     };
 
     const rightToolbarTemplate = () => {
-        return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />;
+        return <Button icon="pi pi-download" severity="secondary" onClick={exportCSV} />
     };
 
 
@@ -224,6 +224,7 @@ export default function Etablissements() {
                     value={etablissements}
                     selection={selectedEtablissements}
                     onSelectionChange={(e) => setSelectedEtablissements(e.value)}
+
                     paginator
                     rows={10}
                     rowsPerPageOptions={[5, 10, 25]}
