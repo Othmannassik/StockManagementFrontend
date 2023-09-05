@@ -5,7 +5,6 @@ import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
-// import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
@@ -52,41 +51,6 @@ export default function TypeMateriels() {
     setDeleteTypeMaterielsDialog(false);
   };
 
-  // const saveTypeMateriel = () => {
-  //   setSubmitted(true);
-
-  //   if (Typemateriel.name.trim()) {
-  //     const _Typemateriels = [...Typemateriels];
-  //     const _Typemateriel = {
-  //       ...Typemateriels
-  //     };
-
-  //     if (Typemateriel.idTypeMat) {
-  //       const index = findIndexById(Typemateriel.idTypeMat);
-
-  //       _Typemateriels[index] = _Typemateriel;
-  //       toast.current.show({
-  //         severity: 'success',
-  //         summary: 'Succès !',
-  //         detail: 'Type Materiel Modifié',
-  //         life: 3000
-  //       });
-  //     } else {
-  //       _Typemateriel.id = createId();
-  //       _Typemateriels.push(_Typemateriel);
-  //       toast.current.show({
-  //         severity: 'success',
-  //         summary: 'Succès !',
-  //         detail: 'Type Materiel Creé',
-  //         life: 3000
-  //       });
-  //     }
-
-  //     setTypeMateriels(_Typemateriels);
-  //     setTypeMaterielDialog(false);
-  //     setTypeMateriel(emptyTypeMateriel);
-  //   }
-  // };
 
   const saveTypeMateriel = () => {
     setSubmitted(true);
@@ -151,16 +115,6 @@ export default function TypeMateriels() {
     return index;
   };
 
-  // const createId = () => {
-  //   let id = '';
-  //   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  //   for (let i = 0; i < 5; i + 1) {
-  //     id += chars.charAt(Math.floor(Math.random() * chars.length));
-  //   }
-
-  //   return id;
-  // };
 
   const createId = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -188,14 +142,6 @@ export default function TypeMateriels() {
     });
   };
 
-  // const onCategoryChange = (e) => {
-  //   const _Typemateriel = {
-  //     ...Typemateriel
-  //   };
-
-  //   _Typemateriel.category = e.value;
-  //   setTypeMateriel(_Typemateriel);
-  // };
 
   const onInputChange = (e, name) => {
     const val = (e.target && e.target.value) || '';
@@ -208,16 +154,6 @@ export default function TypeMateriels() {
     setTypeMateriel(_Typemateriel);
   };
 
-  // const onInputNumberChange = (e, name) => {
-  //   const val = e.value || 0;
-  //   const _Typemateriel = {
-  //     ...Typemateriel
-  //   };
-
-  //   _Typemateriel[`${name}`] = val;
-
-  //   setTypeMateriel(_Typemateriel);
-  // };
 
   const leftToolbarTemplate = () => {
     return (
@@ -337,6 +273,7 @@ export default function TypeMateriels() {
     </div>
   );
 }
+
 
 
 
