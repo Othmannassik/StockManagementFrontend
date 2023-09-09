@@ -1,73 +1,30 @@
-export const LivraisonService = {
-  getLivraisonsData() {
-      return [
-          {
-            id: '1000',
-            numBl: 'f230fh0g3',
-            numBc:209398,
-            date: '19/08/2023',
-            quantity: 1
-          },
-          {
-            id: '1001',
-            numBl: 'f230fh0g3',
-            numBc:209398,
-            date: '19/08/2023',
-            quantity: 1
-          },
-          {
-            id: '1002',
-            numBl: 'f230fh0g3',
-            numBc:209398,
-            date: '19/08/2023',
-            quantity: 1
-          },
-          {
-            id: '1003',
-            numBl: 'f230fh0g3',
-            numBc:209398,
-            date: '19/08/2023',
-            quantity: 1
-          },
-          {
-            id: '1004',
-            numBl: 'f230fh0g3',
-            numBc:209398,
-            date: '19/08/2023',
-            quantity: 1
-          },
-          {
-            id: '1005',
-            numBl: 'f230fh0g3',
-            numBc:209398,
-            date: '19/08/2023',
-            quantity: 1
-          },
-          {
-            id: '1006',
-            numBl: 'f230fh0g3',
-            numBc:209398,
-            date: '19/08/2023',
-            quantity: 1
-          },
-          {
-            id: '1007',
-            numBl: 'f230fh0g3',
-            numBc:209398,
-            date: '19/08/2023',
-            quantity: 1
-          },
-          {
-            id: '1008',
-            numBl: 'f230fh0g3',
-            numBc:209398,
-            date: '19/08/2023',
-            quantity: 1
-          },
-      ];
-  },
-    getLivraisons(){
-        return Promise.resolve(this.getLivraisonsData());
-    }
-};
+import Http from './Http-Comman';
 
+export const LivraisonService = {
+
+  getLivraisons : async () => {
+    const response = await Http.get('/livraisons');
+    return response.data;
+  },
+
+  createLivraison : async (livraison) => {
+    const response =  await Http.post("/livraisons", livraison);
+    return response.data;
+  },
+
+  getLivraisonById: async (id) => {
+    const response = await Http.get(`/livraisons/${id}`);
+    return response.data;
+  },
+
+  updateLivraison: async(livraison) => {
+    const response = await Http.put(`/livraisons/${livraison.id}`,livraison);
+    return response.data;
+  },
+
+  deletePLivraison: async (id) => {
+    const response = await Http.delete(`/livraisons/${id}`);
+    return response.data;
+  },
+
+};
