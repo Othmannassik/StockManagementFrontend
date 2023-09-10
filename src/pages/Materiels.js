@@ -14,7 +14,7 @@ import { MaterielService } from '../services/MaterielService';
 
 export default function MaterielsDemo() {
     const emptyMateriel = {
-        id: null,
+        idMat: null,
         model: '',
         numSerie: null,
         inventaireCih: '',
@@ -58,26 +58,40 @@ export default function MaterielsDemo() {
 
     const saveMateriel = () => {
         setSubmitted(true);
-
-        if (materiel.name.trim()) {
+        if (materiel.model.trim()){
             const _materiels = [...materiels];
-            const _materiel = { ...materiels };
+            const _materiel = { ...materiel };
 
-            if (materiel.id) {
-                const index = findIndexById(materiel.id);
-
-                _materiels[index] = _materiel;
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Modifié', life: 3000 });
+            if (materiel.idMat) {
+                MaterielService.updateMateriel(_materiel)
+                .then(() => {
+                    const index = _materiels.findIndex((item) => item.idMat === _materiel.idMat);
+                    _materiels[index] = _materiel;
+                    setMateriels(_materiels);
+                    setMaterielDialog(false);
+                    setMateriel(emptyMateriel);
+                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Materiel Updated', life: 3000 });
+                  })
+                  .catch((error) => {
+                    console.error('Error updating Materiel:', error);
+                  });
             } else {
-                _materiel.id = createId();
-                _materiel.image = 'product-placeholder.svg';
-                _materiels.push(_materiel);
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Creé', life: 3000 });
+                MaterielService.createMateriel(_materiel)
+                .then((response) => {
+                    const lastIdMat = Math.max(...materiels.map(item => item.idMat));
+                    _materiel.idMat = lastIdMat+1;
+                    _materiels.push(_materiel);
+                    setMateriels(_materiels);
+                    setMaterielDialog(false);
+                    setMateriel(emptyMateriel);
+                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Materiel Created', life: 3000 });
+                  })
+                  .catch((error) => {
+                    console.error('Error creating Materiel:', error);
+                  });
+          
+          
             }
-
-            setMateriels(_materiels);
-            setMaterielDialog(false);
-            setMateriel(emptyMateriel);
         }
     };
 
@@ -92,7 +106,7 @@ export default function MaterielsDemo() {
     };
 
     const deleteMateriel = () => {
-        const _materiels = materiels.filter((val) => val.id !== materiel.id);
+        const _materiels = materiels.filter((val) => val.idMat !== materiel.idMat);
 
         setMateriels(_materiels);
         setDeleteMaterielDialog(false);
@@ -100,11 +114,11 @@ export default function MaterielsDemo() {
         toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Supprimé', life: 3000 });
     };
 
-    const findIndexById = (id) => {
+    const findIndexById = (idMat) => {
         let index = -1;
 
         for (let i = 0; i < materiels.length; i+1) {
-            if (materiels[i].id === id) {
+            if (materiels[i].idMat === idMat) {
                 index = i;
                 break;
             }
@@ -114,14 +128,14 @@ export default function MaterielsDemo() {
     };
 
     const createId = () => {
-        let id = '';
+        let idMat = '';
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
         for (let i = 0; i < 5; i+1) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length));
+            idMat += chars.charAt(Math.floor(Math.random() * chars.length));
         }
 
-        return id;
+        return idMat;
     };
 
     const exportCSV = () => {
@@ -251,7 +265,7 @@ export default function MaterielsDemo() {
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
 
                 <DataTable ref={dt} value={materiels} selection={selectedMateriels} onSelectionChange={(e) => setSelectedMateriels(e.value)}
-                        dataKey="id"  paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                        dataKey="idMat"  paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} materiels" globalFilter={globalFilter} header={header}>
                     <Column selectionMode="multiple" exportable={false} />
@@ -281,7 +295,7 @@ export default function MaterielsDemo() {
                 </div>
                 <div className="field">
                     <span htmlFor="inventaireCih" className="font-bold">
-                        N° Série
+                        Inventaire CIH
                     </span>
                     <InputText placeholder='Inventaire Cih' id="inventaireCih" value={materiel.inventaireCih} onChange={(e) => onInputChange(e, 'inventaireCih')} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.inventaireCih })} />
                     {submitted && !materiel.inventaireCih && <small className="p-error">Inventaire Cih is required.</small>}
