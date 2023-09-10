@@ -191,11 +191,23 @@ export default function ProprietairesDemo() {
         );
     };
 
+    const leftToolbarTemplate2 = () => {
+        return <Button label="Ajouter" icon="pi pi-plus" severity="success" onClick={openNew} />
+    };
+
     const actionBodyTemplate = (rowData) => {
         return (
             <fragment>
                 <Button icon="pi pi-pencil" rounded className="mr-2" onClick={() => editProprietaire(rowData)} />
                 <Button icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeleteProprietaire(rowData)} />
+            </fragment>
+        );
+    };
+
+    const actionBodyTemplate2 = (rowData) => {
+        return (
+            <fragment>
+                <Button label='Retirer' icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeleteProprietaire(rowData)} />
             </fragment>
         );
     };
@@ -248,12 +260,13 @@ export default function ProprietairesDemo() {
                 </DataTable>
             </div>
 
-            <Dialog header="Liste des Matériels" visible={materielDialogVisible} style={{ width: '60vw' }} maximizable
-                    modal contentStyle={{ height: '300px' }} onHide={() => setMaterielDialogVisible(false)} footer={materielDialogFooterTemplate}>
+            <Dialog header={leftToolbarTemplate2} visible={materielDialogVisible} style={{ width: '60vw' }} maximizable
+                    modal contentStyle={{ height: '500px' }} onHide={() => setMaterielDialogVisible(false)} footer={materielDialogFooterTemplate}>
                 <DataTable value={selectedProprietaire?.materiels} scrollable scrollHeight="flex" tableStyle={{ minWidth: '50rem' }}>
                     <Column field="model" header="Matériel" />
                     <Column field="date" header="Date d'Affectation" />
                     <Column field="motif" header="Motif" />
+                    <Column body={actionBodyTemplate2} exportable={false} />
                 </DataTable>
             </Dialog>
 

@@ -12,24 +12,29 @@ import { Tag } from 'primereact/tag';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { CommandeService } from '../services/CommandeService';
+import { TypeMaterielService } from '../services/TypeMaterielService';
 
 
 export default function CommandesDemo() {
     const emptyCommande = {
         id: null,
-        numBc: null,
-        model: '',
         date: null,
-        inventaireCih: '',
-        status: "",
+        numBonCmd: null,
         quantity: 0,
+        status: "",
         prestataire: '',
         materiel: "",
         typeMateriel: '',
+        etablissement: '',
     };
 
     const [commandes, setCommandes] = useState(null);
+    const [prestataires, setPrestataires] = useState(null);
+    const [typeMateriels, setTypeMateriels] = useState(null);
+    const [etablissements, setEtablissements] = useState(null);
     const [commandeDialog, setCommandeDialog] = useState(false);
     const [deleteCommandeDialog, setDeleteCommandeDialog] = useState(false);
     const [deleteCommandesDialog, setDeleteCommandesDialog] = useState(false);
@@ -42,9 +47,19 @@ export default function CommandesDemo() {
     const dt = useRef(null);
 
     useEffect(() => {
-        CommandeService.getCommandesWithLivraisonsSmall().then((data) => setCommandes(data));
-    }, []);
+        CommandeService.getCommandes()
+            .then((data) => setCommandes(data))
+            .catch((err) => toast.current.show({ severity: 'error', summary: 'Echèc !', detail: err.message, life: 3000 }));
 
+        CommandeService.getEtablissements()
+            .then((data) => setEtablissements(data))
+
+        CommandeService.getPrestataires()
+            .then((data) => setPrestataires(data))
+
+        TypeMaterielService.getTypeMateriels()
+            .then((data) => setTypeMateriels(data))
+    }, []);
 
     const openNew = () => {
         setCommande(emptyCommande);
@@ -67,29 +82,74 @@ export default function CommandesDemo() {
 
     const saveCommande = () => {
         setSubmitted(true);
-
-        if (commande.name.trim()) {
-            const _commandes = [...commandes];
-            const _commande = { ...commandes };
-
-            if (commande.id) {
-                const index = findIndexById(commande.id);
-
+      
+        if (commande.numBonCmd.trim()) {
+              const _commandes = [...commandes];
+              const _commande = { ...commande };
+      
+          if (commande.idCmd) {
+            // Update existing TypeMateriel
+              // TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat , _Typemateriel)
+              CommandeService.updateCommande(_commande)
+              .then(() => {
+                // const index = _Typemateriels.findIndex((item) => item.idTypeMat === Typemateriel.idTypeMat);
+                const index = _commandes.findIndex((item) => item.idCmd === _commande.idCmd);
                 _commandes[index] = _commande;
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Modifié', life: 3000 });
-            } else {
-                _commande.id = createId();
-                _commande.image = 'product-placeholder.svg';
-                _commandes.push(_commande);
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Creé', life: 3000 });
+                setCommandes(_commandes);
+                setCommandeDialog(false);
+                setCommande(emptyCommande);
+                toast.current.show({
+                  severity: 'success',
+                  summary: 'Successful',
+                  detail: 'Product Updated',
+                  life: 3000
+                });
+              })
+              .catch((error) => {
+                console.error('Error updating TypeMateriel:', error);
+              });
+          } else {
+            const formattedDate = format(_commande.date, 'dd/MM/yyyy', { locale: fr });
+            const newCmd = {
+                "numBonCmd" : _commande.numBonCmd,
+                "date" : formattedDate,
+                "prestataireId": _commande.prestataire.idPres,
+                "materiel": _commande.materiel,
+                "typeMaterielId": _commande.typeMateriel.idTypeMat,
+                "etablissement": _commande.etablissement.idEtb,
+                "quantity": _commande.quantity
             }
-
-            setCommandes(_commandes);
-            setCommandeDialog(false);
-            setCommande(emptyCommande);
+            console.log(newCmd);
+            // Create new TypeMateriel
+              CommandeService.addCommande(newCmd)
+              .then((response) => {
+                const lastIdCmd = Math.max(...commandes.map(item => item.idCmd));
+                _commande.idCmd = lastIdCmd+1;
+                _commandes.push(_commande);
+                setCommandes(_commandes);
+                setCommandeDialog(false);
+                setCommande(emptyCommande);
+                // loadTypeMateriels();
+                toast.current.show({
+                  severity: 'success',
+                  summary: 'Successful',
+                  detail: 'Product Created',
+                  life: 3000
+                });
+              })
+              .catch((error) => {
+                console.error('Error creating TypeMateriel:', error);
+              });
+      
+      
+          }
         }
-    };
+      };
 
+    const createId = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+    
     const editCommande = (commande) => {
         setCommande({ ...commande });
         setCommandeDialog(true);
@@ -120,17 +180,6 @@ export default function CommandesDemo() {
         }
 
         return index;
-    };
-
-    const createId = () => {
-        let id = '';
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-        for (let i = 0; i < 5; i+1) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-
-        return id;
     };
 
     const exportCSV = () => {
@@ -239,21 +288,11 @@ export default function CommandesDemo() {
           return tag;
       };
 
-    const prestataires = [
-        { name: 'Hicham' },
-        { name: 'Haitem' },
-        { name: 'Soufiane' },
-        { name: 'Khalil' },
-        { name: 'Adam' },
-        { name: 'Akram' },
-        { name: 'Bader' },
-    ];
-
     const selectedPrestataireTemplate = (option, props) => {
         if (option) {
             return (
                 <div className="flex align-items-center">
-                    <div>{option.name}</div>
+                    <div>{option.raisonSocial}</div>
                 </div>
             );
         }
@@ -264,19 +303,10 @@ export default function CommandesDemo() {
     const prestataireOptionTemplate = (option) => {
         return (
             <div className="flex align-items-center">
-                <div>{option.name}</div>
+                <div>{option.raisonSocial}</div>
             </div>
         );
     };
-
-    const typeMateriels = [
-        { name: 'Laptop' },
-        { name: 'PC Bureau' },
-        { name: 'Lecteur NFC' },
-        { name: 'Imprimante' },
-        { name: 'Scanner' },
-        
-    ];
 
     const selectedTypeMaterielTemplate = (option, props) => {
         if (option) {
@@ -297,14 +327,6 @@ export default function CommandesDemo() {
             </div>
         );
     };
-
-    const Etablissements = [
-        { name: 'Agence Anassi' },
-        { name: 'Siege Casa' },
-        { name: 'DG Khouribga' },
-        { name: 'Agence Maarif' },
-        
-    ];
 
     const selectedEtablissementTemplate = (option, props) => {
         if (option) {
@@ -341,8 +363,8 @@ export default function CommandesDemo() {
                         <Button label="Ajouter une Livraison" icon="pi pi-plus" raised severity="success" />
                     </div>
                 </div>
-                <DataTable value={data.livraisons}>
-                    <Column field="numBl" header="N° BL" />
+                <DataTable value={data.livraisonList}>
+                    <Column field="bonLiv" header="N° BL" />
                     <Column field="date" header="Date" sortable />
                     <Column field="quantity" header="Quantité" sortable />
                     <Column field="" header="Bon Livraison" body={bonLivAction}  />
@@ -387,20 +409,21 @@ export default function CommandesDemo() {
 
                 <DataTable value={commandes} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)}
                     rowExpansionTemplate={rowExpansionTemplate} selection={selectedCommandes} onSelectionChange={(e) => setSelectedCommandes(e.value)}
-                    dataKey="id" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                    dataKey="idCmd" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} commandes" globalFilter={globalFilter}  header={header} tableStyle={{ minWidth: '60rem' }}>
                 <Column selectionMode="multiple" exportable={false} />
                 <Column expander={allowExpansion} style={{ width: '5rem' }} />
-                <Column field="numBc" header="N° BC" />
+                <Column field="numBonCmd" header="N° BC" />
                 <Column field="date" header="Date" sortable/>
                 <Column field="quantity" header="Quantité" sortable />
                 <Column field="" header="Status" body={statusBodyTemplate} />
-                <Column field="prestataire" header="Prestataire" />
-                <Column field="materiel" header="Matériel" />
-                <Column field="typeMateriel" header="Type Matériel" />
+                <Column field="materiel.model" header="Matériel" />
+                <Column field="materiel.typeMaterielDTO.name" header="Type Matériel" />
+                <Column field="prestataire.raisonSocial" header="Prestataire" />
+                <Column field="materiel.etablissementDTO.name" header="Etablissement" />
                 <Column field="" header="Bon Commande" body={bonCmdAction}  />
-                <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
+                <Column body={actionBodyTemplate} exportable={false}  />
             </DataTable>
             </div>
 
@@ -409,29 +432,36 @@ export default function CommandesDemo() {
                     <span htmlFor="date" className="font-bold">
                         Date
                     </span>
-                    <Calendar value={commande.date} onChange={(e) => onInputChange(e, 'date')}  required autoFocus className={classNames({ 'p-invalid': submitted && !commande.date })}/>
+                    <Calendar value={commande.date} onChange={(e) => onInputChange(e, "date")}  required autoFocus className={classNames({ 'p-invalid': submitted && !commande.date })}/>
                     {submitted && !commande.date && <small className="p-error">Date is required.</small>}
                 </div>
                 <div className="field">
-                    <span htmlFor="prestataire" className="font-bold">
-                        Prestataire
+                    <span htmlFor="numBonCmd" className="font-bold">
+                        N° Bon Commnade
                     </span>
-                    <Dropdown value={commande.prestataire} onChange={(e) => onInputChange(e, 'prestataire')} options={prestataires} optionLabel="name" placeholder="Select a Prestataire" 
-                            filter valueTemplate={selectedPrestataireTemplate} itemTemplate={prestataireOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.prestataire })} />
-                    {submitted && !commande.prestataire && <small className="p-error">Prestataire is required.</small>}
+                    <InputText placeholder='N° Bon Commnade' id="numBonCmd" value={commande.numBonCmd} onChange={(e) => onInputChange(e, "numBonCmd")} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.numBonCmd })} />
+                    {submitted && !commande.numBonCmd && <small className="p-error">N° Bon Commnade is required.</small>}
                 </div>
                 <div className="field">
                     <span htmlFor="materiel" className="font-bold">
                         Matériel
                     </span>
-                    <InputText placeholder='materiel' id="materiel" value={commande.materiel} onChange={(e) => onInputChange(e, 'materiel')} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.materiel })} />
+                    <InputText placeholder='Materiel' id="materiel" value={commande.materiel} onChange={(e) => onInputChange(e, "materiel")} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.materiel })} />
                     {submitted && !commande.materiel && <small className="p-error">Materiel is required.</small>}
+                </div>
+                <div className="field">
+                    <span htmlFor="prestataire" className="font-bold">
+                        Prestataire
+                    </span>
+                    <Dropdown value={commande.prestataire} onChange={(e) => onInputChange(e, "prestataire")} options={prestataires} optionLabel="raisonSocial" placeholder="Select a Prestataire" 
+                            filter valueTemplate={selectedPrestataireTemplate} itemTemplate={prestataireOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.prestataire })} />
+                    {submitted && !commande.prestataire && <small className="p-error">Prestataire is required.</small>}
                 </div>
                 <div className="field">
                     <span htmlFor="typeMateriel" className="font-bold">
                         Type Matériel
                     </span>
-                    <Dropdown value={commande.typeMateriel} onChange={(e) => onInputChange(e, 'typeMateriel')} options={typeMateriels} optionLabel="name" placeholder="Select a Type" 
+                    <Dropdown value={commande.typeMateriel} onChange={(e) => onInputChange(e, "typeMateriel")} options={typeMateriels} optionLabel="name" placeholder="Select a Type" 
                             filter valueTemplate={selectedTypeMaterielTemplate} itemTemplate={typeMaterielOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.typeMateriel })} />
                     {submitted && !commande.typeMateriel && <small className="p-error">Type Matériel is required.</small>}
                 </div>
@@ -439,7 +469,7 @@ export default function CommandesDemo() {
                     <span htmlFor="etablissement" className="font-bold">
                         Etablissement
                     </span>
-                    <Dropdown value={commande.etablissement} onChange={(e) => onInputChange(e, 'etablissement')} options={Etablissements} optionLabel="name" placeholder="Select an Etablissement" 
+                    <Dropdown value={commande.etablissement} onChange={(e) => onInputChange(e, "etablissement")} options={etablissements} optionLabel="name" placeholder="Select an Etablissement" 
                             filter valueTemplate={selectedEtablissementTemplate} itemTemplate={EtablissementOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.etablissement })} />
                     {submitted && !commande.etablissement && <small className="p-error">Etablissement is required.</small>}
                 </div>
@@ -448,7 +478,8 @@ export default function CommandesDemo() {
                         <span htmlFor="quantity" className="font-bold">
                             Quantité
                         </span>
-                        <InputNumber id="quantity" value={commande.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} />
+                        <InputNumber id="quantity" value={commande.quantity} onValueChange={(e) => onInputChange(e, "quantity")} required/>
+                        {submitted && !commande.quantity && <small className="p-error">Quantité is required.</small>}
                     </div>
                     <div className="field col">
                         <span htmlFor="bc" className="font-bold">
