@@ -5,39 +5,53 @@ import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
-import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { Tag } from 'primereact/tag';
+import { Dropdown } from 'primereact/dropdown';
+import { Calendar } from 'primereact/calendar';
 import { ProprietaireService } from '../services/ProprietaireService';
 
 
 export default function ProprietairesDemo() {
     const emptyProprietaire = {
-        id: null,
-        model: '',
-        numSerie: null,
-        inventaireCih: '',
-        quantity: 0,
+        idProp: null,
+        firstName: '',
+        lastName: '',
+        email: '',
+        telephone: '',
+    };
+
+    const emptyMateriel = {
+        materiel: '',
+        date: '',
+        motif: '',
     };
 
     const [Proprietaires, setProprietaires] = useState(null);
     const [ProprietaireDialog, setProprietaireDialog] = useState(false);
+    const [materielDialog, setMaterielDialog] = useState(false);
     const [deleteProprietaireDialog, setDeleteProprietaireDialog] = useState(false);
     const [deleteProprietairesDialog, setDeleteProprietairesDialog] = useState(false);
     const [Proprietaire, setProprietaire] = useState(emptyProprietaire);
+    const [Materiel, setMateriel] = useState(emptyMateriel);
     const [selectedProprietaires, setSelectedProprietaires] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const [materielDialogVisible, setMaterielDialogVisible] = useState(false);
-    const [selectedProprietaire, setSelectedProprietaire] = useState(null);
+    const [materiels, setMateriels] = useState(null);
+    const [materielsChoices, setMaterielsChoices] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
 
-    useEffect(() => {
+    const loadProprietaireData = () => {
         ProprietaireService.getProprietaires().then((data) => setProprietaires(data));
-    }, []);
+    }
 
+    useEffect(() => {
+        loadProprietaireData();
+        ProprietaireService.getMateriels()
+            .then((data) => setMaterielsChoices(data))
+    }, []);
 
     const openNew = () => {
         setProprietaire(emptyProprietaire);
@@ -45,9 +59,16 @@ export default function ProprietairesDemo() {
         setProprietaireDialog(true);
     };
 
+    const openNew2 = () => {
+        setMateriel(emptyMateriel);
+        setSubmitted(false);
+        setMaterielDialog(true);
+    };
+
     const hideDialog = () => {
         setSubmitted(false);
         setProprietaireDialog(false);
+        setMaterielDialog(false);
     };
 
     const hideDeleteProprietaireDialog = () => {
@@ -61,26 +82,32 @@ export default function ProprietairesDemo() {
     const saveProprietaire = () => {
         setSubmitted(true);
 
-        if (Proprietaire.name.trim()) {
+        if (Proprietaire.firstName.trim() && Proprietaire.lastName.trim() && Proprietaire.email.trim() && Proprietaire.telephone.trim()) {
             const _Proprietaires = [...Proprietaires];
             const _Proprietaire = { ...Proprietaires };
 
-            if (Proprietaire.id) {
-                const index = findIndexById(Proprietaire.id);
-
-                _Proprietaires[index] = _Proprietaire;
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Proprietaire Modifié', life: 3000 });
+            if (Proprietaire.idProp) {
+                ProprietaireService.updateProprietaire(Proprietaire.idProp, Proprietaire)
+                .then((data) => {
+                    loadProprietaireData();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Proprietaire Modifié', life: 3000 })
+                })                
             } else {
-                _Proprietaire.id = createId();
-                _Proprietaire.image = 'product-placeholder.svg';
-                _Proprietaires.push(_Proprietaire);
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Proprietaire Creé', life: 3000 });
+                ProprietaireService.addProprietaire(Proprietaire)
+                .then((data) => {
+                    loadProprietaireData();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Proprietaire Creé', life: 3000 })
+                })
             }
 
-            setProprietaires(_Proprietaires);
             setProprietaireDialog(false);
             setProprietaire(emptyProprietaire);
         }
+    };
+
+    const addMateriel = () => {
+        setSubmitted(true);
+        console.log(Materiel);
     };
 
     const editProprietaire = (Proprietaire) => {
@@ -94,12 +121,14 @@ export default function ProprietairesDemo() {
     };
 
     const deleteProprietaire = () => {
-        const _Proprietaires = Proprietaires.filter((val) => val.id !== Proprietaire.id);
+        ProprietaireService.deleteProprietaire(Proprietaire.idProp)
+            .then(() => {
+                loadProprietaireData();
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Proprietaire Supprimé', life: 3000 });
+            })
 
-        setProprietaires(_Proprietaires);
         setDeleteProprietaireDialog(false);
         setProprietaire(emptyProprietaire);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Proprietaire Supprimé', life: 3000 });
     };
 
     const findIndexById = (id) => {
@@ -135,13 +164,27 @@ export default function ProprietairesDemo() {
     };
 
     const deleteSelectedProprietaires = () => {
-        const _Proprietaires = Proprietaires.filter((val) => !selectedProprietaires.includes(val));
-
-        setProprietaires(_Proprietaires);
-        setDeleteProprietairesDialog(false);
-        setSelectedProprietaires(null);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériaux Supprimés', life: 3000 });
+        const promises = selectedProprietaires.map((prop) => {
+            return ProprietaireService.deleteProprietaire(prop.idProp);
+        });
+    
+        Promise.all(promises)
+            .then(() => {
+                // After all items are successfully deleted, refresh the data
+                return loadProprietaireData();
+            })
+            .then(() => {
+                // Clear the selected items and hide the delete dialog
+                setSelectedProprietaires(null);
+                setDeleteProprietairesDialog(false);
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériaux Supprimés', life: 3000 });
+            })
+            .catch((error) => {
+                console.error('Error deleting selected items', error);
+                // Handle error if necessary
+            });
     };
+    
 
     const onInputChange = (e, name) => {
         const val = (e.target && e.target.value) || '';
@@ -152,23 +195,54 @@ export default function ProprietairesDemo() {
         setProprietaire(_Proprietaire);
     };
 
-    const onInputNumberChange = (e, name) => {
-        const val = e.value || 0;
-        const _Proprietaire = { ...Proprietaire };
+    const onInputChange2 = (e, name) => {
+        const val = (e.target && e.target.value) || '';
+        const _Materiel = { ...Materiel };
 
-        _Proprietaire[`${name}`] = val;
-
-        setProprietaire(_Proprietaire);
+        _Materiel[`${name}`] = val;
+        setMateriel(_Materiel);
     };
 
-    const materielButton = (selectedProprietaire) => {
-        return <Button label="Matériels" rounded icon="pi pi-external-link" onClick={() => openMaterielDialog(selectedProprietaire)} />;
+    const materielButton = (rowData) => {
+        return <Button label="Matériels" rounded icon="pi pi-external-link" onClick={() => openMaterielDialog(rowData.idProp)} />;
     };
 
-    const openMaterielDialog = (selectedProprietaire) => {
-        setSelectedProprietaire(selectedProprietaire);
-        setMaterielDialogVisible(true);
+    const openMaterielDialog = (id) => {
+        ProprietaireService.getMaterielsByProprietaire(id)
+            .then((data) => {
+                setMateriels(data)
+                setMaterielDialogVisible(true);
+            });
     };
+
+    const selectedMaterielTemplate = (option, props) => {
+        if (option) {
+            return (
+                <div className="flex align-items-center">
+                    <div>{option.model}</div>
+                </div>
+            );
+        }
+
+        return <span>{props.placeholder}</span>;
+    };
+
+    const materielOptionTemplate = (option) => {
+        return (
+            <div className="flex align-items-center">
+                <div>{option.model}</div>
+            </div>
+        );
+    };
+
+//    const materielButton = (selectedProprietaire) => {
+//        return <Button label="Matériels" rounded icon="pi pi-external-link" onClick={() => openMaterielDialog(selectedProprietaire)} />;
+//    };
+
+//    const openMaterielDialog = (selectedProprietaire) => {
+//        setSelectedProprietaire(selectedProprietaire);
+//        setMaterielDialogVisible(true);
+//    };
 
     const materielDialogFooterTemplate = () => {
         return <Button label="Ok" icon="pi pi-check" onClick={() => setMaterielDialogVisible(false)} />;
@@ -192,7 +266,7 @@ export default function ProprietairesDemo() {
     };
 
     const leftToolbarTemplate2 = () => {
-        return <Button label="Ajouter" icon="pi pi-plus" severity="success" onClick={openNew} />
+        return <Button label="Ajouter" icon="pi pi-plus" severity="success" onClick={openNew2} />
     };
 
     const actionBodyTemplate = (rowData) => {
@@ -227,6 +301,12 @@ export default function ProprietairesDemo() {
             <Button label="Enregistrer" icon="pi pi-check" onClick={saveProprietaire} />
         </fragment>
     );
+    const ProprietaireDialogFooter2 = (
+        <fragment>
+            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDialog} />
+            <Button label="Enregistrer" icon="pi pi-check" onClick={addMateriel} />
+        </fragment>
+    );
     const deleteProprietaireDialogFooter = (
         <fragment>
             <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteProprietaireDialog} />
@@ -247,7 +327,7 @@ export default function ProprietairesDemo() {
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
 
                 <DataTable ref={dt} value={Proprietaires} selection={selectedProprietaires} onSelectionChange={(e) => setSelectedProprietaires(e.value)}
-                        dataKey="id"  paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                        dataKey="idProp"  paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Proprietaires" globalFilter={globalFilter} header={header}>
                     <Column selectionMode="multiple" exportable={false} />
@@ -262,8 +342,8 @@ export default function ProprietairesDemo() {
 
             <Dialog header={leftToolbarTemplate2} visible={materielDialogVisible} style={{ width: '60vw' }} maximizable
                     modal contentStyle={{ height: '500px' }} onHide={() => setMaterielDialogVisible(false)} footer={materielDialogFooterTemplate}>
-                <DataTable value={selectedProprietaire?.materiels} scrollable scrollHeight="flex" tableStyle={{ minWidth: '50rem' }}>
-                    <Column field="model" header="Matériel" />
+                <DataTable value={materiels} scrollable scrollHeight="flex" tableStyle={{ minWidth: '50rem' }}>
+                    <Column field="materielDTO.model" header="Matériel" />
                     <Column field="date" header="Date d'Affectation" />
                     <Column field="motif" header="Motif" />
                     <Column body={actionBodyTemplate2} exportable={false} />
@@ -297,8 +377,30 @@ export default function ProprietairesDemo() {
                         <span htmlFor="telephone" className="font-bold">
                             Télephone
                         </span>
-                        <InputNumber id="telephone" value={Proprietaire.telephone} onValueChange={(e) => onInputNumberChange(e, 'telephone')} />
+                        <InputText id="telephone" placeholder='+212 600000000' value={Proprietaire.telephone} onChange={(e) => onInputChange(e, 'telephone')} />
                     </div>
+                </div>
+            </Dialog>
+
+            <Dialog visible={materielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Ajouter un Matériel" modal className="p-fluid" footer={ProprietaireDialogFooter2} onHide={hideDialog}>
+                <div className="field">
+                    <span htmlFor="date" className="font-bold">
+                        Date d'affectation
+                    </span>
+                    <Calendar onChange={(e) => onInputChange2(e, "date")}  required autoFocus/>
+                </div>
+                <div className="field">
+                    <span htmlFor="materiel" className="font-bold">
+                        Materiel
+                    </span>
+                    <Dropdown value={Materiel.materiel} onChange={(e) => onInputChange2(e, "materiel")} options={materielsChoices} optionLabel="model" placeholder="Select a Materiel" 
+                            filter valueTemplate={selectedMaterielTemplate} itemTemplate={materielOptionTemplate} required autoFocus />
+                </div>
+                <div className="field">
+                    <span htmlFor="motif" className="font-bold">
+                        Motif
+                    </span>
+                    <InputText placeholder='Motif' id="motif" onChange={(e) => onInputChange2(e, 'motif')} required autoFocus  />
                 </div>
             </Dialog>
 
