@@ -15,5 +15,23 @@ export const TypeMaterielService = {
         return response.data;
     },
 
+    // Retrieve a single TypeMateriel by ID
+    getTypeMaterielById: async (id) => {
+        const response = await Http.get(`/typeMateriels/${id}`);
+        return response.data;
+    },
+
+    // Update an existing TypeMateriel
+    updateTypeMateriel: async (typeMateriel) => {
+        const response = await Http.put(`/typeMateriels/${typeMateriel.id}`, typeMateriel);
+        return response.data;
+    },
+
+    // Delete a TypeMateriel by ID
+    deleteTypeMateriel: async (id) => {
+        const response = await Http.delete(`/typeMateriels/${id}`);
+        return response.data;
+    },
+
 
 };

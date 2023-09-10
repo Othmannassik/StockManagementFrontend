@@ -14,12 +14,11 @@ import { PrestataireService } from '../services/PrestataireService';
 
 export default function MaterielsDemo() { 
     const emptyPrestataire = {
-        id: null,
-        model: '',
-        Email:'',
-        Tel: null,
+        idPres: null,
+        raisonSocial:'',
+        email:'',
+        telephone: null,
         nbcmd: 0,
-        adresse:'',
     };
 
     const [prestataires, setPrestataires] = useState(null);
@@ -57,30 +56,46 @@ export default function MaterielsDemo() {
         setDeletePrestatairesDialog(false);
     };
 
+    
     const savePrestataire = () => {
         setSubmitted(true);
-
-        if (prestataire.name.trim()) {
+        if (prestataire.raisonSocial.trim() && prestataire.email.trim() && prestataire.telephone){
             const _prestataires = [...prestataires];
-            const _prestataire = { ...prestataires };
+            const _prestataire = { ...prestataire };
 
-            if (prestataire.id) {
-                const index = findIndexById(prestataire.id);
-
-                _prestataires[index] = _prestataire;
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Modifié', life: 3000 });
+            if (prestataire.idPres) {
+                PrestataireService.updatePrestataire(_prestataire)
+                .then(() => {
+                    const index = _prestataires.findIndex((item) => item.idPres === _prestataire.idPres);
+                    _prestataires[index] = _prestataire;
+                    setPrestataires(_prestataires);
+                    setPrestataireDialog(false);
+                    setPrestataire(emptyPrestataire);
+                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
+                  })
+                  .catch((error) => {
+                    console.error('Error updating Prestataire:', error);
+                  });
             } else {
-                _prestataire.id = createId();
-                _prestataire.image = 'product-placeholder.svg';
-                _prestataires.push(_prestataire);
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Creé', life: 3000 });
+                PrestataireService.createPrestataire(_prestataire)
+                .then((response) => {
+                    const lastIdPres = Math.max(...prestataires.map(item => item.idPres));
+                    _prestataire.idPres = lastIdPres+1;
+                    _prestataires.push(_prestataire);
+                    setPrestataires(_prestataires);
+                    setPrestataireDialog(false);
+                    setPrestataire(emptyPrestataire);
+                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
+                  })
+                  .catch((error) => {
+                    console.error('Error creating Prestataire:', error);
+                  });
+          
+          
+              }
             }
-
-            setPrestataires(_prestataires);
-            setPrestataireDialog(false);
-            setPrestataire(emptyPrestataire);
-        }
     };
+    
 
     const editPrestataire = (prestataire) => {
         setPrestataire({ ...prestataire });
@@ -93,7 +108,7 @@ export default function MaterielsDemo() {
     };
 
     const deletePrestataire = () => {
-        const _prestataires = prestataires.filter((val) => val.id !== prestataire.id);
+        const _prestataires = prestataires.filter((val) => val.idPres !== prestataire.idPres);
 
         setPrestataires(_prestataires);
         setDeletePrestataireDialog(false);
@@ -101,11 +116,11 @@ export default function MaterielsDemo() {
         toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Supprimé', life: 3000 });
     };
 
-    const findIndexById = (id) => {
+    const findIndexById = (idPres) => {
         let index = -1;
 
         for (let i = 0; i < prestataires.length; i+1) {
-            if (prestataires[i].id === id) {
+            if (prestataires[i].idPres === idPres) {
                 index = i;
                 break;
             }
@@ -115,14 +130,14 @@ export default function MaterielsDemo() {
     };
 
     const createId = () => {
-        let id = '';
+        let idPres = '';
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
         for (let i = 0; i < 5; i+1) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length));
+            idPres += chars.charAt(Math.floor(Math.random() * chars.length));
         }
 
-        return id;
+        return idPres;
     };
 
     const exportCSV = () => {
@@ -229,14 +244,13 @@ export default function MaterielsDemo() {
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
 
                 <DataTable ref={dt} value={prestataires} selection={selectedPrestataires} onSelectionChange={(e) => setSelectedPrestataires(e.value)}
-                        dataKey="id"  paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                        dataKey="idPres"  paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} materiels" globalFilter={globalFilter} header={header}>
                     <Column selectionMode="multiple" exportable={false} />
-                    <Column field="Raison Social" header="Raison Social" sortable style={{ minWidth: '12rem' }} />
-                    <Column field="Email" header="Email" style={{ minWidth: '16rem' }} />
-                    <Column field="Téléphone" header="Téléphone" />
-                    <Column field="Adresse" header="adresse" sortable style={{ minWidth: '8rem' }} />
+                    <Column field="raisonSocial" header="Raison Social" sortable style={{ minWidth: '12rem' }} />
+                    <Column field="email" header="Email" style={{ minWidth: '16rem' }} />
+                    <Column field="telephone" header="Téléphone" />
                     <Column field="nbcmd" header="nbcmd"  style={{ minWidth: '12rem' }} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>
@@ -247,30 +261,30 @@ export default function MaterielsDemo() {
                     <span htmlFor="Raison Social" className="font-bold">
                         Raison Social
                     </span>
-                    <InputText placeholder='Raison Social' id="model" value={prestataire.model} onChange={(e) => onInputChange(e, 'model')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.model })} />
-                    {submitted && !prestataire.model && <small className="p-error">Raison Social is required.</small>}
+                    <InputText placeholder='Raison Social' id="Raison Social" value={prestataire.raisonSocial} onChange={(e) => onInputChange(e, 'raisonSocial')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.raisonSocial })} />
+                    {submitted && !prestataire.raisonSocial && <small className="p-error">Raison Social is required.</small>}
                 </div>
                 <div className="field">
                     <span htmlFor="Email" className="font-bold">
                         Email
                     </span>
-                    <InputText placeholder='Email' id="Email" value={prestataire.Email} onChange={(e) => onInputChange(e, 'Email')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.Email })} />
-                    {submitted && !prestataire.Email && <small className="p-error">Email is required.</small>}
+                    <InputText placeholder='Email' id="Email" value={prestataire.email} onChange={(e) => onInputChange(e, 'email')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.email })} />
+                    {submitted && !prestataire.email && <small className="p-error">Email is required.</small>}
                 </div>
                 <div className="field">
                     <span htmlFor="Téléphone" className="font-bold">
                         Téléphone
                     </span>
-                    <InputText placeholder='Téléphone' id="Téléphone" value={prestataire.Téléphone} onChange={(e) => onInputChange(e, 'Téléphone')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.Téléphone })} />
-                    {submitted && !prestataire.Téléphone && <small className="p-error">Téléphone is required.</small>}
+                    <InputText placeholder='Téléphone' id="Téléphone" value={prestataire.telephone} onChange={(e) => onInputChange(e, 'telephone')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.telephone })} />
+                    {submitted && !prestataire.telephone && <small className="p-error">Téléphone is required.</small>}
                 </div>
-                <div className="formgrid grid">
-                    <div className="field col">
-                        <span htmlFor="Adresse" className="font-bold">
-                            Adresse
+                <div>
+                <div className="field col">
+                        <span htmlFor="nbcmd" className="font-bold">
+                            NbCmd
                         </span>
-                        <InputNumber placeholder='Adresse' id="Adresse" value={prestataire.Adresse} onChange={(e) => onInputNumberChange(e, 'Adresse')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.Adresse })}/>
-                        {submitted && !prestataire.Adresse && <small className="p-error">Adresse is required.</small>}
+                        <InputNumber placeholder='nbcmd' id="nbcmd" value={prestataire.nbcmd} onChange={(e) => onInputNumberChange(e, 'nbcmd')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.nbcmd })}/>
+                        {submitted && !prestataire.nbcmd && <small className="p-error">nbcmd is required.</small>}
                     </div>
                 </div>
             </Dialog>
