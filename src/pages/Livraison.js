@@ -16,7 +16,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
 import { LivraisonService } from '../services/LivraisonService';
 
-export default function LivraisonsDemo() {
+export default function Livraisons() {
     const emptyLivraison = {
         idLiv: null,
         bonLiv: null,
@@ -36,7 +36,7 @@ export default function LivraisonsDemo() {
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
-    const _livraison = LivraisonsDemo;
+    const _livraison = Livraisons;
 
     useEffect(() => {
         LivraisonService.getLivraisons().then((data) => setLivraisons(data));

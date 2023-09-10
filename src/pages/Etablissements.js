@@ -15,8 +15,7 @@ export default function Etablissements() {
         idEtb: null,
         name: '',
         adresse: '',
-        ville: '',
-        nb_Materiel: 0,
+        city: '',
     };
 
     const [etablissements, setEtablissements] = useState(null);
@@ -236,8 +235,7 @@ export default function Etablissements() {
                     <Column selectionMode="multiple" exportable={false} />
                     <Column field="name" header="Name" sortable style={{ minWidth: '16rem' }} />
                     <Column field="adresse" header="adresse" sortable style={{ minWidth: '16rem' }} />
-                    <Column field="ville" header="ville" sortable style={{ minWidth: '8rem' }} />
-                    <Column field="nb_Materiel" header="nb_Materiel" sortable style={{ minWidth: '10rem' }} />
+                    <Column field="city" header="city" sortable style={{ minWidth: '8rem' }} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>
             </div>
@@ -251,7 +249,7 @@ export default function Etablissements() {
                 className="p-fluid"
                 footer={etablissementDialogFooter}
                 onHide={hideDialog}
-            >
+            > 
 
                 <div className="field">
                     <span htmlFor="name" className="font-bold">
@@ -284,32 +282,21 @@ export default function Etablissements() {
                 </div>
 
                 <div className="field">
-                    <span htmlFor="ville" className="font-bold">
+                    <span htmlFor="city" className="font-bold">
                         Ville
                     </span>
                     <InputText
-                        id="ville"
-                        value={etablissement.ville}
-                        onChange={(e) => onInputChange(e, 'ville')}
+                        id="city"
+                        value={etablissement.city}
+                        onChange={(e) => onInputChange(e, 'city')}
                         required
                         autoFocus
-                        className={classNames({ 'p-invalid': submitted && !etablissement.ville })}
+                        className={classNames({ 'p-invalid': submitted && !etablissement.city })}
                     />
-                    {submitted && !etablissement.ville && <small className="p-error">Required.</small>}
+                    {submitted && !etablissement.city && <small className="p-error">Required.</small>}
                 </div>
 
 
-                <div className="field">
-                    <span htmlFor="quantity" className="font-bold">
-                        Quantity
-                    </span>
-                    <InputNumber
-                        id="quantity"
-                        value={etablissement.nb_Materiel}
-                        onValueChange={(e) => onInputNumberChange(e, 'quantity')}
-                    />
-                    {submitted && !etablissement.nb_Materiel && <small className="p-error">Required.</small>}
-                </div>
             </Dialog>
 
             <Dialog
