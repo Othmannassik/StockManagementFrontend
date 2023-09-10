@@ -12,7 +12,7 @@ import { Tag } from 'primereact/tag';
 import { PrestataireService } from '../services/PrestataireService';
 
 
-export default function MaterielsDemo() { 
+export default function Materiels() { 
     const emptyPrestataire = {
         idPres: null,
         raisonSocial:'',

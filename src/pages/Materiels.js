@@ -12,7 +12,7 @@ import { Tag } from 'primereact/tag';
 import { MaterielService } from '../services/MaterielService';
 
 
-export default function MaterielsDemo() {
+export default function Materiels() {
     const emptyMateriel = {
         idMat: null,
         model: '',
@@ -58,43 +58,43 @@ export default function MaterielsDemo() {
 
     const saveMateriel = () => {
         setSubmitted(true);
-        if (materiel.model.trim()){
-            const _materiels = [...materiels];
-            const _materiel = { ...materiel };
-
-            if (materiel.idMat) {
-                MaterielService.updateMateriel(_materiel)
-                .then(() => {
-                    const index = _materiels.findIndex((item) => item.idMat === _materiel.idMat);
-                    _materiels[index] = _materiel;
-                    setMateriels(_materiels);
-                    setMaterielDialog(false);
-                    setMateriel(emptyMateriel);
-                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Materiel Updated', life: 3000 });
-                  })
-                  .catch((error) => {
-                    console.error('Error updating Materiel:', error);
-                  });
-            } else {
-                MaterielService.createMateriel(_materiel)
-                .then((response) => {
-                    const lastIdMat = Math.max(...materiels.map(item => item.idMat));
-                    _materiel.idMat = lastIdMat+1;
-                    _materiels.push(_materiel);
-                    setMateriels(_materiels);
-                    setMaterielDialog(false);
-                    setMateriel(emptyMateriel);
-                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Materiel Created', life: 3000 });
-                  })
-                  .catch((error) => {
-                    console.error('Error creating Materiel:', error);
-                  });
-          
-          
-            }
+      
+        if (materiel.model.trim() && materiel.numSerie.trim() && materiel.inventaireCih.trim() && materiel.quantity > 0) {
+          const _materiels = [...materiels];
+          const _materiel = { ...materiel };
+      
+          if (materiel.idMat) {
+            MaterielService.updateMateriel(_materiel)
+              .then(() => {
+                const index = _materiels.findIndex((item) => item.idMat === _materiel.idMat);
+                _materiels[index] = _materiel;
+                setMateriels(_materiels);
+                setMaterielDialog(false);
+                setMateriel(emptyMateriel);
+                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Materiel Updated', life: 3000 });
+            })
+              .catch((error) => {
+                console.error('Error updating Materiel:', error);
+              });
+          } else {
+            // Ajout d'un nouveau matériel
+            MaterielService.createMateriel(_materiel)
+              .then((response) => {
+                const lastIdMat = Math.max(..._materiels.map((item) => item.idMat), 0);
+                _materiel.idMat = lastIdMat + 1;
+                _materiels.push(_materiel);
+                setMateriels(_materiels);
+                setMaterielDialog(false);
+                setMateriel(emptyMateriel);
+                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Materiel Created', life: 3000 });
+              })
+              .catch((error) => {
+                console.error('Error creating Materiel:', error);
+              });
+          }
         }
     };
-
+      
     const editMateriel = (materiel) => {
         setMateriel({ ...materiel });
         setMaterielDialog(true);
