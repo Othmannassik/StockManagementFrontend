@@ -39,7 +39,7 @@ export default function TypeMateriels() {
     setTypeMateriel(emptyTypeMateriel);
     setSubmitted(false);
     setTypeMaterielDialog(true);
-  };
+  }; 
 
   const hideDialog = () => {
     setSubmitted(false);
