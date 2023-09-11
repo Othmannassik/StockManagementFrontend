@@ -63,11 +63,11 @@ const saveTypeMateriel = () => {
 
     if (Typemateriel.idTypeMat) {
       // Update existing TypeMateriel
-        // TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat , _Typemateriel)
-        TypeMaterielService.updateTypeMateriel(_Typemateriel)
-        .then(() => {
-          // const index = _Typemateriels.findIndex((item) => item.idTypeMat === Typemateriel.idTypeMat);
-          const index = _Typemateriels.findIndex((item) => item.idTypeMat === _Typemateriel.idTypeMat);
+        console.log(Typemateriel.idTypeMat);
+        TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat , _Typemateriel)
+        // console.log(_Typemateriel)
+        .then(() => { 
+          const index = Typemateriel.idTypeMat;
           _Typemateriels[index] = _Typemateriel;
           setTypeMateriels(_Typemateriels);
           setTypeMaterielDialog(false);
@@ -85,14 +85,13 @@ const saveTypeMateriel = () => {
     } else {
       // Create new TypeMateriel
         TypeMaterielService.createTypeMateriel(_Typemateriel)
-        .then((response) => {
+        .then(() => {
           const lastIdTypeMat = Math.max(...Typemateriels.map(item => item.idTypeMat));
           _Typemateriel.idTypeMat = lastIdTypeMat+1;
           _Typemateriels.push(_Typemateriel);
           setTypeMateriels(_Typemateriels);
           setTypeMaterielDialog(false);
           setTypeMateriel(emptyTypeMateriel);
-          // loadTypeMateriels();
           toast.current.show({
             severity: 'success',
             summary: 'Successful',
@@ -125,7 +124,9 @@ const saveTypeMateriel = () => {
   const deleteTypeMateriel = () => {
     TypeMaterielService.deleteTypeMateriel(Typemateriel.idTypeMat)
       .then(() => {
-        const _typeMateriels = Typemateriels.filter((val) => val.idTypeMat !== Typemateriel.idTypeMat);
+        const _typeMateriels = 
+        Typemateriels.filter((val) =>
+         val.idTypeMat !== Typemateriel.idTypeMat);
         setTypeMateriels(_typeMateriels);
         setDeleteTypeMaterielDialog(false);
         setTypeMateriel(emptyTypeMateriel);

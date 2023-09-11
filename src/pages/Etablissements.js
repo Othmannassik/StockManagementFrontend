@@ -15,8 +15,8 @@ export default function Etablissements() {
         idEtb: null,
         name: '',
         adresse: '',
-        ville: '',
-        nb_Materiel: 0,
+        city: '',
+        nb_Materiel: null,
     };
 
     const [etablissements, setEtablissements] = useState(null);
@@ -31,9 +31,12 @@ export default function Etablissements() {
     const dt = useRef(null);
 
     useEffect(() => {
-        EtablissementService.getEtablissements().then((data) => setEtablissements(data));
+        loadEtablissements();
     }, []);
 
+    const loadEtablissements = () => {
+        EtablissementService.getEtablissements().then((data) => setEtablissements(data));
+    }
 
     const openNew = () => {
         setEtablissement(emptyEtablissement);
@@ -62,19 +65,46 @@ export default function Etablissements() {
             const _etablissement = { ...etablissement };
 
             if (etablissement.idEtb) {
-                const index = findIndexById(etablissement.idEtb);
-
-                _etablissements[index] = _etablissement;
-                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Etablissement Updated', life: 3000 });
+                // Update existing etablissement
+                console.log(etablissement.idEtb);
+                // TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat, _Typemateriel)
+                EtablissementService.updateEtablissement(etablissement.idEtb , _etablissement)
+                    // console.log(_Typemateriel)
+                    .then(() => {
+                        const index = etablissement.idEtb;
+                        _etablissements[index] = _etablissement;
+                        setEtablissements(_etablissements);
+                        setEtablissementDialog(false);
+                        setEtablissement(emptyEtablissement);
+                        toast.current.show({
+                            severity: 'success',
+                            summary: 'Successful',
+                            detail: 'Product Updated',
+                            life: 3000
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Error updating TypeMateriel:', error);
+                    });
             } else {
-                _etablissement.idEtb = createId(1,1000);
-                _etablissements.push(_etablissement);
-                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Etablissement Created', life: 3000 });
+                // create a Etablissement
+                EtablissementService.createEtablissement(_etablissement)
+                    .then(() => {
+                        const lastidEtb = Math.max(...etablissements.map(item => item.idEtb));
+                        _etablissement.idEtb = lastidEtb + 1;
+                        _etablissements.push(_etablissement);
+                        setEtablissements(_etablissements);
+                        setEtablissementDialog(false);
+                        setEtablissement(emptyEtablissement);
+                        loadEtablissements();
+                        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Etablissement Created', life: 3000 });
+                    })
+                    .catch((error) => {
+                        console.error('Error creating Etablissement:', error);
+                    });
             }
 
-            setEtablissements(_etablissements);
-            setEtablissementDialog(false);
-            setEtablissement(emptyEtablissement);
+
         }
     };
 
@@ -89,18 +119,34 @@ export default function Etablissements() {
     };
 
     const deleteEtablissement = () => {
-        const _etablissements = etablissements.filter((val) => val.idEtb !== etablissement.idEtb);
-
-        setEtablissements(_etablissements);
-        setDeleteEtablissementDialog(false);
-        setEtablissement(emptyEtablissement);
-        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Etablissement Deleted', life: 3000 });
+        console.log(etablissement.idEtb)
+        EtablissementService.deleteEtablissement(etablissement.idEtb)
+            .then(() => {
+                const _Etablissements =
+                    etablissements.filter((val) =>
+                        val.idEtb !== etablissement.idEtb);
+                console.log(_Etablissements);
+                setEtablissements(_Etablissements);
+                setDeleteEtablissementDialog(false);
+                setEtablissement(emptyEtablissement);
+                loadEtablissements();
+                toast.current.show({
+                    severity: 'success',
+                    summary: 'Succès !',
+                    detail: 'Etablissement Supprimé',
+                    life: 3000
+                });
+                console.log("ok")
+            })
+            .catch((error) => {
+                console.error('Error deleting Etablissement:', error);
+            });
     };
 
     const findIndexById = (id) => {
         let index = -1;
 
-        for (let i = 0; i < etablissements.length; i+1) {
+        for (let i = 0; i < etablissements.length; i + 1) {
             if (etablissements[i].idEtb === id) {
                 index = i;
                 break;
@@ -173,7 +219,7 @@ export default function Etablissements() {
     const actionBodyTemplate = (rowData) => {
         return (
             <>
-                <Button icon="pi pi-pencil" rounded  className="mr-2" onClick={() => editEtablissement(rowData)} />
+                <Button icon="pi pi-pencil" rounded className="mr-2" onClick={() => editEtablissement(rowData)} />
                 <Button
                     icon="pi pi-trash"
                     rounded
@@ -236,7 +282,7 @@ export default function Etablissements() {
                     <Column selectionMode="multiple" exportable={false} />
                     <Column field="name" header="Name" sortable style={{ minWidth: '16rem' }} />
                     <Column field="adresse" header="adresse" sortable style={{ minWidth: '16rem' }} />
-                    <Column field="ville" header="ville" sortable style={{ minWidth: '8rem' }} />
+                    <Column field="city" header="Ville" sortable style={{ minWidth: '8rem' }} />
                     <Column field="nb_Materiel" header="nb_Materiel" sortable style={{ minWidth: '10rem' }} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>
@@ -284,29 +330,29 @@ export default function Etablissements() {
                 </div>
 
                 <div className="field">
-                    <span htmlFor="ville" className="font-bold">
+                    <span htmlFor="city" className="font-bold">
                         Ville
                     </span>
                     <InputText
-                        id="ville"
-                        value={etablissement.ville}
-                        onChange={(e) => onInputChange(e, 'ville')}
+                        id="city"
+                        value={etablissement.city}
+                        onChange={(e) => onInputChange(e, 'city')}
                         required
                         autoFocus
-                        className={classNames({ 'p-invalid': submitted && !etablissement.ville })}
+                        className={classNames({ 'p-invalid': submitted && !etablissement.city })}
                     />
-                    {submitted && !etablissement.ville && <small className="p-error">Required.</small>}
+                    {submitted && !etablissement.city && <small className="p-error">Required.</small>}
                 </div>
 
 
                 <div className="field">
-                    <span htmlFor="quantity" className="font-bold">
+                    <span htmlFor="nb_Materiel" className="font-bold">
                         Quantity
                     </span>
                     <InputNumber
-                        id="quantity"
+                        id="nb_Materiel"
                         value={etablissement.nb_Materiel}
-                        onValueChange={(e) => onInputNumberChange(e, 'quantity')}
+                        onValueChange={(e) => onInputNumberChange(e, 'nb_Materiel')}
                     />
                     {submitted && !etablissement.nb_Materiel && <small className="p-error">Required.</small>}
                 </div>

@@ -23,7 +23,7 @@ export const TypeMaterielService = {
 
     // Update an existing TypeMateriel
     updateTypeMateriel: async (typeMateriel) => {
-        const response = await Http.put(`/typeMateriels/${typeMateriel.id}`, typeMateriel);
+        const response = await Http.put(`/typeMateriels/${typeMateriel.idTypeMat}`, typeMateriel);
         return response.data;
     },
 
