@@ -1,4 +1,43 @@
+import http from "./Http-Comman";
+
 export const ProprietaireService = {
+
+  // Retrieve a list of proprietaires
+    getProprietaires: async () => {
+      const response = await http.get(`/proprietaires`);
+      return response.data;
+    },
+  
+  // Retrieve a list of materiels by proprietaire
+    getMaterielsByProprietaire: async (id) => {
+      const response = await http.get(`/proprietaires/${id}/affectations`);
+      return response.data;
+    },
+
+    // add proprietaire
+    addProprietaire: async (proprietaire) => {
+      const response = await http.post(`/proprietaires`, proprietaire);
+      return response.data;
+    },
+
+    // update proprietaire
+    updateProprietaire: async (id, proprietaire) => {
+      const response = await http.put(`/proprietaires/${id}`, proprietaire);
+      return response.data;
+    },
+
+    // delete proprietaire
+    deleteProprietaire: async (id) => {
+      const response = await http.delete(`/proprietaires/${id}`);
+      return response.data;
+    },
+
+    // get materiels
+    getMateriels: async () => {
+      const response = await http.get(`/materiels`);
+      return response.data;
+    },
+
     getProprietaireData() {
         return [
             {
@@ -142,10 +181,6 @@ export const ProprietaireService = {
                 ]
               },
         ];
-    },
-
-    getProprietaires() {
-        return Promise.resolve(this.getProprietaireData());
     },
 };
 

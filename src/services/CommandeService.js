@@ -1,108 +1,36 @@
+import Http from './Http-Comman';
+
 export const CommandeService = {
-  getCommandesData() {
-      return [
-          {
-              id: '1000',
-              numBc: 209398,
-              date: '19/08/2023',
-              quantity: 24,
-              status: 'CREATED',
-              prestataire: 'Ahmed',
-              materiel: "HP elitebook",
-              typeMateriel: 'Accessories',
-          },
-          {
-              id: '1001',
-              numBc: 209398,
-              date: '19/08/2023',
-              quantity: 24,
-              status: 'CREATED',
-              prestataire: 'Ahmed',
-              materiel: "HP elitebook",
-              typeMateriel: 'Accessories',
-          },
-          {
-              id: '1002',
-              numBc: 209398,
-              date: '19/08/2023',
-              quantity: 24,
-              status: 'CREATED',
-              prestataire: 'Ahmed',
-              materiel: "HP elitebook",
-              typeMateriel: 'Accessories',
-          },
-          {
-              id: '1003',
-              numBc: 209398,
-              date: '19/08/2023',
-              quantity: 24,
-              status: 'CREATED',
-              prestataire: 'Ahmed',
-              materiel: "HP elitebook",
-              typeMateriel: 'Accessories',
-          },
-          {
-              id: '1004',
-              numBc: 209398,
-              date: '19/08/2023',
-              quantity: 24,
-              status: 'CREATED',
-              prestataire: 'Ahmed',
-              materiel: "HP elitebook",
-              typeMateriel: 'Accessories',
-          },
-          {
-              id: '1005',
-              numBc: 209398,
-              date: '19/08/2023',
-              quantity: 24,
-              status: 'CREATED',
-              prestataire: 'Ahmed',
-              materiel: "HP elitebook",
-              typeMateriel: 'Accessories',
-          },
-          {
-              id: '1006',
-              numBc: 209398,
-              date: '19/08/2023',
-              quantity: 24,
-              status: 'CREATED',
-              prestataire: 'Ahmed',
-              materiel: "HP elitebook",
-              typeMateriel: 'Accessories',
-          },
-          {
-              id: '1007',
-              numBc: 209398,
-              date: '19/08/2023',
-              quantity: 24,
-              status: 'CREATED',
-              prestataire: 'Ahmed',
-              materiel: "HP elitebook",
-              typeMateriel: 'Accessories',
-          },
-          {
-              id: '1008',
-              numBc: 209398,
-              date: '19/08/2023',
-              quantity: 24,
-              status: 'CREATED',
-              prestataire: 'Ahmed',
-              materiel: "HP elitebook",
-              typeMateriel: 'Accessories',
-          },
-          {
-              id: '1009',
-              numBc: 209398,
-              date: '19/08/2023',
-              quantity: 24,
-              status: 'CREATED',
-              prestataire: 'Ahmed',
-              materiel: "HP elitebook",
-              typeMateriel: 'Accessories',
-          },
-      ];
-  },
+  
+    // Retrieve a list of commandes
+    getCommandes: async () => {
+        const response = await Http.get(`/commandes`);
+        return response.data;
+    },
+
+    // Retrieve a list of prestataires
+    getPrestataires: async () => {
+        const response = await Http.get(`/prestataires`);
+        return response.data;
+    },
+
+    // Retrieve a list of etablissements
+    getEtablissements: async () => {
+        const response = await Http.get(`/etablissements`);
+        return response.data;
+    },
+
+    // Add Commande
+    addCommande: async (commande) => {
+        const response = await Http.post(`/commandes`, commande);
+        return response.data;
+    },
+
+    // Update Commande
+    updateCommande: async (id, commande) => {
+        const response = await Http.put(`/commandes/${id}`, commande);
+        return response.data;
+    },
 
   getCommandesWithLivraisonsData() {
       return [
@@ -333,10 +261,6 @@ export const CommandeService = {
 
   getCommandesSmall() {
       return Promise.resolve(this.getCommandesData().slice(0, 10));
-  },
-
-  getCommandes() {
-      return Promise.resolve(this.getCommandesData());
   },
 
   getCommandesWithLivraisonsSmall() {

@@ -16,12 +16,11 @@ import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
 import { LivraisonService } from '../services/LivraisonService';
 
-export default function LivraisonsDemo() {
+export default function Livraisons() {
     const emptyLivraison = {
-        id: null,
-        numBL: null,
-        numBC: null,
-        model: '',
+        idLiv: null,
+        bonLiv: null,
+        bonCmd: null,
         date: null,
         quantity: 0,
     };
@@ -37,7 +36,7 @@ export default function LivraisonsDemo() {
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
-    const _livraison = LivraisonsDemo;
+    const _livraison = Livraisons;
 
     useEffect(() => {
         LivraisonService.getLivraisons().then((data) => setLivraisons(data));
@@ -53,15 +52,15 @@ export default function LivraisonsDemo() {
 
         const newLivraison = {
             id: newId,
-            numBL: livraison.numBL,
-            numBC: livraison.numBC,
+            bonLiv: livraison.bonLiv,
+            bonCmd: livraison.bonCmd,
             model: livraison.model,
             date: livraison.date,
             quantity: livraison.quantity,
             // Ajoutez d'autres propriétés de livraison ici
         };
 
-        const updatedLivraisons = [...livraisons, newLivraison];
+        const updatedLivraisons = [...livraison, newLivraison];
         setLivraisons(updatedLivraisons);
 
         setLivraison(emptyLivraison);
@@ -90,7 +89,6 @@ export default function LivraisonsDemo() {
 
     const saveLivraison = () => {
         setSubmitted(true);
-    
         if (livraison.date && livraison.date instanceof Date) {
             // Formatage de la date en "jour/mois/année" avec la localisation française
             const formattedDate = format(livraison.date, 'dd/MM/yyyy', { locale: fr });
@@ -218,7 +216,7 @@ export default function LivraisonsDemo() {
             <fragment>
                 <Button label='Bon Liv' icon="pi pi-download" rounded className="mr-2" />
             </fragment>
-        );
+        ); 
     };
 
     const getSeverity = (rowData) => {
@@ -258,35 +256,6 @@ export default function LivraisonsDemo() {
           return tag;
       };
 
-    const prestataires = [
-        { name: 'Hicham' },
-        { name: 'Haitem' },
-        { name: 'Soufiane' },
-        { name: 'Khalil' },
-        { name: 'Adam' },
-        { name: 'Akram' },
-        { name: 'Bader' },
-    ];
-
-    const selectedPrestataireTemplate = (option, props) => {
-        if (option) {
-            return (
-                <div className="flex align-items-center">
-                    <div>{option.name}</div>
-                </div>
-            );
-        }
-
-        return <span>{props.placeholder}</span>;
-    };
-
-    const prestataireOptionTemplate = (option) => {
-        return (
-            <div className="flex align-items-center">
-                <div>{option.name}</div>
-            </div>
-        );
-    };
 
     const typeMateriels = [
         { name: 'Laptop' },
@@ -317,33 +286,6 @@ export default function LivraisonsDemo() {
         );
     };
 
-    const Etablissements = [
-        { name: 'Agence Anassi' },
-        { name: 'Siege Casa' },
-        { name: 'DG Khouribga' },
-        { name: 'Agence Maarif' },
-        
-    ];
-
-    const selectedEtablissementTemplate = (option, props) => {
-        if (option) {
-            return (
-                <div className="flex align-items-center">
-                    <div>{option.name}</div>
-                </div>
-            );
-        }
-
-        return <span>{props.placeholder}</span>;
-    };
-
-    const EtablissementOptionTemplate = (option) => {
-        return (
-            <div className="flex align-items-center">
-                <div>{option.name}</div>
-            </div>
-        );
-    };
 
     const allowExpansion = (rowData) => {
         return true;
@@ -354,7 +296,7 @@ export default function LivraisonsDemo() {
             <div className="p-2">
                 <div className="formgrid grid">
                     <div className="field col">
-                        <h4>Livraisons du :  {data.numBC}</h4>
+                        <h4>Livraisons du :  {data.bonCmd}</h4>
                     </div>
                 </div>
             </div>
@@ -400,47 +342,46 @@ export default function LivraisonsDemo() {
 
                 <DataTable value={livraisons} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)}
                     rowExpansionTemplate={rowExpansionTemplate} selection={selectedLivraisons} onSelectionChange={(e) => setSelectedLivraisons(e.value)}
-                    dataKey="id" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                    dataKey="idLiv" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} livraisons" globalFilter={globalFilter}  header={header} tableStyle={{ minWidth: '60rem' }}>
                 <Column selectionMode="multiple" exportable={false} />
                 {/* <Column expander={allowExpansion} style={{ width: '5rem' }} /> */}
-                <Column field="numBl" header="N° BL" />
-                <Column field="numBc" header="N° BC" />
+                <Column field="bonLiv" header="N° BL" />
+                <Column field="bonCmd" header="N° BC" />
                 <Column field="date" header="Date" sortable/>
                 <Column field="quantity" header="Quantité" sortable />
                 <Column field="" header="Bon Livraison" body={bonLivAction} />
                 <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
             </DataTable>
             </div>
-            <Dialog visible={livraisonDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Matériel Détails" modal className="p-fluid" footer={livraisonDialogFooter} onHide={hideDialog}>
+            <Dialog visible={livraisonDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Livraison Détails" modal className="p-fluid" footer={livraisonDialogFooter} onHide={hideDialog}>
                 <div className="field">
                     <span htmlFor="date" className="font-bold">
                         Date
                     </span>
-                    <Calendar value={livraison.date} onChange={(e) => onInputChange(e, 'date')}  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.date })}/>
+                    <Calendar placeholder="entrer la date" value={livraison.date} onChange={(e) => onInputChange(e, 'date')}  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.date })}/>
                     {submitted && !livraison.date && <small className="p-error">Date is required.</small>}
                 </div>  
                 <div className="field">
-                    <span htmlFor="prestataire" className="font-bold">
-                        Prestataire
+                    <span htmlFor="bonLiv" className="font-bold">
+                        N° BL
                     </span>
-                    <Dropdown value={livraison.prestataire} onChange={(e) => onInputChange(e, 'prestataire')} options={prestataires} optionLabel="name" placeholder="Select a Prestataire" 
-                            filter valueTemplate={selectedPrestataireTemplate} itemTemplate={prestataireOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.prestataire })} />
-                    {submitted && !_livraison.prestataire && <small className="p-error">Prestataire is required.</small>}
+                    <InputText value={livraison.bonLiv} onChange={(e) => onInputChange(e, 'bonLiv')}  placeholder="Bon Livraison"  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.bonLiv })} />
+                    {submitted && !livraison.bonLiv && <small className="p-error">bonLiv is required.</small>}
                 </div>
                 <div className="field">
-                    <span htmlFor="materiel" className="font-bold">
-                        Matériel
+                    <span htmlFor="bonCmd" className="font-bold">
+                        N° BC
                     </span>
-                    <InputText placeholder='materiel' id="materiel" value={livraison.materiel} onChange={(e) => onInputChange(e, 'materiel')} required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.materiel })} />
-                    {submitted && !livraison.materiel && <small className="p-error">Matériel is required.</small>}
+                    <InputText placeholder='Bon Commande' id="bonCmd" value={livraison.materiel} onChange={(e) => onInputChange(e, 'bonCmd')} required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.bonCmd })} />
+                    {submitted && !livraison.bonCmd && <small className="p-error">bonCmd is required.</small>}
                 </div>  
                 <div className="field">
                     <span htmlFor="quantity" className="font-bold">
                         Quantité
                     </span>
-                    <InputNumber placeholder='quantity' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus className={classNames({ 'p-invalid': submitted && livraison.quantity <= 0 })} />
+                    <InputNumber placeholder='quantités' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus className={classNames({ 'p-invalid': submitted && livraison.quantity <= 0 })} />
                     {submitted && livraison.quantity <= 0 && <small className="p-error">Quantité must be greater than 0.</small>}
                 </div>
                 <div className="field col">
@@ -454,7 +395,7 @@ export default function LivraisonsDemo() {
             <Dialog visible={deleteLivraisonDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteLivraisonDialogFooter} onHide={hideDeleteLivraisonDialog}>
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem' }} />
-                    {livraison && <span>Êtes-vous sûr de vouloir supprimer la livraison <b>{livraison.numBL}</b>?</span>}
+                    {livraison && <span>Êtes-vous sûr de vouloir supprimer la livraison <b>{livraison.bonLiv}</b>?</span>}
                 </div>
             </Dialog>
 
