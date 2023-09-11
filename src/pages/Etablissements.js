@@ -29,7 +29,7 @@ export default function Etablissements() {
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
-
+ 
     useEffect(() => {
         loadEtablissements();
     }, []);
@@ -199,9 +199,9 @@ export default function Etablissements() {
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
-                <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
+                <Button label="Ajouter" icon="pi pi-plus" severity="success" onClick={openNew} />
                 <Button
-                    label="Delete"
+                    label="Supprimer"
                     icon="pi pi-trash"
                     severity="danger"
                     onClick={confirmDeleteSelected}
@@ -281,8 +281,8 @@ export default function Etablissements() {
                 >
                     <Column selectionMode="multiple" exportable={false} />
                     <Column field="name" header="Name" sortable style={{ minWidth: '16rem' }} />
-                    <Column field="adresse" header="adresse" sortable style={{ minWidth: '16rem' }} />
-                    <Column field="city" header="ville" sortable style={{ minWidth: '8rem' }} />
+                    <Column field="adresse" header="Adresse" sortable style={{ minWidth: '16rem' }} />
+                    <Column field="city" header="Ville" sortable style={{ minWidth: '8rem' }} />
                     <Column field="nb_Materiel" header="nb_Materiel" sortable style={{ minWidth: '10rem' }} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>

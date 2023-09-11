@@ -20,7 +20,6 @@ export default function Livraisons() {
     const emptyLivraison = {
         idLiv: null,
         bonLiv: null,
-        bonCmd: null,
         date: null,
         quantity: 0,
     };
@@ -96,7 +95,7 @@ export default function Livraisons() {
             const _livraisons = [...livraisons];
             const _livraison = { ...livraison, date: formattedDate };
     
-            if (livraison.id) {
+            if (livraison.idLiv) {
                 const index = findIndexById(livraison.id);
     
                 _livraisons[index] = _livraison;
@@ -127,7 +126,7 @@ export default function Livraisons() {
     };
 
     const deleteLivraison = () => {
-        const _livraisons = livraisons.filter((val) => val.id !== livraison.id);
+        const _livraisons = livraisons.filter((val) => val.idLiv !== livraison.idLiv);
 
         setLivraisons(_livraisons);
         setDeleteLivraisonDialog(false);
@@ -348,7 +347,6 @@ export default function Livraisons() {
                 <Column selectionMode="multiple" exportable={false} />
                 {/* <Column expander={allowExpansion} style={{ width: '5rem' }} /> */}
                 <Column field="bonLiv" header="N° BL" />
-                <Column field="bonCmd" header="N° BC" />
                 <Column field="date" header="Date" sortable/>
                 <Column field="quantity" header="Quantité" sortable />
                 <Column field="" header="Bon Livraison" body={bonLivAction} />
@@ -369,14 +367,7 @@ export default function Livraisons() {
                     </span>
                     <InputText value={livraison.bonLiv} onChange={(e) => onInputChange(e, 'bonLiv')}  placeholder="Bon Livraison"  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.bonLiv })} />
                     {submitted && !livraison.bonLiv && <small className="p-error">bonLiv is required.</small>}
-                </div>
-                <div className="field">
-                    <span htmlFor="bonCmd" className="font-bold">
-                        N° BC
-                    </span>
-                    <InputText placeholder='Bon Commande' id="bonCmd" value={livraison.materiel} onChange={(e) => onInputChange(e, 'bonCmd')} required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.bonCmd })} />
-                    {submitted && !livraison.bonCmd && <small className="p-error">bonCmd is required.</small>}
-                </div>  
+                </div> 
                 <div className="field">
                     <span htmlFor="quantity" className="font-bold">
                         Quantité

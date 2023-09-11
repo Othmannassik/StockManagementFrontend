@@ -15,10 +15,10 @@ export const MaterielService = {
   getMaterielById: async (id) => {
     const response = await Http.get(`/materiels/${id}`);
     return response.data;
-  },
+  }, 
 
   updateMateriel: async(materiel) => {
-    const response = await Http.put(`/materiels/${materiel.id}`,materiel);
+    const response = await Http.put(`/materiels/${materiel.idMat}`,materiel);
     return response.data;
   },
 

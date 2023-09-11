@@ -18,7 +18,7 @@ export const LivraisonService = {
   },
 
   updateLivraison: async(livraison) => {
-    const response = await Http.put(`/livraisons/${livraison.id}`,livraison);
+    const response = await Http.put(`/livraisons/${livraison.idLiv}`,livraison);
     return response.data;
   },
 
