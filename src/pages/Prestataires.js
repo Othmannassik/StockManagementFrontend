@@ -278,15 +278,6 @@ export default function Materiels() {
                     <InputText placeholder='Téléphone' id="Téléphone" value={prestataire.telephone} onChange={(e) => onInputChange(e, 'telephone')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.telephone })} />
                     {submitted && !prestataire.telephone && <small className="p-error">Téléphone is required.</small>}
                 </div>
-                <div>
-                <div className="field col">
-                        <span htmlFor="nbcmd" className="font-bold">
-                            NbCmd
-                        </span>
-                        <InputNumber placeholder='nbcmd' id="nbcmd" value={prestataire.nbcmd} onChange={(e) => onInputNumberChange(e, 'nbcmd')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.nbcmd })}/>
-                        {submitted && !prestataire.nbcmd && <small className="p-error">nbcmd is required.</small>}
-                    </div>
-                </div>
             </Dialog>
 
             <Dialog visible={deletePrestataireDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deletePrestataireDialogFooter} onHide={hideDeletePrestataireDialog}>

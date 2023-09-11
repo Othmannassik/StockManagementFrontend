@@ -31,6 +31,7 @@ export default function ProprietairesDemo() {
     const [ProprietaireDialog, setProprietaireDialog] = useState(false);
     const [materielDialog, setMaterielDialog] = useState(false);
     const [deleteProprietaireDialog, setDeleteProprietaireDialog] = useState(false);
+    const [deleteMaterielDialog, setDeleteMaterielDialog] = useState(false);
     const [deleteProprietairesDialog, setDeleteProprietairesDialog] = useState(false);
     const [Proprietaire, setProprietaire] = useState(emptyProprietaire);
     const [Materiel, setMateriel] = useState(emptyMateriel);
@@ -40,6 +41,7 @@ export default function ProprietairesDemo() {
     const [materielDialogVisible, setMaterielDialogVisible] = useState(false);
     const [materiels, setMateriels] = useState(null);
     const [materielsChoices, setMaterielsChoices] = useState(null);
+    const [modelName, setModelName] = useState("");
     const toast = useRef(null);
     const dt = useRef(null);
 
@@ -73,6 +75,7 @@ export default function ProprietairesDemo() {
 
     const hideDeleteProprietaireDialog = () => {
         setDeleteProprietaireDialog(false);
+        setDeleteMaterielDialog(false);
     };
 
     const hideDeleteProprietairesDialog = () => {
@@ -107,7 +110,27 @@ export default function ProprietairesDemo() {
 
     const addMateriel = () => {
         setSubmitted(true);
-        console.log(Materiel);
+
+        if (Materiel.motif.trim() ) {
+
+            const affectationData = {
+                "date": Materiel.date,
+                "motif": Materiel.motif,
+                "materielDTO": Materiel.materiel,
+                "proprietaireDTO": Proprietaire
+            }
+
+            ProprietaireService.addMaterielToProprietaire(affectationData)
+            .then((data) => {
+                ProprietaireService.getMaterielsByProprietaire(Proprietaire.idProp)
+                    .then((data) => setMateriels(data));
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Affecté', life: 3000 })
+            })
+
+            setMaterielDialog(false);
+            setMateriel(emptyMateriel);
+            setProprietaire(emptyProprietaire);
+        }
     };
 
     const editProprietaire = (Proprietaire) => {
@@ -120,6 +143,12 @@ export default function ProprietairesDemo() {
         setDeleteProprietaireDialog(true);
     };
 
+    const confirmDeleteMateriel = (Materiel) => {
+        setMateriel(Materiel);
+        setModelName(Materiel.materielDTO.model);
+        setDeleteMaterielDialog(true);
+    };
+
     const deleteProprietaire = () => {
         ProprietaireService.deleteProprietaire(Proprietaire.idProp)
             .then(() => {
@@ -129,6 +158,18 @@ export default function ProprietairesDemo() {
 
         setDeleteProprietaireDialog(false);
         setProprietaire(emptyProprietaire);
+    };
+
+    const deleteMateriel = () => {
+        ProprietaireService.deleteMateriel(Materiel.idAff)
+            .then(() => {
+                ProprietaireService.getMaterielsByProprietaire(Materiel.proprietaireDTO.idProp)
+                    .then((data) => setMateriels(data));
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Retiré', life: 3000 });
+            })
+
+        setDeleteMaterielDialog(false);
+        setMateriel(emptyMateriel);
     };
 
     const findIndexById = (id) => {
@@ -204,14 +245,15 @@ export default function ProprietairesDemo() {
     };
 
     const materielButton = (rowData) => {
-        return <Button label="Matériels" rounded icon="pi pi-external-link" onClick={() => openMaterielDialog(rowData.idProp)} />;
+        return <Button label="Matériels" rounded icon="pi pi-external-link" onClick={() => openMaterielDialog(rowData)} />;
     };
 
-    const openMaterielDialog = (id) => {
-        ProprietaireService.getMaterielsByProprietaire(id)
+    const openMaterielDialog = (rowData) => {
+        ProprietaireService.getMaterielsByProprietaire(rowData.idProp)
             .then((data) => {
                 setMateriels(data)
                 setMaterielDialogVisible(true);
+                setProprietaire(rowData);
             });
     };
 
@@ -281,7 +323,7 @@ export default function ProprietairesDemo() {
     const actionBodyTemplate2 = (rowData) => {
         return (
             <fragment>
-                <Button label='Retirer' icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeleteProprietaire(rowData)} />
+                <Button label='Retirer' icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeleteMateriel(rowData)} />
             </fragment>
         );
     };
@@ -301,7 +343,7 @@ export default function ProprietairesDemo() {
             <Button label="Enregistrer" icon="pi pi-check" onClick={saveProprietaire} />
         </fragment>
     );
-    const ProprietaireDialogFooter2 = (
+    const MaterielDialogFooter = (
         <fragment>
             <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDialog} />
             <Button label="Enregistrer" icon="pi pi-check" onClick={addMateriel} />
@@ -311,6 +353,12 @@ export default function ProprietairesDemo() {
         <fragment>
             <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteProprietaireDialog} />
             <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteProprietaire} />
+        </fragment>
+    );
+    const deleteMaterielDialogFooter = (
+        <fragment>
+            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteProprietaireDialog} />
+            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteMateriel} />
         </fragment>
     );
     const deleteProprietairesDialogFooter = (
@@ -382,7 +430,7 @@ export default function ProprietairesDemo() {
                 </div>
             </Dialog>
 
-            <Dialog visible={materielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Ajouter un Matériel" modal className="p-fluid" footer={ProprietaireDialogFooter2} onHide={hideDialog}>
+            <Dialog visible={materielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Ajouter un Matériel" modal className="p-fluid" footer={MaterielDialogFooter} onHide={hideDialog}>
                 <div className="field">
                     <span htmlFor="date" className="font-bold">
                         Date d'affectation
@@ -410,6 +458,17 @@ export default function ProprietairesDemo() {
                     {Proprietaire && (
                         <span>
                             Vous Voulez Vraiment Supprimer <b>{Proprietaire.firstName} {Proprietaire.lastName}</b> ?
+                        </span>
+                    )}
+                </div>
+            </Dialog>
+
+            <Dialog visible={deleteMaterielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteMaterielDialogFooter} onHide={hideDeleteProprietaireDialog}>
+                <div className="confirmation-content">
+                    <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                    {Materiel && (
+                        <span>
+                            Vous Voulez Vraiment Retirer <b>{modelName}</b> du <b>{Proprietaire.lastName} </b>?
                         </span>
                     )}
                 </div>

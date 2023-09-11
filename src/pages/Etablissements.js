@@ -282,7 +282,7 @@ export default function Etablissements() {
                     <Column selectionMode="multiple" exportable={false} />
                     <Column field="name" header="Name" sortable style={{ minWidth: '16rem' }} />
                     <Column field="adresse" header="adresse" sortable style={{ minWidth: '16rem' }} />
-                    <Column field="ville" header="ville" sortable style={{ minWidth: '8rem' }} />
+                    <Column field="city" header="ville" sortable style={{ minWidth: '8rem' }} />
                     <Column field="nb_Materiel" header="nb_Materiel" sortable style={{ minWidth: '10rem' }} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>
@@ -342,19 +342,6 @@ export default function Etablissements() {
                         className={classNames({ 'p-invalid': submitted && !etablissement.city })}
                     />
                     {submitted && !etablissement.city && <small className="p-error">Required.</small>}
-                </div>
-
-
-                <div className="field">
-                    <span htmlFor="quantity" className="font-bold">
-                        Quantity
-                    </span>
-                    <InputNumber
-                        id="quantity"
-                        value={etablissement.nb_Materiel}
-                        onValueChange={(e) => onInputNumberChange(e, 'quantity')}
-                    />
-                    {submitted && !etablissement.nb_Materiel && <small className="p-error">Required.</small>}
                 </div>
             </Dialog>
 

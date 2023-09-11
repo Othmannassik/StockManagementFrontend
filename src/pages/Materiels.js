@@ -270,7 +270,7 @@ export default function Materiels() {
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} materiels" globalFilter={globalFilter} header={header}>
                     <Column selectionMode="multiple" exportable={false} />
                     <Column field="model" header="Modèle" sortable style={{ minWidth: '12rem' }} />
-                    <Column field="numSerie" header="N° Série" style={{ minWidth: '16rem' }} />
+                    <Column field="numSerie" header="N° Série" style={{ minWidth: '12rem' }} />
                     <Column field="inventaireCih" header="Inventaire CIH" />
                     <Column field="quantity" header="Quantité" sortable style={{ minWidth: '8rem' }} />
                     <Column field="" header="Status" body={statusBodyTemplate} style={{ minWidth: '12rem' }} />
