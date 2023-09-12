@@ -282,7 +282,7 @@ export default function Etablissements() {
                     <Column selectionMode="multiple" exportable={false} />
                     <Column field="name" header="Name" sortable style={{ minWidth: '16rem' }} />
                     <Column field="adresse" header="adresse" sortable style={{ minWidth: '16rem' }} />
-                    <Column field="ville" header="ville" sortable style={{ minWidth: '8rem' }} />
+                    <Column field="city" header="ville" sortable style={{ minWidth: '8rem' }} />
                     <Column field="nb_Materiel" header="nb_Materiel" sortable style={{ minWidth: '10rem' }} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>
