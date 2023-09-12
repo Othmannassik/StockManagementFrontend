@@ -13,7 +13,7 @@ export default function DashboardAppPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard | Minimal UI </title>
+        <title> Stock Management </title>
       </Helmet>
 
       <Container maxWidth="xl">
@@ -22,20 +22,20 @@ export default function DashboardAppPage() {
         </Typography>
 
         <Grid container spacing={3}>
+          {/* <Grid item xs={12} sm={6} md={3}>
+            <AppWidgetSummary title="Total Matériels" total={54} icon={'ant-design:android-filled'} />
+          </Grid> */}
+
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Weekly Sales" total={714000} icon={'ant-design:android-filled'} />
+            <AppWidgetSummary title="Total Matériels" total={54} color="info" icon={'ant-design:apple-filled'} />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="New Users" total={1352831} color="info" icon={'ant-design:apple-filled'} />
+            <AppWidgetSummary title="Commande En Attente" total={22} color="warning" icon={'ant-design:windows-filled'} />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Item Orders" total={1723315} color="warning" icon={'ant-design:windows-filled'} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Bug Reports" total={234} color="error" icon={'ant-design:bug-filled'} />
+            <AppWidgetSummary title="Matériel(s) Non utilisé(s)" total={13} color="error" icon={'ant-design:bug-filled'} />
           </Grid>
 
         </Grid>

@@ -29,7 +29,7 @@ export default function Etablissements() {
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
-
+ 
     useEffect(() => {
         loadEtablissements();
     }, []);
@@ -199,9 +199,9 @@ export default function Etablissements() {
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
-                <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
+                <Button label="Ajouter" icon="pi pi-plus" severity="success" onClick={openNew} />
                 <Button
-                    label="Delete"
+                    label="Supprimer"
                     icon="pi pi-trash"
                     severity="danger"
                     onClick={confirmDeleteSelected}
@@ -342,19 +342,6 @@ export default function Etablissements() {
                         className={classNames({ 'p-invalid': submitted && !etablissement.city })}
                     />
                     {submitted && !etablissement.city && <small className="p-error">Required.</small>}
-                </div>
-
-
-                <div className="field">
-                    <span htmlFor="quantity" className="font-bold">
-                        Quantity
-                    </span>
-                    <InputNumber
-                        id="quantity"
-                        value={etablissement.nb_Materiel}
-                        onValueChange={(e) => onInputNumberChange(e, 'quantity')}
-                    />
-                    {submitted && !etablissement.nb_Materiel && <small className="p-error">Required.</small>}
                 </div>
             </Dialog>
 

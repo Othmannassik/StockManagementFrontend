@@ -18,7 +18,7 @@ export const PrestataireService = {
   },
 
   updatePrestataire: async(prestataire) => {
-    const response = await Http.put(`/prestataires/${prestataire.id}`,prestataire);
+    const response = await Http.put(`/prestataires/${prestataire.idPres}`,prestataire);
     return response.data;
   },
 

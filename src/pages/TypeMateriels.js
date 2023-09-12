@@ -39,7 +39,7 @@ export default function TypeMateriels() {
     setTypeMateriel(emptyTypeMateriel);
     setSubmitted(false);
     setTypeMaterielDialog(true);
-  };
+  }; 
 
   const hideDialog = () => {
     setSubmitted(false);
@@ -61,9 +61,8 @@ const saveTypeMateriel = () => {
         const _Typemateriels = [...Typemateriels];
         const _Typemateriel = { ...Typemateriel };
 
-    if (Typemateriel.idTypeMat) {
+        if (Typemateriel.idTypeMat) {
       // Update existing TypeMateriel
-        console.log(Typemateriel.idTypeMat);
         TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat , _Typemateriel)
         // console.log(_Typemateriel)
         .then(() => { 

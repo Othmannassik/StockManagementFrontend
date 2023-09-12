@@ -38,6 +38,18 @@ export const ProprietaireService = {
       return response.data;
     },
 
+    // delete a materiel
+    deleteMateriel: async (id) => {
+      const response = await http.delete(`/affectations/${id}`);
+      return response.data;
+    },
+
+    // add materiel to proprietaire
+    addMaterielToProprietaire: async (affectationData) => {
+      const response = await http.post(`/affectations`, affectationData);
+      return response.data;
+    },
+
     getProprietaireData() {
         return [
             {
