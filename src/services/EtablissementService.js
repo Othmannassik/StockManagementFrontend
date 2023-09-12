@@ -33,5 +33,9 @@ export const EtablissementService = {
         return response.data;
     },
 
-
+    // Count Materiels by Etablissement
+    nbMatByEtablissement: async (id) => {
+        const response = await Http.get(`/etablissements/${id}/materiels`);
+        return response.data;
+      },
 };

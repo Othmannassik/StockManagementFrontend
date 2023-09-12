@@ -199,6 +199,26 @@ export default function Materiels() {
         );
     };
 
+const NombreCommande = (rowData) => {
+  const [commandCount, setCommandCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCommandCount = async () => {
+      try {
+        const count = await PrestataireService.nbCmdByPrestataire(rowData.idPres); // Replace with your actual backend API call
+        setCommandCount(count);
+      } catch (error) {
+        console.error('Error fetching command count:', error);
+        setCommandCount(0);
+      }
+    };
+
+    fetchCommandCount();
+  }, [rowData.idPres]);
+
+  return commandCount;
+};
+
     const actionBodyTemplate = (rowData) => {
         return (
             <fragment>
@@ -251,7 +271,7 @@ export default function Materiels() {
                     <Column field="raisonSocial" header="Raison Social" sortable style={{ minWidth: '12rem' }} />
                     <Column field="email" header="Email" style={{ minWidth: '16rem' }} />
                     <Column field="telephone" header="Téléphone" />
-                    <Column field="nbcmd" header="nbcmd"  style={{ minWidth: '12rem' }} />
+                    <Column header="Nbr Commande" body={NombreCommande} style={{ minWidth: '12rem' }} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>
             </div>

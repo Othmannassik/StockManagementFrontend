@@ -27,4 +27,9 @@ export const PrestataireService = {
     return response.data;
   },
 
+  nbCmdByPrestataire: async (id) => {
+    const response = await Http.get(`/prestataires/${id}/commandes`);
+    return response.data;
+  },
+
 };
