@@ -22,8 +22,8 @@ export const EtablissementService = {
     },
 
     // Update an existing Etablissement
-    updateEtablissement: async (Etablissement) => {
-        const response = await Http.put(`/etablissements/${Etablissement.idTypeMat}`, Etablissement);
+    updateEtablissement: async (id, Etablissement) => {
+        const response = await Http.put(`/etablissements/${id}`, Etablissement);
         return response.data;
     },
 
