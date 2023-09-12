@@ -61,50 +61,23 @@ export default function Etablissements() {
         setSubmitted(true);
 
         if (etablissement.name.trim() && etablissement.adresse.trim() && etablissement.city.trim()) {
-            const _etablissements = [...etablissements];
-            const _etablissement = { ...etablissement };
 
             if (etablissement.idEtb) {
-                // Update existing etablissement
-                console.log(etablissement.idEtb);
-                // TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat, _Typemateriel)
-                EtablissementService.updateEtablissement(etablissement.idEtb , _etablissement)
-                    // console.log(_Typemateriel)
-                    .then(() => {
-                        const index = etablissement.idEtb;
-                        _etablissements[index] = _etablissement;
-                        setEtablissements(_etablissements);
-                        setEtablissementDialog(false);
-                        setEtablissement(emptyEtablissement);
-                        toast.current.show({
-                            severity: 'success',
-                            summary: 'Successful',
-                            detail: 'Product Updated',
-                            life: 3000
-                        });
-                    })
-                    .catch((error) => {
-                        console.error('Error updating TypeMateriel:', error);
-                    });
+                EtablissementService.updateEtablissement(etablissement.idEtb, etablissement)
+                .then((data) => {
+                    loadEtablissements();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Etablissement Modifié', life: 3000 })
+                })                
             } else {
-                // create a Etablissement
-                EtablissementService.createEtablissement(_etablissement)
-                    .then(() => {
-                        const lastidEtb = Math.max(...etablissements.map(item => item.idEtb));
-                        _etablissement.idEtb = lastidEtb + 1;
-                        _etablissements.push(_etablissement);
-                        setEtablissements(_etablissements);
-                        setEtablissementDialog(false);
-                        setEtablissement(emptyEtablissement);
-                        loadEtablissements();
-                        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Etablissement Created', life: 3000 });
-                    })
-                    .catch((error) => {
-                        console.error('Error creating Etablissement:', error);
-                    });
+                EtablissementService.createEtablissement(etablissement)
+                .then((data) => {
+                    loadEtablissements();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Etablissement Creé', life: 3000 })
+                })
             }
 
-
+            setEtablissementDialog(false);
+            setEtablissement(emptyEtablissement);
         }
     };
 
@@ -169,12 +142,25 @@ export default function Etablissements() {
     };
 
     const deleteSelectedEtablissements = () => {
-        const _etablissements = etablissements.filter((val) => !selectedEtablissements.includes(val));
-
-        setEtablissements(_etablissements);
-        setDeleteEtablissementsDialog(false);
-        setSelectedEtablissements(null);
-        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Etablissements Deleted', life: 3000 });
+        const promises = selectedEtablissements.map((etb) => {
+            return EtablissementService.deleteEtablissement(etb.idEtb);
+        });
+    
+        Promise.all(promises)
+            .then(() => {
+                // After all items are successfully deleted, refresh the data
+                return loadEtablissements();
+            })
+            .then(() => {
+                // Clear the selected items and hide the delete dialog
+                setSelectedEtablissements(null);
+                setDeleteEtablissementsDialog(false);
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Etablissements Supprimés', life: 3000 });
+            })
+            .catch((error) => {
+                console.error('Error deleting selected items', error);
+                // Handle error if necessary
+            });
     };
 
 
@@ -268,14 +254,14 @@ export default function Etablissements() {
     );
     const deleteEtablissementDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteEtablissementDialog} />
-            <Button label="Yes" icon="pi pi-check" severity="danger" onClick={deleteEtablissement} />
+            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteEtablissementDialog} />
+            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteEtablissement} />
         </>
     );
     const deleteEtablissementsDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteEtablissementsDialog} />
-            <Button label="Yes" icon="pi pi-check" severity="danger" onClick={deleteSelectedEtablissements} />
+            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteEtablissementsDialog} />
+            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteSelectedEtablissements} />
         </>
     );
 
