@@ -7,8 +7,8 @@ export const LivraisonService = {
     return response.data;
   },
 
-  createLivraison : async (livraison) => {
-    const response =  await Http.post("/livraisons", livraison);
+  createLivraison : async (livraison, cmdId) => {
+    const response =  await Http.post(`/livraisons/${cmdId}`, livraison);
     return response.data;
   },
 
@@ -17,8 +17,8 @@ export const LivraisonService = {
     return response.data;
   },
 
-  updateLivraison: async(livraison) => {
-    const response = await Http.put(`/livraisons/${livraison.idLiv}`,livraison);
+  updateLivraison: async(id, livraison) => {
+    const response = await Http.put(`/livraisons/${id}`,livraison);
     return response.data;
   },
 

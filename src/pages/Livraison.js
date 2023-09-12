@@ -15,16 +15,19 @@ import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
 import { LivraisonService } from '../services/LivraisonService';
+import { CommandeService } from '../services/CommandeService';
 
 export default function Livraisons() {
     const emptyLivraison = {
         idLiv: null,
-        bonLiv: null,
+        bonLiv: "",
         date: null,
         quantity: 0,
+        commande: "",
     };
 
     const [livraisons, setLivraisons] = useState(null);
+    const [commandes, setCommandes] = useState(null);
     const [livraisonDialog, setLivraisonDialog] = useState(false);
     const [deleteLivraisonDialog, setDeleteLivraisonDialog] = useState(false);
     const [deleteLivraisonsDialog, setDeleteLivraisonsDialog] = useState(false);
@@ -33,12 +36,18 @@ export default function Livraisons() {
     const [selectedLivraisons, setSelectedLivraisons] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
+    const [showCommandeInput, setShowCommandeInput] = useState(true);
     const toast = useRef(null);
     const dt = useRef(null);
     const _livraison = Livraisons;
 
-    useEffect(() => {
+    const loadLivraisonsData = () => {
         LivraisonService.getLivraisons().then((data) => setLivraisons(data));
+    }
+
+    useEffect(() => {
+        loadLivraisonsData();
+        CommandeService.getCommandes().then((data) => setCommandes(data));
     }, []);
 
     const addLivraison = () => {
@@ -71,6 +80,7 @@ export default function Livraisons() {
         setLivraison(emptyLivraison);
         setSubmitted(false);
         setLivraisonDialog(true);
+        setShowCommandeInput(true);
     };
 
     const hideDialog = () => {
@@ -88,26 +98,23 @@ export default function Livraisons() {
 
     const saveLivraison = () => {
         setSubmitted(true);
-        if (livraison.date && livraison.date instanceof Date) {
-            // Formatage de la date en "jour/mois/année" avec la localisation française
-            const formattedDate = format(livraison.date, 'dd/MM/yyyy', { locale: fr });
-    
-            const _livraisons = [...livraisons];
-            const _livraison = { ...livraison, date: formattedDate };
-    
+
+        if (livraison.bonLiv.trim()) {
+
             if (livraison.idLiv) {
-                const index = findIndexById(livraison.id);
-    
-                _livraisons[index] = _livraison;
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Modifié', life: 3000 });
+                LivraisonService.updateLivraison(livraison.idLiv, livraison)
+                .then((data) => {
+                    loadLivraisonsData();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Modifié', life: 3000 })
+                })                
             } else {
-                _livraison.id = createId();
-                _livraison.image = 'product-placeholder.svg';
-                _livraisons.push(_livraison);
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Créé', life: 3000 });
+                LivraisonService.createLivraison(livraison, livraison.commande.idCmd)
+                .then((data) => {
+                    loadLivraisonsData();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Creé', life: 3000 })
+                })
             }
-    
-            setLivraisons(_livraisons);
+
             setLivraisonDialog(false);
             setLivraison(emptyLivraison);
         }
@@ -118,6 +125,7 @@ export default function Livraisons() {
     const editLivraison = (livraison) => {
         setLivraison({ ...livraison });
         setLivraisonDialog(true);
+        setShowCommandeInput(false);
     };
 
     const confirmDeleteLivraison = (livraison) => {
@@ -126,14 +134,15 @@ export default function Livraisons() {
     };
 
     const deleteLivraison = () => {
-        const _livraisons = livraisons.filter((val) => val.idLiv !== livraison.idLiv);
+        LivraisonService.deletePLivraison(livraison.idLiv)
+            .then(() => {
+                loadLivraisonsData();
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Supprimé', life: 3000 });
+            })
 
-        setLivraisons(_livraisons);
         setDeleteLivraisonDialog(false);
         setLivraison(emptyLivraison);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Supprimée', life: 3000 });
     };
-
     const findIndexById = (id) => {
         let index = -1;
 
@@ -167,12 +176,25 @@ export default function Livraisons() {
     };
 
     const deleteSelectedLivraisons = () => {
-        const _livraisons = livraisons.filter((val) => !selectedLivraisons.includes(val));
-
-        setLivraisons(_livraisons);
-        setDeleteLivraisonsDialog(false);
-        setSelectedLivraisons(null);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraisons Supprimées', life: 3000 });
+        const promises = selectedLivraisons.map((liv) => {
+            return LivraisonService.deletePLivraison(liv.idLiv);
+        });
+    
+        Promise.all(promises)
+            .then(() => {
+                // After all items are successfully deleted, refresh the data
+                return loadLivraisonsData();
+            })
+            .then(() => {
+                // Clear the selected items and hide the delete dialog
+                setSelectedLivraisons(null);
+                setDeleteLivraisonsDialog(false);
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraisons Supprimés', life: 3000 });
+            })
+            .catch((error) => {
+                console.error('Error deleting selected items', error);
+                // Handle error if necessary
+            });
     };
 
     const onInputChange = (e, name) => {
@@ -275,21 +297,11 @@ export default function Livraisons() {
           return tag;
       };
 
-
-    const typeMateriels = [
-        { name: 'Laptop' },
-        { name: 'PC Bureau' },
-        { name: 'Lecteur NFC' },
-        { name: 'Imprimante' },
-        { name: 'Scanner' },
-        
-    ];
-
-    const selectedTypeMaterielTemplate = (option, props) => {
+      const selectedCommandeTemplate = (option, props) => {
         if (option) {
             return (
                 <div className="flex align-items-center">
-                    <div>{option.name}</div>
+                    <div>{option.numBonCmd}</div>
                 </div>
             );
         }
@@ -297,17 +309,12 @@ export default function Livraisons() {
         return <span>{props.placeholder}</span>;
     };
 
-    const typeMaterielOptionTemplate = (option) => {
+    const commandeOptionTemplate = (option) => {
         return (
             <div className="flex align-items-center">
-                <div>{option.name}</div>
+                <div>{option.numBonCmd}</div>
             </div>
         );
-    };
-
-
-    const allowExpansion = (rowData) => {
-        return true;
     };
 
     const rowExpansionTemplate = (data) => {
@@ -389,6 +396,17 @@ export default function Livraisons() {
                     <InputText value={livraison.bonLiv} onChange={(e) => onInputChange(e, 'bonLiv')}  placeholder="Bon Livraison"  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.bonLiv })} />
                     {submitted && !livraison.bonLiv && <small className="p-error">bonLiv is required.</small>}
                 </div> 
+                <div className="field">
+                    { showCommandeInput && (
+                        <>
+                            <span htmlFor="commande" className="font-bold">
+                                Commande
+                            </span>
+                            <Dropdown value={livraison.commande} onChange={(e) => onInputChange(e, "commande")} options={commandes} optionLabel="numBonCmd" placeholder="Select a Commande" 
+                                    filter valueTemplate={selectedCommandeTemplate} itemTemplate={commandeOptionTemplate} required autoFocus />
+                        </>
+                    )}
+                </div>
                 <div className="field">
                     <span htmlFor="quantity" className="font-bold">
                         Quantité
