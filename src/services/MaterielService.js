@@ -17,8 +17,8 @@ export const MaterielService = {
     return response.data;
   }, 
 
-  updateMateriel: async(materiel) => {
-    const response = await Http.put(`/materiels/${materiel.idMat}`,materiel);
+  updateMateriel: async(id, materiel) => {
+    const response = await Http.put(`/materiels/${id}`,materiel);
     return response.data;
   },
 

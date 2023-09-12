@@ -9,19 +9,25 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
+import { Dropdown } from 'primereact/dropdown';
 import { MaterielService } from '../services/MaterielService';
+import { EtablissementService } from '../services/EtablissementService';
+import { TypeMaterielService } from '../services/TypeMaterielService';
 
 
 export default function Materiels() {
     const emptyMateriel = {
         idMat: null,
         model: '',
-        numSerie: null,
+        numSerie: "",
         inventaireCih: '',
-        quantity: 0,
+        typeMaterielDTO : null,
+        etablissementDTO: null,
     };
 
     const [materiels, setMateriels] = useState(null);
+    const [typeMateriels, setTypeMateriels] = useState(null);
+    const [etablissements, setEtablissements] = useState(null);
     const [materielDialog, setMaterielDialog] = useState(false);
     const [deleteMaterielDialog, setDeleteMaterielDialog] = useState(false);
     const [deleteMaterielsDialog, setDeleteMaterielsDialog] = useState(false);
@@ -32,8 +38,18 @@ export default function Materiels() {
     const toast = useRef(null);
     const dt = useRef(null);
 
-    useEffect(() => {
+    const loadMaterielData = () => {
         MaterielService.getMateriels().then((data) => setMateriels(data));
+    }
+
+    useEffect(() => {
+        loadMaterielData();
+
+        TypeMaterielService.getTypeMateriels()
+            .then((data) => setTypeMateriels(data))
+
+        EtablissementService.getEtablissements()
+            .then((data) => setEtablissements(data))
     }, []);
 
 
@@ -58,40 +74,25 @@ export default function Materiels() {
 
     const saveMateriel = () => {
         setSubmitted(true);
-      
-        if (materiel.model.trim() && materiel.numSerie.trim() && materiel.inventaireCih.trim() && materiel.quantity > 0) {
-          const _materiels = [...materiels];
-          const _materiel = { ...materiel };
-      
-          if (materiel.idMat) {
-            MaterielService.updateMateriel(_materiel)
-              .then(() => {
-                const index = _materiels.findIndex((item) => item.idMat === _materiel.idMat);
-                _materiels[index] = _materiel;
-                setMateriels(_materiels);
-                setMaterielDialog(false);
-                setMateriel(emptyMateriel);
-                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Materiel Updated', life: 3000 });
-            })
-              .catch((error) => {
-                console.error('Error updating Materiel:', error);
-              });
-          } else {
-            // Ajout d'un nouveau matériel
-            MaterielService.createMateriel(_materiel)
-              .then((response) => {
-                const lastIdMat = Math.max(..._materiels.map((item) => item.idMat), 0);
-                _materiel.idMat = lastIdMat + 1;
-                _materiels.push(_materiel);
-                setMateriels(_materiels);
-                setMaterielDialog(false);
-                setMateriel(emptyMateriel);
-                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Materiel Created', life: 3000 });
-              })
-              .catch((error) => {
-                console.error('Error creating Materiel:', error);
-              });
-          }
+
+        if (materiel.inventaireCih.trim() && materiel.model.trim()) {
+
+            if (materiel.idMat) {
+                MaterielService.updateMateriel(materiel.idMat, materiel)
+                .then((data) => {
+                    loadMaterielData();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Modifié', life: 3000 })
+                })                
+            } else {
+                MaterielService.createMateriel(materiel)
+                .then((data) => {
+                    loadMaterielData();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Creé', life: 3000 })
+                })
+            }
+
+            setMaterielDialog(false);
+            setMateriel(emptyMateriel);
         }
     };
       
@@ -106,12 +107,15 @@ export default function Materiels() {
     };
 
     const deleteMateriel = () => {
-        const _materiels = materiels.filter((val) => val.idMat !== materiel.idMat);
+        console.log(materiel);
+        MaterielService.deleteMateriel(materiel.idMat)
+            .then(() => {
+                loadMaterielData();
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Supprimé', life: 3000 });
+            })
 
-        setMateriels(_materiels);
         setDeleteMaterielDialog(false);
         setMateriel(emptyMateriel);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Supprimé', life: 3000 });
     };
 
     const findIndexById = (idMat) => {
@@ -147,12 +151,65 @@ export default function Materiels() {
     };
 
     const deleteSelectedMateriels = () => {
-        const _materiels = materiels.filter((val) => !selectedMateriels.includes(val));
+        const promises = selectedMateriels.map((mat) => {
+            return MaterielService.deleteMateriel(mat.idMat);
+        });
+    
+        Promise.all(promises)
+            .then(() => {
+                // After all items are successfully deleted, refresh the data
+                return loadMaterielData();
+            })
+            .then(() => {
+                // Clear the selected items and hide the delete dialog
+                setSelectedMateriels(null);
+                setDeleteMaterielsDialog(false);
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériaux Supprimés', life: 3000 });
+            })
+            .catch((error) => {
+                console.error('Error deleting selected items', error);
+                // Handle error if necessary
+            });
+    };
 
-        setMateriels(_materiels);
-        setDeleteMaterielsDialog(false);
-        setSelectedMateriels(null);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériaux Supprimés', life: 3000 });
+    const selectedTypeMaterielTemplate = (option, props) => {
+        if (option) {
+            return (
+                <div className="flex align-items-center">
+                    <div>{option.name}</div>
+                </div>
+            );
+        }
+
+        return <span>{props.placeholder}</span>;
+    };
+
+    const typeMaterielOptionTemplate = (option) => {
+        return (
+            <div className="flex align-items-center">
+                <div>{option.name}</div>
+            </div>
+        );
+    };
+
+    const selectedEtablissementTemplate = (option, props) => {
+        if (option) {
+            return (
+                <div className="flex align-items-center">
+                    <div>{option.name}</div>
+                </div>
+            );
+        }
+
+        return <span>{props.placeholder}</span>;
+    };
+
+    const EtablissementOptionTemplate = (option) => {
+        return (
+            <div className="flex align-items-center">
+                <div>{option.name}</div>
+            </div>
+        );
     };
 
     const onCategoryChange = (e) => {
@@ -197,18 +254,6 @@ export default function Materiels() {
         );
     };
 
-    const statusBodyTemplate = (rowData) => {
-      let tag;
-        if(rowData.quantity < 5) {
-          tag = <Tag value="In Stock" severity={getSeverity(rowData)} />;
-        } else if (rowData.quantity < 10) {
-          tag = <Tag value="Warning" severity={getSeverity(rowData)} />;
-        } else {
-          tag = <Tag value="Out of Stock" severity={getSeverity(rowData)} />;
-        }
-        return tag;
-    };
-
     const actionBodyTemplate = (rowData) => {
         return (
             <>
@@ -216,18 +261,6 @@ export default function Materiels() {
                 <Button icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeleteMateriel(rowData)} />
             </>
         );
-    };
-
-    const getSeverity = (materiel) => {
-      let status;
-      if(materiel.quantity < 5) {
-        status = "danger";
-      } else if (materiel.quantity < 10) {
-        status = "warning";
-      } else {
-        status = "success";
-      }
-      return status;
     };
 
     const header = (
@@ -272,8 +305,9 @@ export default function Materiels() {
                     <Column field="model" header="Modèle" sortable style={{ minWidth: '12rem' }} />
                     <Column field="numSerie" header="N° Série" style={{ minWidth: '12rem' }} />
                     <Column field="inventaireCih" header="Inventaire CIH" />
-                    <Column field="quantity" header="Quantité" sortable style={{ minWidth: '8rem' }} />
-                    <Column field="" header="Status" body={statusBodyTemplate} style={{ minWidth: '12rem' }} />
+                    <Column field="typeMaterielDTO.name" header="Type Matériel" />
+                    <Column field="etablissementDTO.name" header="Etablissement" />
+                    {/* <Column field="quantity" header="Quantité" sortable style={{ minWidth: '8rem' }} /> */}
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>
             </div>
@@ -300,13 +334,21 @@ export default function Materiels() {
                     <InputText placeholder='Inventaire Cih' id="inventaireCih" value={materiel.inventaireCih} onChange={(e) => onInputChange(e, 'inventaireCih')} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.inventaireCih })} />
                     {submitted && !materiel.inventaireCih && <small className="p-error">Inventaire Cih is required.</small>}
                 </div>
-                <div className="formgrid grid">
-                    <div className="field col">
-                        <span htmlFor="quantity" className="font-bold">
-                            Quantité
-                        </span>
-                        <InputNumber id="quantity" value={materiel.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} />
-                    </div>
+                <div className="field">
+                    <span htmlFor="typeMateriel" className="font-bold">
+                        Type Matériel
+                    </span>
+                    <Dropdown value={materiel.typeMaterielDTO} onChange={(e) => onInputChange(e, "typeMaterielDTO")} options={typeMateriels} optionLabel="name" placeholder="Select a Type" 
+                            filter valueTemplate={selectedTypeMaterielTemplate} itemTemplate={typeMaterielOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.typeMaterielDTO })} />
+                    {submitted && !materiel.typeMaterielDTO && <small className="p-error">Type Matériel is required.</small>}
+                </div>
+                <div className="field">
+                    <span htmlFor="etablissement" className="font-bold">
+                        Etablissement
+                    </span>
+                    <Dropdown value={materiel.etablissementDTO} onChange={(e) => onInputChange(e, "etablissementDTO")} options={etablissements} optionLabel="name" placeholder="Select an Etablissement" 
+                            filter valueTemplate={selectedEtablissementTemplate} itemTemplate={EtablissementOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !materiel.etablissementDTO })} />
+                    {submitted && !materiel.etablissementDTO && <small className="p-error">Etablissement is required.</small>}
                 </div>
             </Dialog>
 
@@ -315,7 +357,7 @@ export default function Materiels() {
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                     {materiel && (
                         <span>
-                            Vous Voulez Vraiment Supprimer <b>{materiel.name}</b> ?
+                            Vous Voulez Vraiment Supprimer <b>{materiel.model}</b> ?
                         </span>
                     )}
                 </div>

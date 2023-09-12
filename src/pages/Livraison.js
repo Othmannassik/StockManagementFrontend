@@ -372,7 +372,6 @@ export default function Livraisons() {
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} livraisons" globalFilter={globalFilter}  header={header} tableStyle={{ minWidth: '60rem' }}>
                 <Column selectionMode="multiple" exportable={false} />
-                {/* <Column expander={allowExpansion} style={{ width: '5rem' }} /> */}
                 <Column field="bonLiv" header="N° BL" sortable/>
                 <Column header="N° BC" body={NumBoncmd} sortable/>
                 <Column field="date" header="Date" sortable/>
