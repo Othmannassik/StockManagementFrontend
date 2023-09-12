@@ -241,6 +241,26 @@ export default function Livraisons() {
         );
     };
 
+    const NumBoncmd = (rowData) => {
+        const [commande, setCommande] = useState(null);
+      
+        useEffect(() => {
+          const fetchdata = async () => {
+            try {
+              const cmd = await LivraisonService.cmdByLivraison(rowData.idLiv); // Replace with your actual backend API call
+              setCommande(cmd);
+            } catch (error) {
+              console.error('Error fetching commande count:', error);
+              setCommande(0);
+            }
+          };
+      
+          fetchdata();
+        }, [rowData.idLiv]);
+      
+        return commande;
+      };
+
     const statusBodyTemplate = (rowData) => {
         let tag;
           if(rowData.status === "CREATED") {
@@ -346,7 +366,8 @@ export default function Livraisons() {
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} livraisons" globalFilter={globalFilter}  header={header} tableStyle={{ minWidth: '60rem' }}>
                 <Column selectionMode="multiple" exportable={false} />
                 {/* <Column expander={allowExpansion} style={{ width: '5rem' }} /> */}
-                <Column field="bonLiv" header="N° BL" />
+                <Column field="bonLiv" header="N° BL" sortable/>
+                <Column header="N° BC" body={NumBoncmd} sortable/>
                 <Column field="date" header="Date" sortable/>
                 <Column field="quantity" header="Quantité" sortable />
                 <Column field="" header="Bon Livraison" body={bonLivAction} />

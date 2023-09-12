@@ -54,58 +54,30 @@ export default function TypeMateriels() {
     setDeleteTypeMaterielsDialog(false);
   };
 
-const saveTypeMateriel = () => {
-  setSubmitted(true);
+  const saveTypeMateriel = () => {
+    setSubmitted(true);
 
-  if (Typemateriel.name.trim()) {
-        const _Typemateriels = [...Typemateriels];
-        const _Typemateriel = { ...Typemateriel };
+    if (Typemateriel.name.trim()) {
 
         if (Typemateriel.idTypeMat) {
-      // Update existing TypeMateriel
-        TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat , _Typemateriel)
-        // console.log(_Typemateriel)
-        .then(() => { 
-          const index = Typemateriel.idTypeMat;
-          _Typemateriels[index] = _Typemateriel;
-          setTypeMateriels(_Typemateriels);
-          setTypeMaterielDialog(false);
-          setTypeMateriel(emptyTypeMateriel);
-          toast.current.show({
-            severity: 'success',
-            summary: 'Successful',
-            detail: 'Product Updated',
-            life: 3000
-          });
-        })
-        .catch((error) => {
-          console.error('Error updating TypeMateriel:', error);
-        });
-    } else {
-      // Create new TypeMateriel
-        TypeMaterielService.createTypeMateriel(_Typemateriel)
-        .then(() => {
-          const lastIdTypeMat = Math.max(...Typemateriels.map(item => item.idTypeMat));
-          _Typemateriel.idTypeMat = lastIdTypeMat+1;
-          _Typemateriels.push(_Typemateriel);
-          setTypeMateriels(_Typemateriels);
-          setTypeMaterielDialog(false);
-          setTypeMateriel(emptyTypeMateriel);
-          toast.current.show({
-            severity: 'success',
-            summary: 'Successful',
-            detail: 'Product Created',
-            life: 3000
-          });
-        })
-        .catch((error) => {
-          console.error('Error creating TypeMateriel:', error);
-        });
+            TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat, Typemateriel)
+            .then((data) => {
+              loadTypeMateriels();
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Typemateriel Modifié', life: 3000 })
+            })                
+        } else {
+            TypeMaterielService.createTypeMateriel(Typemateriel)
+            .then((data) => {
+              loadTypeMateriels();
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Typemateriel Creé', life: 3000 })
+            })
+        }
 
-
+        setTypeMaterielDialog(false);
+        setTypeMateriel(emptyTypeMateriel);
     }
-  }
 };
+
 
 
   const editTypeMateriel = (Typemateriel) => {
@@ -121,24 +93,13 @@ const saveTypeMateriel = () => {
   };
   const deleteTypeMateriel = () => {
     TypeMaterielService.deleteTypeMateriel(Typemateriel.idTypeMat)
-      .then(() => {
-        const _typeMateriels = 
-        Typemateriels.filter((val) =>
-         val.idTypeMat !== Typemateriel.idTypeMat);
-        setTypeMateriels(_typeMateriels);
+            .then(() => {
+                loadTypeMateriels();
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Typemateriel Supprimé', life: 3000 });
+            })
+
         setDeleteTypeMaterielDialog(false);
         setTypeMateriel(emptyTypeMateriel);
-        loadTypeMateriels();
-        toast.current.show({
-          severity: 'success',
-          summary: 'Succès !',
-          detail: 'Type Matériel Supprimé',
-          life: 3000
-        });
-      })
-      .catch((error) => {
-        console.error('Error deleting TypeMateriel:', error);
-      });
   };
 
   const findIndexById = (id) => {

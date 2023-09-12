@@ -27,4 +27,8 @@ export const LivraisonService = {
     return response.data;
   },
 
+  cmdByLivraison: async (id) => {
+    const response = await Http.get(`/livraisons/${id}/commande`);
+    return response.data;
+  }
 };

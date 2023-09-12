@@ -15,7 +15,7 @@ export default function Etablissements() {
         idEtb: null,
         name: '',
         adresse: '',
-        ville: '',
+        city: '',
         nb_Materiel: 0,
     };
 
@@ -60,7 +60,7 @@ export default function Etablissements() {
     const saveEtablissement = () => {
         setSubmitted(true);
 
-        if (etablissement.name.trim()) {
+        if (etablissement.name.trim() && etablissement.adresse.trim() && etablissement.city.trim()) {
             const _etablissements = [...etablissements];
             const _etablissement = { ...etablissement };
 
@@ -327,6 +327,7 @@ export default function Etablissements() {
                         id="name"
                         value={etablissement.name}
                         onChange={(e) => onInputChange(e, 'name')}
+                        placeholder='name'
                         required
                         autoFocus
                         className={classNames({ 'p-invalid': submitted && !etablissement.name })}
@@ -342,6 +343,7 @@ export default function Etablissements() {
                         id="adresse"
                         value={etablissement.adresse}
                         onChange={(e) => onInputChange(e, 'adresse')}
+                        placeholder='Adresse'
                         required
                         autoFocus
                         className={classNames({ 'p-invalid': submitted && !etablissement.adresse })}
@@ -357,6 +359,7 @@ export default function Etablissements() {
                         id="city"
                         value={etablissement.city}
                         onChange={(e) => onInputChange(e, 'city')}
+                        placeholder='Ville'
                         required
                         autoFocus
                         className={classNames({ 'p-invalid': submitted && !etablissement.city })}
