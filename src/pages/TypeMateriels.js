@@ -224,6 +224,26 @@ const saveTypeMateriel = () => {
     );
   };
 
+  const NombreMateriel = (rowData) => {
+    const [materielCount, setMaterielCount] = useState(0);
+  
+    useEffect(() => {
+      const fetchMaterielsCount = async () => {
+        try {
+          const count = await TypeMaterielService.nbMatByTypeMateriel(rowData.idTypeMat); // Replace with your actual backend API call
+          setMaterielCount(count);
+        } catch (error) {
+          console.error('Error fetching materiels count:', error);
+          setMaterielCount(0);
+        }
+      };
+  
+      fetchMaterielsCount();
+    }, [rowData.idTypeMat]);
+  
+    return materielCount;
+  };
+
   
 
   const header = (
@@ -272,7 +292,8 @@ const saveTypeMateriel = () => {
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Typemateriels" globalFilter={globalFilter} header={header}>
           <Column selectionMode="multiple" exportable={false} />
           <Column key="idTypeMat" field="idTypeMat" header="ID" />
-          <Column key="name" field="name" header="Name" style={{ minWidth: '16rem' }} />
+          <Column key="name" field="name" header="Name" />
+          <Column field="" header="Nbr Materiel" body={NombreMateriel} />
           <Column key="actions" body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
         </DataTable>
       </div>

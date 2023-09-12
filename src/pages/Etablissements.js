@@ -245,7 +245,7 @@ export default function Etablissements() {
           };
       
           fetchMaterielsCount();
-        }, [rowData.idPres]);
+        }, [rowData.idEtb]);
       
         return materielCount;
       };

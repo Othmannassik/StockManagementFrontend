@@ -33,5 +33,10 @@ export const TypeMaterielService = {
         return response.data;
     },
 
+        // Count Materiels by TypeMateriels
+        nbMatByTypeMateriel: async (id) => {
+            const response = await Http.get(`/typeMateriels/${id}/materiels`);
+            return response.data;
+          },
 
 };
