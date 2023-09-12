@@ -230,6 +230,26 @@ export default function Etablissements() {
         );
     };
 
+    const NombreMateriel = (rowData) => {
+        const [materielCount, setMaterielCount] = useState(0);
+      
+        useEffect(() => {
+          const fetchMaterielsCount = async () => {
+            try {
+              const count = await EtablissementService.nbMatByEtablissement(rowData.idEtb); // Replace with your actual backend API call
+              setMaterielCount(count);
+            } catch (error) {
+              console.error('Error fetching materiels count:', error);
+              setMaterielCount(0);
+            }
+          };
+      
+          fetchMaterielsCount();
+        }, [rowData.idPres]);
+      
+        return materielCount;
+      };
+
 
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -283,7 +303,7 @@ export default function Etablissements() {
                     <Column field="name" header="Name" sortable style={{ minWidth: '16rem' }} />
                     <Column field="adresse" header="Adresse" sortable style={{ minWidth: '16rem' }} />
                     <Column field="city" header="Ville" sortable style={{ minWidth: '8rem' }} />
-                    <Column field="nb_Materiel" header="nb_Materiel" sortable style={{ minWidth: '10rem' }} />
+                    <Column header="Nbr Materiel" body={NombreMateriel} sortable style={{ minWidth: '10rem' }} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>
             </div>
