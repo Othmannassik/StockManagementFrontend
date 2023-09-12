@@ -32,8 +32,13 @@ export default function Materiels() {
     const toast = useRef(null);
     const dt = useRef(null);
 
-    useEffect(() => {
+
+    const loadPrestataireData = () => {
         PrestataireService.getPrestataires().then((data) => setPrestataires(data));
+    }
+
+    useEffect(() => {
+        loadPrestataireData();
     }, []);
 
 
@@ -108,12 +113,14 @@ export default function Materiels() {
     };
 
     const deletePrestataire = () => {
-        const _prestataires = prestataires.filter((val) => val.idPres !== prestataire.idPres);
+        PrestataireService.deletePrestataire(prestataire.idPres)
+            .then(() => {
+                loadPrestataireData();
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Supprimé', life: 3000 });
+            })
 
-        setPrestataires(_prestataires);
         setDeletePrestataireDialog(false);
         setPrestataire(emptyPrestataire);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Supprimé', life: 3000 });
     };
 
     const findIndexById = (idPres) => {
@@ -149,12 +156,25 @@ export default function Materiels() {
     };
 
     const deleteSelectedPrestataires = () => {
-        const _prestataires = prestataires.filter((val) => !selectedPrestataires.includes(val));
-
-        setPrestataires(_prestataires);
-        setDeletePrestatairesDialog(false);
-        setSelectedPrestataires(null);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Supprimé', life: 3000 });
+        const promises = selectedPrestataires.map((prop) => {
+            return PrestataireService.deletePrestataire(prop.idPres);
+        });
+    
+        Promise.all(promises)
+            .then(() => {
+                // After all items are successfully deleted, refresh the data
+                return loadPrestataireData();
+            })
+            .then(() => {
+                // Clear the selected items and hide the delete dialog
+                setSelectedPrestataires(null);
+                setDeletePrestatairesDialog(false);
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataires Supprimés', life: 3000 });
+            })
+            .catch((error) => {
+                console.error('Error deleting selected items', error);
+                // Handle error if necessary
+            });
     };
 
     const onCategoryChange = (e) => {
@@ -305,7 +325,7 @@ const NombreCommande = (rowData) => {
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                     {prestataire && (
                         <span>
-                            Vous Voulez Vraiment Supprimer <b>{prestataire.name}</b> ?
+                            Vous Voulez Vraiment Supprimer <b>{prestataire.raisonSocial}</b> ?
                         </span>
                     )}
                 </div>

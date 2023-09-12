@@ -95,7 +95,7 @@ export default function TypeMateriels() {
     TypeMaterielService.deleteTypeMateriel(Typemateriel.idTypeMat)
             .then(() => {
                 loadTypeMateriels();
-                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Typemateriel Supprimé', life: 3000 });
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'TypeMateriel Supprimé', life: 3000 });
             })
 
         setDeleteTypeMaterielDialog(false);
@@ -131,18 +131,26 @@ export default function TypeMateriels() {
 
 
   const deleteSelectedTypeMateriels = () => {
-    const _Typemateriels = Typemateriels.filter((val) => !selectedTypeMateriels.includes(val));
-
-    setTypeMateriels(_Typemateriels);
-    setDeleteTypeMaterielsDialog(false);
-    setSelectedTypeMateriels(null);
-    toast.current.show({
-      severity: 'success',
-      summary: 'Succès !',
-      detail: 'Types Matériaux Supprimés',
-      life: 3000
+    const promises = selectedTypeMateriels.map((prop) => {
+        return TypeMaterielService.deleteTypeMateriel(prop.idTypeMat);
     });
-  };
+
+    Promise.all(promises)
+        .then(() => {
+            // After all items are successfully deleted, refresh the data
+            return loadTypeMateriels();
+        })
+        .then(() => {
+            // Clear the selected items and hide the delete dialog
+            setSelectedTypeMateriels(null);
+            setDeleteTypeMaterielsDialog(false);
+            toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Types Matériel Supprimés', life: 3000 });
+        })
+        .catch((error) => {
+            console.error('Error deleting selected items', error);
+            // Handle error if necessary
+        });
+};
 
 
   const onInputChange = (e, name) => {
