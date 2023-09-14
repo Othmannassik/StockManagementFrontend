@@ -239,7 +239,7 @@ export default function Etablissements() {
 
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <h4 className="m-0">Manage Etablissements</h4>
+            <h4 className="m-0">Liste des Etablissements</h4>
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
@@ -298,7 +298,7 @@ export default function Etablissements() {
                 visible={etablissementDialog}
                 style={{ width: '32rem' }}
                 breakpoints={{ '960px': '75vw', '641px': '90vw' }}
-                header="Etablissement Details"
+                header="Etablissement Détails"
                 modal
                 className="p-fluid"
                 footer={etablissementDialogFooter}
@@ -367,7 +367,7 @@ export default function Etablissements() {
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                     {etablissement && (
                         <span>
-                            Are you sure you want to delete <b>{etablissement.name}</b>?
+                            Vous Voulez Vraiment Supprimer <b>{etablissement.name}</b>?
                         </span>
                     )}
                 </div>
@@ -384,7 +384,7 @@ export default function Etablissements() {
             >
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {etablissement && <span>Are you sure you want to delete the selected etablissements?</span>}
+                    {etablissement && <span>Vous Voulez Vraiment Effectuer La Suppression ?</span>}
                 </div>
             </Dialog>
         </div>

@@ -296,7 +296,7 @@ const NombreCommande = (rowData) => {
                 </DataTable>
             </div>
 
-            <Dialog visible={prestataireDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Matériel Détails" modal className="p-fluid" footer={prestataireDialogFooter} onHide={hideDialog}>
+            <Dialog visible={prestataireDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Prestataire Détails" modal className="p-fluid" footer={prestataireDialogFooter} onHide={hideDialog}>
                 <div className="field">
                     <span htmlFor="Raison Social" className="font-bold">
                         Raison Social

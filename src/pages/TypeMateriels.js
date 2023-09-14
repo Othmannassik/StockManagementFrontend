@@ -267,7 +267,7 @@ export default function TypeMateriels() {
         </DataTable>
       </div>
 
-      <Dialog visible={TypematerielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Matériel Détails" modal className="p-fluid" footer={TypematerielDialogFooter} onHide={hideDialog}>
+      <Dialog visible={TypematerielDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Type Matériel Détails" modal className="p-fluid" footer={TypematerielDialogFooter} onHide={hideDialog}>
         <div className="field">
           <span htmlFor="model" className="font-bold">
             Name
