@@ -28,6 +28,7 @@ export default function Livraisons() {
 
     const [livraisons, setLivraisons] = useState(null);
     const [commandes, setCommandes] = useState(null);
+    const [commande, setCommande] = useState(null);
     const [livraisonDialog, setLivraisonDialog] = useState(false);
     const [deleteLivraisonDialog, setDeleteLivraisonDialog] = useState(false);
     const [deleteLivraisonsDialog, setDeleteLivraisonsDialog] = useState(false);
@@ -39,7 +40,6 @@ export default function Livraisons() {
     const [showCommandeInput, setShowCommandeInput] = useState(true);
     const toast = useRef(null);
     const dt = useRef(null);
-    const _livraison = Livraisons;
 
     const loadLivraisonsData = () => {
         LivraisonService.getLivraisons().then((data) => setLivraisons(data));
@@ -49,32 +49,6 @@ export default function Livraisons() {
         loadLivraisonsData();
         CommandeService.getCommandes().then((data) => setCommandes(data));
     }, []);
-
-    const addLivraison = () => {
-        if (!livraison.model || !livraison.date || livraison.quantity <= 0) {
-            toast.current.show({ severity: 'error', summary: 'Erreur !', detail: 'Veuillez remplir tous les champs requis.', life: 3000 });
-            return;
-        }
-
-        const newId = createId();
-
-        const newLivraison = {
-            id: newId,
-            bonLiv: livraison.bonLiv,
-            bonCmd: livraison.bonCmd,
-            model: livraison.model,
-            date: livraison.date,
-            quantity: livraison.quantity,
-            // Ajoutez d'autres propriétés de livraison ici
-        };
-
-        const updatedLivraisons = [...livraison, newLivraison];
-        setLivraisons(updatedLivraisons);
-
-        setLivraison(emptyLivraison);
-
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison ajoutée avec succès.', life: 3000 });
-    };
 
     const openNew = () => {
         setLivraison(emptyLivraison);
@@ -102,7 +76,8 @@ export default function Livraisons() {
         if (livraison.bonLiv.trim()) {
 
             if (livraison.idLiv) {
-                LivraisonService.updateLivraison(livraison.idLiv, livraison)
+                livraison.commande = commande
+                LivraisonService.updateLivraison(livraison.idLiv, commande.idCmd, livraison)
                 .then((data) => {
                     loadLivraisonsData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Modifié', life: 3000 })
@@ -122,8 +97,10 @@ export default function Livraisons() {
     
     
 
-    const editLivraison = (livraison) => {
-        setLivraison({ ...livraison });
+    const editLivraison = async (livraison) => {
+        const cmd = await LivraisonService.cmdByLivraison(livraison.idLiv); 
+        setCommande(cmd);
+        setLivraison(livraison);
         setLivraisonDialog(true);
         setShowCommandeInput(false);
     };
@@ -270,10 +247,10 @@ export default function Livraisons() {
           const fetchdata = async () => {
             try {
               const cmd = await LivraisonService.cmdByLivraison(rowData.idLiv); // Replace with your actual backend API call
-              setCommande(cmd);
+              setCommande(cmd.numBonCmd);
             } catch (error) {
               console.error('Error fetching commande count:', error);
-              setCommande(0);
+              setCommande("");
             }
           };
       

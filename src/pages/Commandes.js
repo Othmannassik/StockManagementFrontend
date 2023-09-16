@@ -15,25 +15,24 @@ import { FileUpload } from 'primereact/fileupload';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { CommandeService } from '../services/CommandeService';
-import { TypeMaterielService } from '../services/TypeMaterielService';
+import { EtablissementService } from '../services/EtablissementService';
+import { MaterielService } from '../services/MaterielService';
 
 
 export default function CommandesDemo() {
     const emptyCommande = {
-        id: null,
+        idCmd: null,
         date: null,
-        numBonCmd: null,
+        numBonCmd: "",
         quantity: 0,
-        status: "",
-        prestataire: '',
+        prestataire: "",
         materiel: "",
-        typeMateriel: '',
         etablissement: '',
     };
 
     const [commandes, setCommandes] = useState(null);
     const [prestataires, setPrestataires] = useState(null);
-    const [typeMateriels, setTypeMateriels] = useState(null);
+    const [materiels, setMateriels] = useState(null);
     const [etablissements, setEtablissements] = useState(null);
     const [commandeDialog, setCommandeDialog] = useState(false);
     const [deleteCommandeDialog, setDeleteCommandeDialog] = useState(false);
@@ -46,19 +45,23 @@ export default function CommandesDemo() {
     const toast = useRef(null);
     const dt = useRef(null);
 
-    useEffect(() => {
-        CommandeService.getCommandes()
-            .then((data) => setCommandes(data))
+    const loadCommandesData = () => {
+        CommandeService.getCommandes().then((data) => setCommandes(data))
             .catch((err) => toast.current.show({ severity: 'error', summary: 'Echèc !', detail: err.message, life: 3000 }));
+    }
 
-        CommandeService.getEtablissements()
+    useEffect(() => {
+
+        loadCommandesData();
+
+        EtablissementService.getEtablissements()
             .then((data) => setEtablissements(data))
 
         CommandeService.getPrestataires()
             .then((data) => setPrestataires(data))
 
-        TypeMaterielService.getTypeMateriels()
-            .then((data) => setTypeMateriels(data))
+        MaterielService.getMateriels()
+            .then((data) => setMateriels(data))
     }, []);
 
     const openNew = () => {
@@ -82,69 +85,27 @@ export default function CommandesDemo() {
 
     const saveCommande = () => {
         setSubmitted(true);
-      
-        if (commande.numBonCmd.trim()) {
-              const _commandes = [...commandes];
-              const _commande = { ...commande };
-      
-          if (commande.idCmd) {
-            // Update existing TypeMateriel
-              // TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat , _Typemateriel)
-              CommandeService.updateCommande(_commande)
-              .then(() => {
-                // const index = _Typemateriels.findIndex((item) => item.idTypeMat === Typemateriel.idTypeMat);
-                const index = _commandes.findIndex((item) => item.idCmd === _commande.idCmd);
-                _commandes[index] = _commande;
-                setCommandes(_commandes);
-                setCommandeDialog(false);
-                setCommande(emptyCommande);
-                toast.current.show({
-                  severity: 'success',
-                  summary: 'Successful',
-                  detail: 'Product Updated',
-                  life: 3000
-                });
-              })
-              .catch((error) => {
-                console.error('Error updating TypeMateriel:', error);
-              });
-          } else {
-            const formattedDate = format(_commande.date, 'dd/MM/yyyy', { locale: fr });
-            const newCmd = {
-                "numBonCmd" : _commande.numBonCmd,
-                "date" : formattedDate,
-                "prestataireId": _commande.prestataire.idPres,
-                "materiel": _commande.materiel,
-                "typeMaterielId": _commande.typeMateriel.idTypeMat,
-                "etablissement": _commande.etablissement.idEtb,
-                "quantity": _commande.quantity
+
+        if (commande.numBonCmd) {
+
+            if (commande.idCmd) {
+                CommandeService.updateCommande(commande.idCmd, commande)
+                .then((data) => {
+                    loadCommandesData();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Modifié', life: 3000 })
+                })                
+            } else {
+                CommandeService.addCommande(commande)
+                .then((data) => {
+                    loadCommandesData();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Creé', life: 3000 })
+                })
             }
-            console.log(newCmd);
-            // Create new TypeMateriel
-              CommandeService.addCommande(newCmd)
-              .then((response) => {
-                const lastIdCmd = Math.max(...commandes.map(item => item.idCmd));
-                _commande.idCmd = lastIdCmd+1;
-                _commandes.push(_commande);
-                setCommandes(_commandes);
-                setCommandeDialog(false);
-                setCommande(emptyCommande);
-                // loadTypeMateriels();
-                toast.current.show({
-                  severity: 'success',
-                  summary: 'Successful',
-                  detail: 'Product Created',
-                  life: 3000
-                });
-              })
-              .catch((error) => {
-                console.error('Error creating TypeMateriel:', error);
-              });
-      
-      
-          }
+
+            setCommandeDialog(false);
+            setCommande(emptyCommande);
         }
-      };
+    };
 
     const createId = (min, max) => {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -161,12 +122,14 @@ export default function CommandesDemo() {
     };
 
     const deleteCommande = () => {
-        const _commandes = commandes.filter((val) => val.id !== commande.id);
+        CommandeService.deleteCommande(commande.idCmd)
+            .then(() => {
+                loadCommandesData();
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Supprimé', life: 3000 });
+            })
 
-        setCommandes(_commandes);
         setDeleteCommandeDialog(false);
         setCommande(emptyCommande);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Supprimé', life: 3000 });
     };
 
     const findIndexById = (id) => {
@@ -191,12 +154,25 @@ export default function CommandesDemo() {
     };
 
     const deleteSelectedCommandes = () => {
-        const _commandes = commandes.filter((val) => !selectedCommandes.includes(val));
-
-        setCommandes(_commandes);
-        setDeleteCommandesDialog(false);
-        setSelectedCommandes(null);
-        toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commandes Supprimés', life: 3000 });
+        const promises = selectedCommandes.map((cmd) => {
+            return CommandeService.deleteCommande(cmd.idCmd);
+        });
+    
+        Promise.all(promises)
+            .then(() => {
+                // After all items are successfully deleted, refresh the data
+                return loadCommandesData();
+            })
+            .then(() => {
+                // Clear the selected items and hide the delete dialog
+                setSelectedCommandes(null);
+                setDeleteCommandesDialog(false);
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commandes Supprimés', life: 3000 });
+            })
+            .catch((error) => {
+                console.error('Error deleting selected items', error);
+                // Handle error if necessary
+            });
     };
 
     const onInputChange = (e, name) => {
@@ -288,6 +264,26 @@ export default function CommandesDemo() {
           return tag;
       };
 
+    const selectedMaterielTemplate = (option, props) => {
+        if (option) {
+            return (
+                <div className="flex align-items-center">
+                    <div>{option.model}</div>
+                </div>
+            );
+        }
+
+        return <span>{props.placeholder}</span>;
+    };
+
+    const materielOptionTemplate = (option) => {
+        return (
+            <div className="flex align-items-center">
+                <div>{option.model}</div>
+            </div>
+        );
+    };
+
     const selectedPrestataireTemplate = (option, props) => {
         if (option) {
             return (
@@ -304,26 +300,6 @@ export default function CommandesDemo() {
         return (
             <div className="flex align-items-center">
                 <div>{option.raisonSocial}</div>
-            </div>
-        );
-    };
-
-    const selectedTypeMaterielTemplate = (option, props) => {
-        if (option) {
-            return (
-                <div className="flex align-items-center">
-                    <div>{option.name}</div>
-                </div>
-            );
-        }
-
-        return <span>{props.placeholder}</span>;
-    };
-
-    const typeMaterielOptionTemplate = (option) => {
-        return (
-            <div className="flex align-items-center">
-                <div>{option.name}</div>
             </div>
         );
     };
@@ -419,9 +395,9 @@ export default function CommandesDemo() {
                 <Column field="quantity" header="Quantité" sortable />
                 <Column field="" header="Status" body={statusBodyTemplate} />
                 <Column field="materiel.model" header="Matériel" />
-                <Column field="materiel.typeMaterielDTO.name" header="Type Matériel" />
+                <Column field="materiel.typeMateriel.name" header="Type Matériel" />
                 <Column field="prestataire.raisonSocial" header="Prestataire" />
-                <Column field="materiel.etablissementDTO.name" header="Etablissement" />
+                <Column field="etablissement.name" header="Etablissement" />
                 <Column field="" header="Bon Commande" body={bonCmdAction}  />
                 <Column body={actionBodyTemplate} exportable={false}  />
             </DataTable>
@@ -432,7 +408,7 @@ export default function CommandesDemo() {
                     <span htmlFor="date" className="font-bold">
                         Date
                     </span>
-                    <Calendar value={commande.date} onChange={(e) => onInputChange(e, "date")}  required autoFocus className={classNames({ 'p-invalid': submitted && !commande.date })}/>
+                    <Calendar dateFormat='dd/mm/yy' placeholder='Date du Commande' value={commande.date} onChange={(e) => onInputChange(e, "date")}  required autoFocus className={classNames({ 'p-invalid': submitted && !commande.date })}/>
                     {submitted && !commande.date && <small className="p-error">Date is required.</small>}
                 </div>
                 <div className="field">
@@ -444,9 +420,10 @@ export default function CommandesDemo() {
                 </div>
                 <div className="field">
                     <span htmlFor="materiel" className="font-bold">
-                        Matériel
+                        Materiel
                     </span>
-                    <InputText placeholder='Materiel' id="materiel" value={commande.materiel} onChange={(e) => onInputChange(e, "materiel")} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.materiel })} />
+                    <Dropdown value={commande.materiel} onChange={(e) => onInputChange(e, "materiel")} options={materiels} optionLabel="model" placeholder="Select a Materiel" 
+                            filter valueTemplate={selectedMaterielTemplate} itemTemplate={materielOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.materiel })} />
                     {submitted && !commande.materiel && <small className="p-error">Materiel is required.</small>}
                 </div>
                 <div className="field">
@@ -456,14 +433,6 @@ export default function CommandesDemo() {
                     <Dropdown value={commande.prestataire} onChange={(e) => onInputChange(e, "prestataire")} options={prestataires} optionLabel="raisonSocial" placeholder="Select a Prestataire" 
                             filter valueTemplate={selectedPrestataireTemplate} itemTemplate={prestataireOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.prestataire })} />
                     {submitted && !commande.prestataire && <small className="p-error">Prestataire is required.</small>}
-                </div>
-                <div className="field">
-                    <span htmlFor="typeMateriel" className="font-bold">
-                        Type Matériel
-                    </span>
-                    <Dropdown value={commande.typeMateriel} onChange={(e) => onInputChange(e, "typeMateriel")} options={typeMateriels} optionLabel="name" placeholder="Select a Type" 
-                            filter valueTemplate={selectedTypeMaterielTemplate} itemTemplate={typeMaterielOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.typeMateriel })} />
-                    {submitted && !commande.typeMateriel && <small className="p-error">Type Matériel is required.</small>}
                 </div>
                 <div className="field">
                     <span htmlFor="etablissement" className="font-bold">
@@ -495,7 +464,7 @@ export default function CommandesDemo() {
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                     {commande && (
                         <span>
-                            Vous Voulez Vraiment Supprimer <b>{commande.numBc}</b> ?
+                            Vous Voulez Vraiment Supprimer <b>{commande.numBonCmd}</b> ?
                         </span>
                     )}
                 </div>

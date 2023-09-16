@@ -260,7 +260,6 @@ export default function TypeMateriels() {
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Typemateriels" globalFilter={globalFilter} header={header}>
           <Column selectionMode="multiple" exportable={false} />
-          <Column key="idTypeMat" field="idTypeMat" header="ID" />
           <Column key="name" field="name" header="Name" />
           <Column field="" header="Nbr Materiel" body={NombreMateriel} />
           <Column key="actions" body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />

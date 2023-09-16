@@ -248,8 +248,8 @@ export default function Etablissements() {
     );
     const etablissementDialogFooter = (
         <>
-            <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" onClick={saveEtablissement} />
+            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDialog} />
+            <Button label="Enregistrer" icon="pi pi-check" onClick={saveEtablissement} />
         </>
     );
     const deleteEtablissementDialogFooter = (
@@ -289,7 +289,7 @@ export default function Etablissements() {
                     <Column field="name" header="Name" sortable style={{ minWidth: '16rem' }} />
                     <Column field="adresse" header="Adresse" sortable style={{ minWidth: '16rem' }} />
                     <Column field="city" header="Ville" sortable style={{ minWidth: '8rem' }} />
-                    <Column header="Nbr Materiel" body={NombreMateriel} sortable style={{ minWidth: '10rem' }} />
+                    {/* <Column header="Nbr Materiel" body={NombreMateriel} sortable style={{ minWidth: '10rem' }} /> */}
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }} />
                 </DataTable>
             </div>

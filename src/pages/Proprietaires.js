@@ -9,6 +9,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
+import { Tag } from 'primereact/tag';
 import { ProprietaireService } from '../services/ProprietaireService';
 
 
@@ -24,6 +25,8 @@ export default function ProprietairesDemo() {
     const emptyMateriel = {
         materiel: '',
         date: '',
+        numSerie: '',
+        inventaireCih: '',
         motif: '',
     };
 
@@ -113,10 +116,13 @@ export default function ProprietairesDemo() {
 
         if (Materiel.motif.trim() ) {
 
+            Materiel.materiel.numSerie = Materiel.numSerie;
+            Materiel.materiel.inventaireCih = Materiel.inventaireCih;
+
             const affectationData = {
                 "date": Materiel.date,
                 "motif": Materiel.motif,
-                "materielDTO": Materiel.materiel,
+                "materielDetailDTO": Materiel.materiel,
                 "proprietaireDTO": Proprietaire
             }
 
@@ -145,7 +151,7 @@ export default function ProprietairesDemo() {
 
     const confirmDeleteMateriel = (Materiel) => {
         setMateriel(Materiel);
-        setModelName(Materiel.materielDTO.model);
+        setModelName(Materiel.materielDetailDTO.materielDTO.model);
         setDeleteMaterielDialog(true);
     };
 
@@ -259,9 +265,11 @@ export default function ProprietairesDemo() {
 
     const selectedMaterielTemplate = (option, props) => {
         if (option) {
+            const tagSeverity = option.usageCount > 0 ? "warning" : "";
             return (
                 <div className="flex align-items-center">
-                    <div>{option.model}</div>
+                    <Tag severity={tagSeverity} className="mr-2" icon="pi pi-user" value={option.usageCount} />
+                    <div>{option.materielDTO.model}</div>
                 </div>
             );
         }
@@ -270,9 +278,11 @@ export default function ProprietairesDemo() {
     };
 
     const materielOptionTemplate = (option) => {
+        const tagSeverity = option.usageCount > 0 ? "warning" : "";
         return (
             <div className="flex align-items-center">
-                <div>{option.model}</div>
+                <Tag className="mr-2" icon="pi pi-user" severity={tagSeverity} value={`${option.usageCount} Affectation`}  />
+                <div>{option.materielDTO.model}</div>
             </div>
         );
     };
@@ -391,7 +401,9 @@ export default function ProprietairesDemo() {
             <Dialog header={leftToolbarTemplate2} visible={materielDialogVisible} style={{ width: '60vw' }} maximizable
                     modal contentStyle={{ height: '500px' }} onHide={() => setMaterielDialogVisible(false)} footer={materielDialogFooterTemplate}>
                 <DataTable value={materiels} scrollable scrollHeight="flex" tableStyle={{ minWidth: '50rem' }}>
-                    <Column field="materielDTO.model" header="Matériel" />
+                    <Column field="materielDetailDTO.materielDTO.model" header="Matériel" />
+                    <Column field="materielDetailDTO.numSerie" header="N° Série" />
+                    <Column field="materielDetailDTO.inventaireCih" header="Inventaire Cih" />
                     <Column field="date" header="Date d'Affectation" />
                     <Column field="motif" header="Motif" />
                     <Column body={actionBodyTemplate2} exportable={false} />
@@ -435,20 +447,32 @@ export default function ProprietairesDemo() {
                     <span htmlFor="date" className="font-bold">
                         Date d'affectation
                     </span>
-                    <Calendar onChange={(e) => onInputChange2(e, "date")}  required autoFocus/>
+                    <Calendar placeholder="Date d'affectation" value={Materiel.date} onChange={(e) => onInputChange2(e, "date")}  required autoFocus/>
                 </div>
                 <div className="field">
                     <span htmlFor="materiel" className="font-bold">
                         Materiel
                     </span>
-                    <Dropdown value={Materiel.materiel} onChange={(e) => onInputChange2(e, "materiel")} options={materielsChoices} optionLabel="model" placeholder="Select a Materiel" 
-                            filter valueTemplate={selectedMaterielTemplate} itemTemplate={materielOptionTemplate} required autoFocus />
+                    <Dropdown value={Materiel.materiel} onChange={(e) => onInputChange2(e, "materiel")} options={materielsChoices} optionLabel="materielDTO.model" placeholder="Select a Materiel" 
+                            filter showClear valueTemplate={selectedMaterielTemplate} itemTemplate={materielOptionTemplate} required autoFocus />
+                </div>
+                <div className="field">
+                    <span htmlFor="numSerie" className="font-bold">
+                        N° Série
+                    </span>
+                    <InputText value={Materiel.numSerie} placeholder='N° Série' id="numSerie" onChange={(e) => onInputChange2(e, 'numSerie')} required autoFocus  />
+                </div>
+                <div className="field">
+                    <span htmlFor="inventaireCih" className="font-bold">
+                        Inventaire Cih
+                    </span>
+                    <InputText value={Materiel.inventaireCih} placeholder='Inventaire Cih' id="inventaireCih" onChange={(e) => onInputChange2(e, 'inventaireCih')} required autoFocus  />
                 </div>
                 <div className="field">
                     <span htmlFor="motif" className="font-bold">
                         Motif
                     </span>
-                    <InputText placeholder='Motif' id="motif" onChange={(e) => onInputChange2(e, 'motif')} required autoFocus  />
+                    <InputText value={Materiel.motif} placeholder='Motif' id="motif" onChange={(e) => onInputChange2(e, 'motif')} required autoFocus  />
                 </div>
             </Dialog>
 

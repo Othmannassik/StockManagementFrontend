@@ -7,6 +7,11 @@ export const MaterielService = {
     return response.data;
   },
 
+  getMaterielDetailsByMateriel : async (id) => {
+    const response = await Http.get(`/materiel-details/${id}/materiels`);
+    return response.data;
+  },
+
   createMateriel : async (materiel) => {
     const response =  await Http.post("/materiels", materiel);
     return response.data;
@@ -24,6 +29,11 @@ export const MaterielService = {
 
   deleteMateriel: async (id) => {
     const response = await Http.delete(`/materiels/${id}`);
+    return response.data;
+  },
+
+  deleteMaterielDetail: async (id) => {
+    const response = await Http.delete(`/materiel-details/${id}`);
     return response.data;
   },
 

@@ -17,7 +17,7 @@ export default function Materiels() {
         idPres: null, 
         raisonSocial:'',
         email:'',
-        telephone: null,
+        telephone: "",
         nbcmd: 0,
     };
 
@@ -64,41 +64,26 @@ export default function Materiels() {
     
     const savePrestataire = () => {
         setSubmitted(true);
-        if (prestataire.raisonSocial.trim() && prestataire.email.trim() && prestataire.telephone){
-            const _prestataires = [...prestataires];
-            const _prestataire = { ...prestataire };
+
+        if (prestataire.raisonSocial.trim() && prestataire.email.trim() && prestataire.telephone.trim()) {
 
             if (prestataire.idPres) {
-                PrestataireService.updatePrestataire(_prestataire)
-                .then(() => {
-                    const index = _prestataires.findIndex((item) => item.idPres === _prestataire.idPres);
-                    _prestataires[index] = _prestataire;
-                    setPrestataires(_prestataires);
-                    setPrestataireDialog(false);
-                    setPrestataire(emptyPrestataire);
-                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-                  })
-                  .catch((error) => {
-                    console.error('Error updating Prestataire:', error);
-                  });
+                PrestataireService.updatePrestataire(prestataire.idPres, prestataire)
+                .then((data) => {
+                    loadPrestataireData();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Modifié', life: 3000 })
+                })                
             } else {
-                PrestataireService.createPrestataire(_prestataire)
-                .then((response) => {
-                    const lastIdPres = Math.max(...prestataires.map(item => item.idPres));
-                    _prestataire.idPres = lastIdPres+1;
-                    _prestataires.push(_prestataire);
-                    setPrestataires(_prestataires);
-                    setPrestataireDialog(false);
-                    setPrestataire(emptyPrestataire);
-                    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
-                  })
-                  .catch((error) => {
-                    console.error('Error creating Prestataire:', error);
-                  });
-          
-          
-              }
+                PrestataireService.createPrestataire(prestataire)
+                .then((data) => {
+                    loadPrestataireData();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Creé', life: 3000 })
+                })
             }
+
+            setPrestataireDialog(false);
+            setPrestataire(emptyPrestataire);
+        }
     };
     
 

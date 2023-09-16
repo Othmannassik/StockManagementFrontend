@@ -34,7 +34,7 @@ export const ProprietaireService = {
 
     // get materiels
     getMateriels: async () => {
-      const response = await http.get(`/materiels`);
+      const response = await http.get(`/materiel-details`);
       return response.data;
     },
 

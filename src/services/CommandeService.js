@@ -32,6 +32,12 @@ export const CommandeService = {
         return response.data;
     },
 
+    // Delete Commande
+    deleteCommande: async (id) => {
+        const response = await Http.delete(`/commandes/${id}`);
+        return response.data;
+    },
+
   getCommandesWithLivraisonsData() {
       return [
         {
