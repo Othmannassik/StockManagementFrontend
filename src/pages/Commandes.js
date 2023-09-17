@@ -17,6 +17,7 @@ import { fr } from 'date-fns/locale';
 import { CommandeService } from '../services/CommandeService';
 import { EtablissementService } from '../services/EtablissementService';
 import { MaterielService } from '../services/MaterielService';
+import { LivraisonService } from '../services/LivraisonService';
 
 
 export default function CommandesDemo() {
@@ -30,15 +31,26 @@ export default function CommandesDemo() {
         etablissement: '',
     };
 
+    const emptyLivraison = {
+        idLiv: null,
+        bonLiv: "",
+        date: null,
+        quantity: 0,
+        commande: "",
+    };
+
     const [commandes, setCommandes] = useState(null);
     const [prestataires, setPrestataires] = useState(null);
     const [materiels, setMateriels] = useState(null);
     const [etablissements, setEtablissements] = useState(null);
     const [commandeDialog, setCommandeDialog] = useState(false);
+    const [livraisonDialog, setLivraisonDialog] = useState(false);
     const [deleteCommandeDialog, setDeleteCommandeDialog] = useState(false);
     const [deleteCommandesDialog, setDeleteCommandesDialog] = useState(false);
     const [commande, setCommande] = useState(emptyCommande);
+    const [livraison, setLivraison] = useState(emptyLivraison);
     const [expandedRows, setExpandedRows] = useState(null);
+    const [expandedItemData, setExpandedItemData] = useState(null);
     const [selectedCommandes, setSelectedCommandes] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
@@ -70,9 +82,16 @@ export default function CommandesDemo() {
         setCommandeDialog(true);
     };
 
+    const openNew2 = (data) => {
+        setExpandedItemData(data);
+        setLivraison(emptyLivraison);
+        setLivraisonDialog(true);
+    };
+
     const hideDialog = () => {
         setSubmitted(false);
         setCommandeDialog(false);
+        setLivraisonDialog(false);
     };
 
     const hideDeleteCommandeDialog = () => {
@@ -107,8 +126,22 @@ export default function CommandesDemo() {
         }
     };
 
-    const createId = (min, max) => {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+    const saveLivraison = () => {
+        setSubmitted(true);
+
+        livraison.commande = expandedItemData;
+
+        if (livraison.bonLiv) {
+
+                LivraisonService.createLivraison(livraison, livraison.commande.idCmd)
+                .then((data) => {
+                    loadCommandesData();
+                    toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Creé', life: 3000 })
+                })
+
+            setLivraisonDialog(false);
+            setLivraison(emptyLivraison);
+        }
     };
     
     const editCommande = (commande) => {
@@ -130,19 +163,6 @@ export default function CommandesDemo() {
 
         setDeleteCommandeDialog(false);
         setCommande(emptyCommande);
-    };
-
-    const findIndexById = (id) => {
-        let index = -1;
-
-        for (let i = 0; i < commandes.length; i+1) {
-            if (commandes[i].id === id) {
-                index = i;
-                break;
-            }
-        }
-
-        return index;
     };
 
     const exportCSV = () => {
@@ -184,13 +204,22 @@ export default function CommandesDemo() {
         setCommande(_commande);
     };
 
+    const onInputChange2 = (e, name) => {
+        const val = (e.target && e.target.value) || '';
+        const _livraison = { ...livraison };
+
+        _livraison[`${name}`] = val;
+
+        setLivraison(_livraison);
+    };
+
     const onInputNumberChange = (e, name) => {
         const val = e.value || 0;
-        const _commande = { ...commande };
+        const _livraison = { ...livraison };
 
-        _commande[`${name}`] = val;
+        _livraison[`${name}`] = val;
 
-        setCommande(_commande);
+        setLivraison(_livraison);
     };
 
     const leftToolbarTemplate = () => {
@@ -333,10 +362,10 @@ export default function CommandesDemo() {
             <div className="p-2">
                 <div className="formgrid grid">
                     <div className="field col">
-                        <h4>Livraisons du :  {data.numBc}</h4>
+                        <h4>Livraisons du :  {data.numBonCmd}</h4>
                     </div>
                     <div className="field col-3">
-                        <Button label="Ajouter une Livraison" icon="pi pi-plus" raised severity="success" />
+                        <Button label="Ajouter une Livraison" icon="pi pi-plus" raised severity="success" onClick={() => openNew2(data)}/>
                     </div>
                 </div>
                 <DataTable value={data.livraisonList}>
@@ -362,6 +391,13 @@ export default function CommandesDemo() {
         <fragment>
             <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDialog} />
             <Button label="Enregistrer" icon="pi pi-check" onClick={saveCommande} />
+        </fragment>
+    );
+
+    const livraisonDialogFooter = (
+        <fragment>
+            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDialog} />
+            <Button label="Enregistrer" icon="pi pi-check" onClick={saveLivraison} />
         </fragment>
     );
     const deleteCommandeDialogFooter = (
@@ -455,6 +491,35 @@ export default function CommandesDemo() {
                             BonCmd
                         </span>
                         <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*" />
+                    </div>
+                </div>
+            </Dialog>
+
+            <Dialog visible={livraisonDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Livraison Détails" modal className="p-fluid" footer={livraisonDialogFooter} onHide={hideDialog}>
+                <div className="field">
+                    <span htmlFor="date" className="font-bold">
+                        Date
+                    </span>
+                    <Calendar placeholder="entrer la date" value={livraison.date} onChange={(e) => onInputChange2(e, 'date')}  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.date })}/>
+                </div>  
+                <div className="field">
+                    <span htmlFor="bonLiv" className="font-bold">
+                        N° BL
+                    </span>
+                    <InputText value={livraison.bonLiv} onChange={(e) => onInputChange2(e, 'bonLiv')}  placeholder="Bon Livraison"  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.bonLiv })} />
+                </div> 
+                <div className="formgrid grid">
+                    <div className="field col">
+                        <span htmlFor="quantity" className="font-bold">
+                            Quantité
+                        </span>
+                        <InputNumber placeholder='quantités' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus className={classNames({ 'p-invalid': submitted && livraison.quantity <= 0 })} />
+                    </div>
+                    <div className="field col">
+                            <span htmlFor="bl" className="font-bold">
+                                BonLiv
+                            </span>
+                            <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*" />
                     </div>
                 </div>
             </Dialog>

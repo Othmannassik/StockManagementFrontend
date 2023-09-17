@@ -383,19 +383,21 @@ export default function Livraisons() {
                         </>
                     )}
                 </div>
-                <div className="field">
-                    <span htmlFor="quantity" className="font-bold">
-                        Quantité
-                    </span>
-                    <InputNumber placeholder='quantités' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus className={classNames({ 'p-invalid': submitted && livraison.quantity <= 0 })} />
-                    {submitted && livraison.quantity <= 0 && <small className="p-error">Quantité must be greater than 0.</small>}
-                </div>
-                <div className="field col">
-                        <span htmlFor="bl" className="font-bold">
-                            BonLiv
+                <div className="formgrid grid">
+                    <div className="field col">
+                        <span htmlFor="quantity" className="font-bold">
+                            Quantité
                         </span>
-                        <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*" />
+                        <InputNumber placeholder='quantités' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus className={classNames({ 'p-invalid': submitted && livraison.quantity <= 0 })} />
+                        {submitted && livraison.quantity <= 0 && <small className="p-error">Quantité must be greater than 0.</small>}
                     </div>
+                    <div className="field col">
+                            <span htmlFor="bl" className="font-bold">
+                                BonLiv
+                            </span>
+                            <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*" />
+                    </div>
+                </div>
             </Dialog>
 
             <Dialog visible={deleteLivraisonDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteLivraisonDialogFooter} onHide={hideDeleteLivraisonDialog}>
