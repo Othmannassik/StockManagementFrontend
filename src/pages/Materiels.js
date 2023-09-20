@@ -122,7 +122,6 @@ export default function MaterielsDemo() {
             })
 
         setDeleteMaterielDialog(false);
-        setMateriel(emptyMateriel);
     };
 
     const exportCSV = () => {
