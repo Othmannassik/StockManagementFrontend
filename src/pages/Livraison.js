@@ -20,7 +20,7 @@ import { CommandeService } from '../services/CommandeService';
 export default function Livraisons() {
     const emptyLivraison = {
         idLiv: null,
-        bonLiv: "",
+        numBonLiv: "",
         date: null,
         quantity: 0,
         commande: "",
@@ -38,6 +38,7 @@ export default function Livraisons() {
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const [showCommandeInput, setShowCommandeInput] = useState(true);
+    const fileUploadRef = useRef(null);
     const toast = useRef(null);
     const dt = useRef(null);
 
@@ -73,17 +74,23 @@ export default function Livraisons() {
     const saveLivraison = () => {
         setSubmitted(true);
 
-        if (livraison.bonLiv.trim()) {
+        const uploadedFiles = fileUploadRef.current.getFiles();
+        const uploadedFile = uploadedFiles[0];
+        const formData = new FormData();
+        formData.append("livraison", JSON.stringify(livraison));
+        formData.append("file", uploadedFile);
+
+        if (livraison.numBonLiv.trim()) {
 
             if (livraison.idLiv) {
                 livraison.commande = commande
-                LivraisonService.updateLivraison(livraison.idLiv, commande.idCmd, livraison)
+                LivraisonService.updateLivraison(livraison.idLiv, commande.idCmd, formData)
                 .then((data) => {
                     loadLivraisonsData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Modifié', life: 3000 })
                 })                
             } else {
-                LivraisonService.createLivraison(livraison, livraison.commande.idCmd)
+                LivraisonService.createLivraison(formData, livraison.commande.idCmd)
                 .then((data) => {
                     loadLivraisonsData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Creé', life: 3000 })
@@ -120,6 +127,24 @@ export default function Livraisons() {
         setDeleteLivraisonDialog(false);
         setLivraison(emptyLivraison);
     };
+
+    const downloadBL = (rowData) => {
+        LivraisonService.downloadBL(rowData.bonLiv.id)
+        .then((response) => {
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = rowData.bonLiv.name;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => {
+            console.error('Error downloading BL', error);
+        });
+    };
+
     const findIndexById = (id) => {
         let index = -1;
 
@@ -209,10 +234,10 @@ export default function Livraisons() {
         );
     };
 
-    const bonLivAction = () => {
+    const bonLivAction = (rowData) => {
         return (
             <fragment>
-                <Button label='Bon Liv' icon="pi pi-download" rounded className="mr-2" />
+                <Button label='Bon Liv' icon="pi pi-download" rounded className="mr-2" onClick={() => downloadBL(rowData)} />
             </fragment>
         ); 
     };
@@ -349,7 +374,7 @@ export default function Livraisons() {
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} livraisons" globalFilter={globalFilter}  header={header} tableStyle={{ minWidth: '60rem' }}>
                 <Column selectionMode="multiple" exportable={false} />
-                <Column field="bonLiv" header="N° BL" sortable/>
+                <Column field="numBonLiv" header="N° BL" sortable/>
                 <Column header="N° BC" body={NumBoncmd} sortable/>
                 <Column field="date" header="Date" sortable/>
                 <Column field="quantity" header="Quantité" sortable />
@@ -366,11 +391,11 @@ export default function Livraisons() {
                     {submitted && !livraison.date && <small className="p-error">Date is required.</small>}
                 </div>  
                 <div className="field">
-                    <span htmlFor="bonLiv" className="font-bold">
+                    <span htmlFor="numBonLiv" className="font-bold">
                         N° BL
                     </span>
-                    <InputText value={livraison.bonLiv} onChange={(e) => onInputChange(e, 'bonLiv')}  placeholder="Bon Livraison"  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.bonLiv })} />
-                    {submitted && !livraison.bonLiv && <small className="p-error">bonLiv is required.</small>}
+                    <InputText value={livraison.numBonLiv} onChange={(e) => onInputChange(e, 'numBonLiv')}  placeholder="Bon Livraison"  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.numBonLiv })} />
+                    {submitted && !livraison.numBonLiv && <small className="p-error">numBonLiv is required.</small>}
                 </div> 
                 <div className="field">
                     { showCommandeInput && (
@@ -395,7 +420,7 @@ export default function Livraisons() {
                             <span htmlFor="bl" className="font-bold">
                                 BonLiv
                             </span>
-                            <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*" />
+                            <FileUpload ref={fileUploadRef} mode="basic" name="demo[]" url="/api/upload" accept=".pdf"/>
                     </div>
                 </div>
             </Dialog>
@@ -403,7 +428,7 @@ export default function Livraisons() {
             <Dialog visible={deleteLivraisonDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteLivraisonDialogFooter} onHide={hideDeleteLivraisonDialog}>
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem' }} />
-                    {livraison && <span>Êtes-vous sûr de vouloir supprimer la livraison <b>{livraison.bonLiv}</b>?</span>}
+                    {livraison && <span>Êtes-vous sûr de vouloir supprimer la livraison <b>{livraison.numBonLiv}</b>?</span>}
                 </div>
             </Dialog>
 

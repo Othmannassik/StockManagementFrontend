@@ -12,6 +12,11 @@ export const LivraisonService = {
     return response.data;
   },
 
+  downloadBL : async (id) => {
+    const response = await Http.get(`/files/${id}`, {responseType: 'blob'});
+    return response;
+},
+
   getLivraisonById: async (id) => {
     const response = await Http.get(`/livraisons/${id}`);
     return response.data;

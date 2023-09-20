@@ -33,7 +33,7 @@ export default function CommandesDemo() {
 
     const emptyLivraison = {
         idLiv: null,
-        bonLiv: "",
+        numBonLiv: "",
         date: null,
         quantity: 0,
         commande: "",
@@ -54,7 +54,6 @@ export default function CommandesDemo() {
     const [selectedCommandes, setSelectedCommandes] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
-    const [lastCmd, setLastCmd] = useState(null);
     const fileUploadRef = useRef(null);
     const toast = useRef(null);
     const dt = useRef(null);
@@ -139,7 +138,7 @@ export default function CommandesDemo() {
 
         livraison.commande = expandedItemData;
 
-        if (livraison.bonLiv) {
+        if (livraison.numBonLiv) {
 
                 LivraisonService.createLivraison(livraison, livraison.commande.idCmd)
                 .then((data) => {
@@ -187,6 +186,23 @@ export default function CommandesDemo() {
         })
         .catch((error) => {
             console.error('Error downloading BC', error);
+        });
+    };
+
+    const downloadBL = (rowData) => {
+        LivraisonService.downloadBL(rowData.bonLiv.id)
+        .then((response) => {
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = rowData.bonLiv.name;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => {
+            console.error('Error downloading BL', error);
         });
     };
 
@@ -273,10 +289,10 @@ export default function CommandesDemo() {
     };
     
 
-    const bonLivAction = () => {
+    const bonLivAction = (rowData) => {
         return (
             <fragment>
-                <Button label='Bon Liv' icon="pi pi-download" rounded className="mr-2" />
+                <Button label='Bon Liv' icon="pi pi-download" rounded className="mr-2" onClick={() => downloadBL(rowData)}  />
             </fragment>
         );
     };
@@ -394,7 +410,7 @@ export default function CommandesDemo() {
                     </div>
                 </div>
                 <DataTable value={data.livraisonList}>
-                    <Column field="bonLiv" header="N° BL" />
+                    <Column field="numBonLiv" header="N° BL" />
                     <Column field="date" header="Date" sortable />
                     <Column field="quantity" header="Quantité" sortable />
                     <Column field="" header="Bon Livraison" body={bonLivAction}  />
@@ -528,10 +544,10 @@ export default function CommandesDemo() {
                     <Calendar placeholder="entrer la date" value={livraison.date} onChange={(e) => onInputChange2(e, 'date')}  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.date })}/>
                 </div>  
                 <div className="field">
-                    <span htmlFor="bonLiv" className="font-bold">
+                    <span htmlFor="numBonLiv" className="font-bold">
                         N° BL
                     </span>
-                    <InputText value={livraison.bonLiv} onChange={(e) => onInputChange2(e, 'bonLiv')}  placeholder="Bon Livraison"  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.bonLiv })} />
+                    <InputText value={livraison.numBonLiv} onChange={(e) => onInputChange2(e, 'numBonLiv')}  placeholder="Bon Livraison"  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.numBonLiv })} />
                 </div> 
                 <div className="formgrid grid">
                     <div className="field col">
