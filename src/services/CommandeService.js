@@ -1,3 +1,4 @@
+import axios from 'axios';
 import Http from './Http-Comman';
 
 export const CommandeService = {
@@ -24,6 +25,11 @@ export const CommandeService = {
     addCommande: async (commande) => {
         const response = await Http.post(`/commandes`, commande);
         return response.data;
+    },
+
+    downloadBC : async (id) => {
+        const response = await Http.get(`/files/${id}`, {responseType: 'blob'});
+        return response;
     },
 
     // Update Commande

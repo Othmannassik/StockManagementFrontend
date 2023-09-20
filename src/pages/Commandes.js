@@ -54,6 +54,8 @@ export default function CommandesDemo() {
     const [selectedCommandes, setSelectedCommandes] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
+    const [lastCmd, setLastCmd] = useState(null);
+    const fileUploadRef = useRef(null);
     const toast = useRef(null);
     const dt = useRef(null);
 
@@ -105,16 +107,22 @@ export default function CommandesDemo() {
     const saveCommande = () => {
         setSubmitted(true);
 
+        const uploadedFiles = fileUploadRef.current.getFiles();
+        const uploadedFile = uploadedFiles[0];
+        const formData = new FormData();
+        formData.append("commande", JSON.stringify(commande));
+        formData.append("file", uploadedFile);
+
         if (commande.numBonCmd) {
 
             if (commande.idCmd) {
-                CommandeService.updateCommande(commande.idCmd, commande)
+                CommandeService.updateCommande(commande.idCmd, formData)
                 .then((data) => {
                     loadCommandesData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Modifié', life: 3000 })
                 })                
             } else {
-                CommandeService.addCommande(commande)
+                CommandeService.addCommande(formData)
                 .then((data) => {
                     loadCommandesData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Creé', life: 3000 })
@@ -163,6 +171,23 @@ export default function CommandesDemo() {
 
         setDeleteCommandeDialog(false);
         setCommande(emptyCommande);
+    };
+
+    const downloadBC = (rowData) => {
+        CommandeService.downloadBC(rowData.bonCmd.id)
+        .then((response) => {
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = rowData.bonCmd.name;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => {
+            console.error('Error downloading BC', error);
+        });
     };
 
     const exportCSV = () => {
@@ -239,10 +264,10 @@ export default function CommandesDemo() {
         );
     };
 
-    const bonCmdAction = () => {
+    const bonCmdAction = (rowData) => {
         return (
             <fragment>
-                <Button label='Bon Cmd' icon="pi pi-download" rounded className="mr-2" />
+                <Button label='Bon Cmd' icon="pi pi-download" rounded className="mr-2" onClick={() => downloadBC(rowData)} />
             </fragment>
         );
     };
@@ -490,7 +515,7 @@ export default function CommandesDemo() {
                         <span htmlFor="bc" className="font-bold">
                             BonCmd
                         </span>
-                        <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*" />
+                        <FileUpload ref={fileUploadRef} mode="basic" name="demo[]" url="/api/upload" accept=".pdf"/>
                     </div>
                 </div>
             </Dialog>
