@@ -13,7 +13,7 @@ import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, tr } from 'date-fns/locale';
 import { CommandeService } from '../services/CommandeService';
 import { EtablissementService } from '../services/EtablissementService';
 import { MaterielService } from '../services/MaterielService';
@@ -57,6 +57,7 @@ export default function CommandesDemo() {
     const [selectedCommandes, setSelectedCommandes] = useState(null);
     const [globalFilter, setGlobalFilter] = useState(null);
     const [showStatusDropDown, setShowStatusDropDown] = useState(false);
+    const [showQteInput, setShowQteInput] = useState(true);
     const fileUploadRef = useRef(null);
     const fileUploadRef2 = useRef(null);
     const toast = useRef(null);
@@ -85,6 +86,7 @@ export default function CommandesDemo() {
         setCommande(emptyCommande);
         setCommandeDialog(true);
         setShowStatusDropDown(false);
+        setShowQteInput(true);
     };
 
     const openNew2 = (data) => {
@@ -142,6 +144,7 @@ export default function CommandesDemo() {
         setCommandeDialog(false);
         setCommande(emptyCommande);
         setShowStatusDropDown(false);
+        setShowQteInput(true);
     };
 
     const saveLivraison = () => {
@@ -179,6 +182,7 @@ export default function CommandesDemo() {
     const editCommande = (commande) => {
         setCommande({ ...commande });
         setShowStatusDropDown(true);
+        setShowQteInput(false);
         setCommandeDialog(true);
         setSelectedStatus(commande.status);
     };
@@ -564,12 +568,16 @@ export default function CommandesDemo() {
                     )}
                 </div>
                 <div className="formgrid grid">
-                    <div className="field col">
-                        <span htmlFor="quantity" className="font-bold">
-                            Quantité
-                        </span>
-                        <InputNumber id="quantity" value={commande.quantity} onValueChange={(e) => onInputChange(e, "quantity")} required/>
-                    </div>
+                    { showQteInput && (
+                        <>
+                            <div className="field col">
+                                <span htmlFor="quantity" className="font-bold">
+                                    Quantité
+                                </span>
+                                <InputNumber id="quantity" value={commande.quantity} onValueChange={(e) => onInputChange(e, "quantity")} required/>
+                            </div>
+                        </>
+                    )}
                     <div className="field col">
                         <span htmlFor="bc" className="font-bold">
                             BonCmd

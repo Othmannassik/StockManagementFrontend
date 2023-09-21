@@ -37,6 +37,7 @@ export default function Livraisons() {
     const [selectedLivraisons, setSelectedLivraisons] = useState(null);
     const [globalFilter, setGlobalFilter] = useState(null);
     const [showCommandeInput, setShowCommandeInput] = useState(true);
+    const [showQteInput, setShowQteInput] = useState(true);
     const fileUploadRef = useRef(null);
     const toast = useRef(null);
     const dt = useRef(null);
@@ -54,6 +55,7 @@ export default function Livraisons() {
         setLivraison(emptyLivraison);
         setLivraisonDialog(true);
         setShowCommandeInput(true);
+        setShowQteInput(true);
     };
 
     const hideDialog = () => {
@@ -76,7 +78,7 @@ export default function Livraisons() {
         formData.append("livraison", JSON.stringify(livraison));
         formData.append("file", uploadedFile);
 
-        if (livraison.numBonLiv && livraison.date && livraison.commande && livraison.quantity && uploadedFile) {
+        if (livraison.numBonLiv && livraison.date && uploadedFile) {
 
             if (livraison.idLiv) {
                 livraison.commande = commande
@@ -86,6 +88,10 @@ export default function Livraisons() {
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Modifié', life: 3000 })
                 })                
             } else {
+                if (!livraison.quantity || !livraison.commande){
+                    toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Veuillez Remplir Tous Les Champs', life: 3000 })
+                    return;
+                }
                 LivraisonService.createLivraison(formData, livraison.commande.idCmd)
                 .then((data) => {
                     loadLivraisonsData();
@@ -100,6 +106,7 @@ export default function Livraisons() {
 
         setLivraisonDialog(false);
         setLivraison(emptyLivraison);
+        setShowQteInput(true);
     };
     
     
@@ -110,6 +117,7 @@ export default function Livraisons() {
         setLivraison(livraison);
         setLivraisonDialog(true);
         setShowCommandeInput(false);
+        setShowQteInput(false);
     };
 
     const confirmDeleteLivraison = (livraison) => {
@@ -402,17 +410,21 @@ export default function Livraisons() {
                                 Commande
                             </span>
                             <Dropdown value={livraison.commande} onChange={(e) => onInputChange(e, "commande")} options={commandes} optionLabel="numBonCmd" placeholder="Select a Commande" 
-                                    filter valueTemplate={selectedCommandeTemplate} itemTemplate={commandeOptionTemplate} required autoFocus />
+                                    filter showClear valueTemplate={selectedCommandeTemplate} itemTemplate={commandeOptionTemplate} required autoFocus />
                         </>
                     )}
                 </div>
                 <div className="formgrid grid">
-                    <div className="field col">
-                        <span htmlFor="quantity" className="font-bold">
-                            Quantité
-                        </span>
-                        <InputNumber placeholder='quantités' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus />
-                    </div>
+                    { showQteInput && (
+                        <>
+                            <div className="field col">
+                                <span htmlFor="quantity" className="font-bold">
+                                    Quantité
+                                </span>
+                                <InputNumber placeholder='quantités' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus />
+                            </div>
+                        </>
+                    )}
                     <div className="field col">
                             <span htmlFor="bl" className="font-bold">
                                 BonLiv
