@@ -21,11 +21,14 @@ import { LivraisonService } from '../services/LivraisonService';
 
 
 export default function CommandesDemo() {
+    const [selectedStatus, setSelectedStatus] = useState("CREATED");
+
     const emptyCommande = {
         idCmd: null,
         date: null,
         numBonCmd: "",
         quantity: 0,
+        status: selectedStatus,
         prestataire: "",
         materiel: "",
         etablissement: '',
@@ -52,9 +55,10 @@ export default function CommandesDemo() {
     const [expandedRows, setExpandedRows] = useState(null);
     const [expandedItemData, setExpandedItemData] = useState(null);
     const [selectedCommandes, setSelectedCommandes] = useState(null);
-    const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
+    const [showStatusDropDown, setShowStatusDropDown] = useState(false);
     const fileUploadRef = useRef(null);
+    const fileUploadRef2 = useRef(null);
     const toast = useRef(null);
     const dt = useRef(null);
 
@@ -79,8 +83,8 @@ export default function CommandesDemo() {
 
     const openNew = () => {
         setCommande(emptyCommande);
-        setSubmitted(false);
         setCommandeDialog(true);
+        setShowStatusDropDown(false);
     };
 
     const openNew2 = (data) => {
@@ -90,7 +94,6 @@ export default function CommandesDemo() {
     };
 
     const hideDialog = () => {
-        setSubmitted(false);
         setCommandeDialog(false);
         setLivraisonDialog(false);
     };
@@ -104,7 +107,10 @@ export default function CommandesDemo() {
     };
 
     const saveCommande = () => {
-        setSubmitted(true);
+
+        if(commande.idCmd){
+            commande.status = selectedStatus.name;
+        }
 
         const uploadedFiles = fileUploadRef.current.getFiles();
         const uploadedFile = uploadedFiles[0];
@@ -112,7 +118,8 @@ export default function CommandesDemo() {
         formData.append("commande", JSON.stringify(commande));
         formData.append("file", uploadedFile);
 
-        if (commande.numBonCmd) {
+        if (commande.numBonCmd && commande.date && commande.materiel && commande.prestataire 
+                && commande.etablissement && commande.quantity && uploadedFile) {
 
             if (commande.idCmd) {
                 CommandeService.updateCommande(commande.idCmd, formData)
@@ -127,20 +134,36 @@ export default function CommandesDemo() {
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Creé', life: 3000 })
                 })
             }
-
-            setCommandeDialog(false);
-            setCommande(emptyCommande);
+            
+        } else {
+            toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Veuillez Remplir Tous Les Champs', life: 3000 })
+            return;
         }
+        setCommandeDialog(false);
+        setCommande(emptyCommande);
+        setShowStatusDropDown(false);
     };
 
     const saveLivraison = () => {
-        setSubmitted(true);
 
         livraison.commande = expandedItemData;
 
-        if (livraison.numBonLiv) {
+        if(livraison.quantity > livraison.commande.quantity){
+            toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Une Erreure est survenue', life: 3000 })  
+            setLivraisonDialog(false);
+            setLivraison(emptyLivraison);
+            return ;
+        }
 
-                LivraisonService.createLivraison(livraison, livraison.commande.idCmd)
+        const uploadedFiles = fileUploadRef2.current.getFiles();
+        const uploadedFile = uploadedFiles[0];
+        const formData = new FormData();
+        formData.append("livraison", JSON.stringify(livraison));
+        formData.append("file", uploadedFile);
+
+        if (livraison.numBonLiv && livraison.date && livraison.quantity && uploadedFile) {
+
+                LivraisonService.createLivraison(formData, livraison.commande.idCmd)
                 .then((data) => {
                     loadCommandesData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Creé', life: 3000 })
@@ -148,12 +171,16 @@ export default function CommandesDemo() {
 
             setLivraisonDialog(false);
             setLivraison(emptyLivraison);
+        } else {
+            toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Veuillez Remplir Tous Les Champs', life: 3000 })
         }
     };
     
     const editCommande = (commande) => {
         setCommande({ ...commande });
+        setShowStatusDropDown(true);
         setCommandeDialog(true);
+        setSelectedStatus(commande.status);
     };
 
     const confirmDeleteCommande = (commande) => {
@@ -394,20 +421,31 @@ export default function CommandesDemo() {
         );
     };
 
+    const status = [
+        { name: 'PENDING'},
+        { name: 'DELIVERED' },
+        { name: 'CANCELED'},
+    ];
+
     const allowExpansion = (rowData) => {
         return true;
     };
 
     const rowExpansionTemplate = (data) => {
+        // Check if data.status is CANCELED or DELIVERED
+        const isStatusHidden = data.status === 'CANCELED' || data.status === 'DELIVERED';
+
         return (
             <div className="p-2">
                 <div className="formgrid grid">
                     <div className="field col">
                         <h4>Livraisons du :  {data.numBonCmd}</h4>
                     </div>
+                    {isStatusHidden ? null : (
                     <div className="field col-3">
                         <Button label="Ajouter une Livraison" icon="pi pi-plus" raised severity="success" onClick={() => openNew2(data)}/>
                     </div>
+                    )}
                 </div>
                 <DataTable value={data.livraisonList}>
                     <Column field="numBonLiv" header="N° BL" />
@@ -485,39 +523,45 @@ export default function CommandesDemo() {
                     <span htmlFor="date" className="font-bold">
                         Date
                     </span>
-                    <Calendar dateFormat='dd/mm/yy' placeholder='Date du Commande' value={commande.date} onChange={(e) => onInputChange(e, "date")}  required autoFocus className={classNames({ 'p-invalid': submitted && !commande.date })}/>
-                    {submitted && !commande.date && <small className="p-error">Date is required.</small>}
+                    <Calendar dateFormat='dd/mm/yy' placeholder='Date du Commande' value={commande.date} onChange={(e) => onInputChange(e, "date")}  required autoFocus />
                 </div>
                 <div className="field">
                     <span htmlFor="numBonCmd" className="font-bold">
                         N° Bon Commnade
                     </span>
-                    <InputText placeholder='N° Bon Commnade' id="numBonCmd" value={commande.numBonCmd} onChange={(e) => onInputChange(e, "numBonCmd")} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.numBonCmd })} />
-                    {submitted && !commande.numBonCmd && <small className="p-error">N° Bon Commnade is required.</small>}
+                    <InputText placeholder='N° Bon Commnade' id="numBonCmd" value={commande.numBonCmd} onChange={(e) => onInputChange(e, "numBonCmd")} required autoFocus />
                 </div>
                 <div className="field">
                     <span htmlFor="materiel" className="font-bold">
                         Materiel
                     </span>
                     <Dropdown value={commande.materiel} onChange={(e) => onInputChange(e, "materiel")} options={materiels} optionLabel="model" placeholder="Select a Materiel" 
-                            filter valueTemplate={selectedMaterielTemplate} itemTemplate={materielOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.materiel })} />
-                    {submitted && !commande.materiel && <small className="p-error">Materiel is required.</small>}
+                            filter showClear valueTemplate={selectedMaterielTemplate} itemTemplate={materielOptionTemplate} required autoFocus />
                 </div>
                 <div className="field">
                     <span htmlFor="prestataire" className="font-bold">
                         Prestataire
                     </span>
                     <Dropdown value={commande.prestataire} onChange={(e) => onInputChange(e, "prestataire")} options={prestataires} optionLabel="raisonSocial" placeholder="Select a Prestataire" 
-                            filter valueTemplate={selectedPrestataireTemplate} itemTemplate={prestataireOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.prestataire })} />
-                    {submitted && !commande.prestataire && <small className="p-error">Prestataire is required.</small>}
+                            filter showClear valueTemplate={selectedPrestataireTemplate} itemTemplate={prestataireOptionTemplate} required autoFocus />
                 </div>
                 <div className="field">
                     <span htmlFor="etablissement" className="font-bold">
                         Etablissement
                     </span>
                     <Dropdown value={commande.etablissement} onChange={(e) => onInputChange(e, "etablissement")} options={etablissements} optionLabel="name" placeholder="Select an Etablissement" 
-                            filter valueTemplate={selectedEtablissementTemplate} itemTemplate={EtablissementOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !commande.etablissement })} />
-                    {submitted && !commande.etablissement && <small className="p-error">Etablissement is required.</small>}
+                            filter showClear valueTemplate={selectedEtablissementTemplate} itemTemplate={EtablissementOptionTemplate} required autoFocus />
+                </div>
+                <div className="field">
+                    { showStatusDropDown && (
+                        <>
+                            <span htmlFor="commande" className="font-bold">
+                                Status
+                            </span>
+                            <Dropdown value={selectedStatus} onChange={(e) => setSelectedStatus(e.value)} options={status} optionLabel="name" 
+                                    showClear placeholder="Select a Status" className="w-full md:w-14rem" />
+                        </>
+                    )}
                 </div>
                 <div className="formgrid grid">
                     <div className="field col">
@@ -525,7 +569,6 @@ export default function CommandesDemo() {
                             Quantité
                         </span>
                         <InputNumber id="quantity" value={commande.quantity} onValueChange={(e) => onInputChange(e, "quantity")} required/>
-                        {submitted && !commande.quantity && <small className="p-error">Quantité is required.</small>}
                     </div>
                     <div className="field col">
                         <span htmlFor="bc" className="font-bold">
@@ -541,26 +584,26 @@ export default function CommandesDemo() {
                     <span htmlFor="date" className="font-bold">
                         Date
                     </span>
-                    <Calendar placeholder="entrer la date" value={livraison.date} onChange={(e) => onInputChange2(e, 'date')}  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.date })}/>
+                    <Calendar placeholder="entrer la date" value={livraison.date} onChange={(e) => onInputChange2(e, 'date')}  required autoFocus />
                 </div>  
                 <div className="field">
                     <span htmlFor="numBonLiv" className="font-bold">
                         N° BL
                     </span>
-                    <InputText value={livraison.numBonLiv} onChange={(e) => onInputChange2(e, 'numBonLiv')}  placeholder="Bon Livraison"  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.numBonLiv })} />
+                    <InputText value={livraison.numBonLiv} onChange={(e) => onInputChange2(e, 'numBonLiv')}  placeholder="Bon Livraison"  required autoFocus />
                 </div> 
                 <div className="formgrid grid">
                     <div className="field col">
                         <span htmlFor="quantity" className="font-bold">
                             Quantité
                         </span>
-                        <InputNumber placeholder='quantités' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus className={classNames({ 'p-invalid': submitted && livraison.quantity <= 0 })} />
+                        <InputNumber placeholder='quantités' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus />
                     </div>
                     <div className="field col">
                             <span htmlFor="bl" className="font-bold">
                                 BonLiv
                             </span>
-                            <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*" />
+                            <FileUpload ref={fileUploadRef2} mode="basic" name="demo[]" url="/api/upload" accept=".pdf"/>
                     </div>
                 </div>
             </Dialog>

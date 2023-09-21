@@ -27,7 +27,6 @@ export default function Materiels() {
     const [deletePrestatairesDialog, setDeletePrestatairesDialog] = useState(false);
     const [prestataire, setPrestataire] = useState(emptyPrestataire);
     const [selectedPrestataires, setSelectedPrestataires] = useState(null);
-    const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
@@ -44,12 +43,10 @@ export default function Materiels() {
 
     const openNew = () => {
         setPrestataire(emptyPrestataire);
-        setSubmitted(false);
         setPrestataireDialog(true);
     };
 
     const hideDialog = () => {
-        setSubmitted(false);
         setPrestataireDialog(false);
     };
 
@@ -63,9 +60,8 @@ export default function Materiels() {
 
     
     const savePrestataire = () => {
-        setSubmitted(true);
 
-        if (prestataire.raisonSocial.trim() && prestataire.email.trim() && prestataire.telephone.trim()) {
+        if (prestataire.raisonSocial && prestataire.email && prestataire.telephone) {
 
             if (prestataire.idPres) {
                 PrestataireService.updatePrestataire(prestataire.idPres, prestataire)
@@ -80,10 +76,12 @@ export default function Materiels() {
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Creé', life: 3000 })
                 })
             }
-
-            setPrestataireDialog(false);
-            setPrestataire(emptyPrestataire);
+        } else {
+            toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Veuillez Remplir Tous Les Champs', life: 3000 })
+            return;
         }
+        setPrestataireDialog(false);
+        setPrestataire(emptyPrestataire);
     };
     
 
@@ -286,22 +284,19 @@ const NombreCommande = (rowData) => {
                     <span htmlFor="Raison Social" className="font-bold">
                         Raison Social
                     </span>
-                    <InputText placeholder='Raison Social' id="Raison Social" value={prestataire.raisonSocial} onChange={(e) => onInputChange(e, 'raisonSocial')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.raisonSocial })} />
-                    {submitted && !prestataire.raisonSocial && <small className="p-error">Raison Social is required.</small>}
+                    <InputText placeholder='Raison Social' id="Raison Social" value={prestataire.raisonSocial} onChange={(e) => onInputChange(e, 'raisonSocial')} required autoFocus />
                 </div>
                 <div className="field">
                     <span htmlFor="Email" className="font-bold">
                         Email
                     </span>
-                    <InputText placeholder='Email' id="Email" value={prestataire.email} onChange={(e) => onInputChange(e, 'email')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.email })} />
-                    {submitted && !prestataire.email && <small className="p-error">Email is required.</small>}
+                    <InputText placeholder='Email' id="Email" value={prestataire.email} onChange={(e) => onInputChange(e, 'email')} required autoFocus />
                 </div>
                 <div className="field">
                     <span htmlFor="Téléphone" className="font-bold">
                         Téléphone
                     </span>
-                    <InputText placeholder='Téléphone' id="Téléphone" value={prestataire.telephone} onChange={(e) => onInputChange(e, 'telephone')} required autoFocus className={classNames({ 'p-invalid': submitted && !prestataire.telephone })} />
-                    {submitted && !prestataire.telephone && <small className="p-error">Téléphone is required.</small>}
+                    <InputText placeholder='Téléphone' id="Téléphone" value={prestataire.telephone} onChange={(e) => onInputChange(e, 'telephone')} required autoFocus/>
                 </div>
             </Dialog>
 

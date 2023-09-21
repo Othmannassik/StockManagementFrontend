@@ -35,7 +35,6 @@ export default function Livraisons() {
     const [livraison, setLivraison] = useState(emptyLivraison);
     const [expandedRows, setExpandedRows] = useState(null);
     const [selectedLivraisons, setSelectedLivraisons] = useState(null);
-    const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const [showCommandeInput, setShowCommandeInput] = useState(true);
     const fileUploadRef = useRef(null);
@@ -53,13 +52,11 @@ export default function Livraisons() {
 
     const openNew = () => {
         setLivraison(emptyLivraison);
-        setSubmitted(false);
         setLivraisonDialog(true);
         setShowCommandeInput(true);
     };
 
     const hideDialog = () => {
-        setSubmitted(false);
         setLivraisonDialog(false);
     };
 
@@ -72,7 +69,6 @@ export default function Livraisons() {
     };
 
     const saveLivraison = () => {
-        setSubmitted(true);
 
         const uploadedFiles = fileUploadRef.current.getFiles();
         const uploadedFile = uploadedFiles[0];
@@ -80,7 +76,7 @@ export default function Livraisons() {
         formData.append("livraison", JSON.stringify(livraison));
         formData.append("file", uploadedFile);
 
-        if (livraison.numBonLiv.trim()) {
+        if (livraison.numBonLiv && livraison.date && livraison.commande && livraison.quantity && uploadedFile) {
 
             if (livraison.idLiv) {
                 livraison.commande = commande
@@ -97,9 +93,13 @@ export default function Livraisons() {
                 })
             }
 
-            setLivraisonDialog(false);
-            setLivraison(emptyLivraison);
+        } else {
+            toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Veuillez Remplir Tous Les Champs', life: 3000 })
+            return;
         }
+
+        setLivraisonDialog(false);
+        setLivraison(emptyLivraison);
     };
     
     
@@ -387,15 +387,13 @@ export default function Livraisons() {
                     <span htmlFor="date" className="font-bold">
                         Date
                     </span>
-                    <Calendar placeholder="entrer la date" value={livraison.date} onChange={(e) => onInputChange(e, 'date')}  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.date })}/>
-                    {submitted && !livraison.date && <small className="p-error">Date is required.</small>}
+                    <Calendar placeholder="entrer la date" value={livraison.date} onChange={(e) => onInputChange(e, 'date')}  required autoFocus/>
                 </div>  
                 <div className="field">
                     <span htmlFor="numBonLiv" className="font-bold">
                         N° BL
                     </span>
-                    <InputText value={livraison.numBonLiv} onChange={(e) => onInputChange(e, 'numBonLiv')}  placeholder="Bon Livraison"  required autoFocus className={classNames({ 'p-invalid': submitted && !livraison.numBonLiv })} />
-                    {submitted && !livraison.numBonLiv && <small className="p-error">numBonLiv is required.</small>}
+                    <InputText value={livraison.numBonLiv} onChange={(e) => onInputChange(e, 'numBonLiv')}  placeholder="Bon Livraison"  required autoFocus />
                 </div> 
                 <div className="field">
                     { showCommandeInput && (
@@ -413,8 +411,7 @@ export default function Livraisons() {
                         <span htmlFor="quantity" className="font-bold">
                             Quantité
                         </span>
-                        <InputNumber placeholder='quantités' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus className={classNames({ 'p-invalid': submitted && livraison.quantity <= 0 })} />
-                        {submitted && livraison.quantity <= 0 && <small className="p-error">Quantité must be greater than 0.</small>}
+                        <InputNumber placeholder='quantités' id="quantity" value={livraison.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} mode="decimal" required autoFocus />
                     </div>
                     <div className="field col">
                             <span htmlFor="bl" className="font-bold">

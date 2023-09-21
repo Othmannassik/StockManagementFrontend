@@ -22,7 +22,6 @@ export default function TypeMateriels() {
   const [deleteTypeMaterielsDialog, setDeleteTypeMaterielsDialog] = useState(false);
   const [Typemateriel, setTypeMateriel] = useState(emptyTypeMateriel);
   const [selectedTypeMateriels, setSelectedTypeMateriels] = useState(null);
-  const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
   const dt = useRef(null);
@@ -37,12 +36,10 @@ export default function TypeMateriels() {
 
   const openNew = () => {
     setTypeMateriel(emptyTypeMateriel);
-    setSubmitted(false);
     setTypeMaterielDialog(true);
   }; 
 
   const hideDialog = () => {
-    setSubmitted(false);
     setTypeMaterielDialog(false);
   };
 
@@ -55,9 +52,8 @@ export default function TypeMateriels() {
   };
 
   const saveTypeMateriel = () => {
-    setSubmitted(true);
 
-    if (Typemateriel.name.trim()) {
+    if (Typemateriel.name) {
 
         if (Typemateriel.idTypeMat) {
             TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat, Typemateriel)
@@ -72,10 +68,13 @@ export default function TypeMateriels() {
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Typemateriel Creé', life: 3000 })
             })
         }
-
-        setTypeMaterielDialog(false);
-        setTypeMateriel(emptyTypeMateriel);
     }
+    else {
+      toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Veuillez Remplir Tous Les Champs', life: 3000 })
+      return;
+    }
+    setTypeMaterielDialog(false);
+    setTypeMateriel(emptyTypeMateriel);
 };
 
 
@@ -278,9 +277,7 @@ export default function TypeMateriels() {
             onChange={(e) => onInputChange(e, 'name')}
             required
             autoFocus
-            className={classNames({ 'p-invalid': submitted && !Typemateriel.name })}
           />
-          {submitted && !Typemateriel.name && <small className="p-error">Model is required.</small>}
         </div>
       </Dialog>
 

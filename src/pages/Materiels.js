@@ -31,11 +31,9 @@ export default function MaterielsDemo() {
     const [deleteMaterielDetailDialog, setDeleteMaterielDetailDialog] = useState(false);
     const [deleteMaterielsDialog, setDeleteMaterielsDialog] = useState(false);
     const [selectedMateriels, setSelectedMateriels] = useState(null);
-    const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const [materielDetailDialogVisible, setMaterielDetailDialogVisible] = useState(false);
     const [materielDetails, setMaterielDetails] = useState(null);
-    const [aff, setAff] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
 
@@ -52,12 +50,10 @@ export default function MaterielsDemo() {
 
     const openNew = () => {
         setMateriel(emptyMateriel);
-        setSubmitted(false);
         setMaterielDialog(true);
     };
 
     const hideDialog = () => {
-        setSubmitted(false);
         setMaterielDialog(false);
     };
 
@@ -71,9 +67,8 @@ export default function MaterielsDemo() {
     };
 
     const saveMateriel = () => {
-        setSubmitted(true);
 
-        if (Materiel.model.trim()) {
+        if (Materiel.model && Materiel.typeMateriel) {
 
             if (Materiel.idMat) {
                 MaterielService.updateMateriel(Materiel.idMat, Materiel)
@@ -89,9 +84,12 @@ export default function MaterielsDemo() {
                 })
             }
 
-            setMaterielDialog(false);
-            setMateriel(emptyMateriel);
+        } else {
+            toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Veuillez Remplir Tous Les Champs', life: 3000 })
+            return;
         }
+        setMaterielDialog(false);
+        setMateriel(emptyMateriel);
     };
 
     const editMateriel = (Materiel) => {
@@ -118,6 +116,16 @@ export default function MaterielsDemo() {
                     setDeleteMaterielDetailDialog(false);
                     loadMaterielData();
                 });
+                toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Supprimé', life: 3000 });
+            })
+
+        setDeleteMaterielDialog(false);
+    };
+
+
+    const deleteMateriel = () => {
+        MaterielService.deleteMateriel(Materiel.idMat)
+            .then(() => {
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Supprimé', life: 3000 });
             })
 
@@ -254,7 +262,7 @@ export default function MaterielsDemo() {
     const deleteMaterielDialogFooter = (
         <fragment>
             <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeleteMaterielDialog} />
-            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteMaterielDetail} />
+            <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteMateriel} />
         </fragment>
     );
 
@@ -307,16 +315,14 @@ export default function MaterielsDemo() {
                     <span htmlFor="model" className="font-bold">
                         Modèle
                     </span>
-                    <InputText value={Materiel.model} placeholder='Modèle' id="model" onChange={(e) => onInputChange(e, 'model')} required autoFocus className={classNames({ 'p-invalid': submitted && !Materiel.model })} />
-                    {submitted && !Materiel.model && <small className="p-error">Modèle is required.</small>}
+                    <InputText value={Materiel.model} placeholder='Modèle' id="model" onChange={(e) => onInputChange(e, 'model')} required autoFocus />
                 </div>
                 <div className="field">
                     <span htmlFor="typeMateriel" className="font-bold">
                         Type Matériel
                     </span>
                     <Dropdown value={Materiel.typeMateriel} onChange={(e) => onInputChange(e, "typeMateriel")} options={typeMateriels} optionLabel="name" placeholder="Select a Type " 
-                            filter valueTemplate={selectedTypeMaterielsTemplate} itemTemplate={typeMaterielsOptionTemplate} required autoFocus className={classNames({ 'p-invalid': submitted && !Materiel.typeMateriel })} />
-                    {submitted && !Materiel.typeMateriel && <small className="p-error">Type Matériel is required.</small>}
+                            filter showClear valueTemplate={selectedTypeMaterielsTemplate} itemTemplate={typeMaterielsOptionTemplate} required autoFocus />
                 </div>
             </Dialog>
 

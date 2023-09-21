@@ -39,7 +39,6 @@ export default function ProprietairesDemo() {
     const [Proprietaire, setProprietaire] = useState(emptyProprietaire);
     const [Materiel, setMateriel] = useState(emptyMateriel);
     const [selectedProprietaires, setSelectedProprietaires] = useState(null);
-    const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const [materielDialogVisible, setMaterielDialogVisible] = useState(false);
     const [materiels, setMateriels] = useState(null);
@@ -60,18 +59,15 @@ export default function ProprietairesDemo() {
 
     const openNew = () => {
         setProprietaire(emptyProprietaire);
-        setSubmitted(false);
         setProprietaireDialog(true);
     };
 
     const openNew2 = () => {
         setMateriel(emptyMateriel);
-        setSubmitted(false);
         setMaterielDialog(true);
     };
 
     const hideDialog = () => {
-        setSubmitted(false);
         setProprietaireDialog(false);
         setMaterielDialog(false);
     };
@@ -86,11 +82,8 @@ export default function ProprietairesDemo() {
     };
 
     const saveProprietaire = () => {
-        setSubmitted(true);
 
-        if (Proprietaire.firstName.trim() && Proprietaire.lastName.trim() && Proprietaire.email.trim() && Proprietaire.telephone.trim()) {
-            const _Proprietaires = [...Proprietaires];
-            const _Proprietaire = { ...Proprietaires };
+        if (Proprietaire.firstName && Proprietaire.lastName && Proprietaire.email && Proprietaire.telephone) {
 
             if (Proprietaire.idProp) {
                 ProprietaireService.updateProprietaire(Proprietaire.idProp, Proprietaire)
@@ -106,15 +99,17 @@ export default function ProprietairesDemo() {
                 })
             }
 
-            setProprietaireDialog(false);
-            setProprietaire(emptyProprietaire);
+        } else {
+            toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Veuillez Remplir Tous Les Champs', life: 3000 })
+            return;
         }
+        setProprietaireDialog(false);
+        setProprietaire(emptyProprietaire);
     };
 
     const addMateriel = () => {
-        setSubmitted(true);
 
-        if (Materiel.motif.trim() ) {
+        if (Materiel.motif && Materiel.numSerie && Materiel.inventaireCih && Materiel.materiel ) {
 
             Materiel.materiel.numSerie = Materiel.numSerie;
             Materiel.materiel.inventaireCih = Materiel.inventaireCih;
@@ -133,10 +128,13 @@ export default function ProprietairesDemo() {
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Affecté', life: 3000 })
             })
 
-            setMaterielDialog(false);
-            setMateriel(emptyMateriel);
-            setProprietaire(emptyProprietaire);
+        } else {
+            toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Veuillez Remplir Tous Les Champs', life: 3000 })
+            return;
         }
+        setMaterielDialog(false);
+        setMateriel(emptyMateriel);
+        setProprietaire(emptyProprietaire);
     };
 
     const editProprietaire = (Proprietaire) => {
@@ -415,22 +413,19 @@ export default function ProprietairesDemo() {
                     <span htmlFor="firstName" className="font-bold">
                         Prénom
                     </span>
-                    <InputText placeholder='Prénom' id="firstName" value={Proprietaire.firstName} onChange={(e) => onInputChange(e, 'firstName')} required autoFocus className={classNames({ 'p-invalid': submitted && !Proprietaire.firstName })} />
-                    {submitted && !Proprietaire.firstName && <small className="p-error">Prénom is required.</small>}
+                    <InputText placeholder='Prénom' id="firstName" value={Proprietaire.firstName} onChange={(e) => onInputChange(e, 'firstName')} required autoFocus />
                 </div>
                 <div className="field">
                     <span htmlFor="lastName" className="font-bold">
                         Nom
                     </span>
-                    <InputText placeholder='Nom' id="lastName" value={Proprietaire.lastName} onChange={(e) => onInputChange(e, 'lastName')} required autoFocus className={classNames({ 'p-invalid': submitted && !Proprietaire.lastName })} />
-                    {submitted && !Proprietaire.lastName && <small className="p-error">N° Série is required.</small>}
+                    <InputText placeholder='Nom' id="lastName" value={Proprietaire.lastName} onChange={(e) => onInputChange(e, 'lastName')} required autoFocus />
                 </div>
                 <div className="field">
                     <span htmlFor="email" className="font-bold">
                         Email
                     </span>
-                    <InputText type='email' placeholder='email' id="email" value={Proprietaire.email} onChange={(e) => onInputChange(e, 'email')} required autoFocus className={classNames({ 'p-invalid': submitted && !Proprietaire.email })} />
-                    {submitted && !Proprietaire.email && <small className="p-error">Email is required.</small>}
+                    <InputText type='email' placeholder='email' id="email" value={Proprietaire.email} onChange={(e) => onInputChange(e, 'email')} required autoFocus/>
                 </div>
                 <div className="formgrid grid">
                     <div className="field col">

@@ -44,6 +44,11 @@ export const CommandeService = {
         return response.data;
     },
 
+    countLivraisonByCmd: async (id) => {
+        const response = await Http.get(`/commandes/${id}/countLivraisons`);
+        return response.data;
+    },
+
   getCommandesWithLivraisonsData() {
       return [
         {

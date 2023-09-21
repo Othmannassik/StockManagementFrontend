@@ -25,7 +25,6 @@ export default function Etablissements() {
     const [deleteEtablissementsDialog, setDeleteEtablissementsDialog] = useState(false);
     const [etablissement, setEtablissement] = useState(emptyEtablissement);
     const [selectedEtablissements, setSelectedEtablissements] = useState(null);
-    const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
@@ -40,12 +39,10 @@ export default function Etablissements() {
 
     const openNew = () => {
         setEtablissement(emptyEtablissement);
-        setSubmitted(false);
         setEtablissementDialog(true);
     };
 
     const hideDialog = () => {
-        setSubmitted(false);
         setEtablissementDialog(false);
     };
 
@@ -58,9 +55,8 @@ export default function Etablissements() {
     };
 
     const saveEtablissement = () => {
-        setSubmitted(true);
 
-        if (etablissement.name.trim() && etablissement.adresse.trim() && etablissement.city.trim()) {
+        if (etablissement.name && etablissement.adresse && etablissement.city) {
 
             if (etablissement.idEtb) {
                 EtablissementService.updateEtablissement(etablissement.idEtb, etablissement)
@@ -76,9 +72,12 @@ export default function Etablissements() {
                 })
             }
 
-            setEtablissementDialog(false);
-            setEtablissement(emptyEtablissement);
+        } else {
+            toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Veuillez Remplir Tous Les Champs', life: 3000 })
+            return;
         }
+        setEtablissementDialog(false);
+        setEtablissement(emptyEtablissement);
     };
 
     const editEtablissement = (etablissement) => {
@@ -316,9 +315,7 @@ export default function Etablissements() {
                         placeholder='name'
                         required
                         autoFocus
-                        className={classNames({ 'p-invalid': submitted && !etablissement.name })}
                     />
-                    {submitted && !etablissement.name && <small className="p-error">Required.</small>}
                 </div>
 
                 <div className="field">
@@ -332,9 +329,7 @@ export default function Etablissements() {
                         placeholder='Adresse'
                         required
                         autoFocus
-                        className={classNames({ 'p-invalid': submitted && !etablissement.adresse })}
                     />
-                    {submitted && !etablissement.adresse && <small className="p-error">Required.</small>}
                 </div>
 
                 <div className="field">
@@ -348,9 +343,7 @@ export default function Etablissements() {
                         placeholder='Ville'
                         required
                         autoFocus
-                        className={classNames({ 'p-invalid': submitted && !etablissement.city })}
                     />
-                    {submitted && !etablissement.city && <small className="p-error">Required.</small>}
                 </div>
             </Dialog>
 
