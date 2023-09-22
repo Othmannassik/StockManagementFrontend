@@ -132,9 +132,22 @@ export default function Etablissements() {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
-    const exportCSV = () => {
-        dt.current.exportCSV();
-    };
+    const exportExcel = () => {
+        EtablissementService.export()
+        .then((response) => {
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "Etablissements";
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => {
+            console.error('Error exporting data', error);
+        });
+      };
 
     const confirmDeleteSelected = () => {
         setDeleteEtablissementsDialog(true);
@@ -197,7 +210,7 @@ export default function Etablissements() {
     };
 
     const rightToolbarTemplate = () => {
-        return <Button icon="pi pi-download" severity="secondary" onClick={exportCSV} />
+        return <Button icon="pi pi-download" severity="secondary" onClick={exportExcel} />
     };
 
 

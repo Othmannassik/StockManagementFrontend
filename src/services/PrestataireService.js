@@ -32,4 +32,10 @@ export const PrestataireService = {
     return response.data;
   },
 
+          // export Prestataires 
+          export: async () => {
+            const response = await Http.get(`/prestataires/export`, { responseType: 'arraybuffer' });
+            return response;
+        },
+
 };

@@ -130,9 +130,22 @@ export default function Materiels() {
         return idPres;
     };
 
-    const exportCSV = () => {
-        dt.current.exportCSV();
-    };
+    const exportExcel = () => {
+        PrestataireService.export()
+        .then((response) => {
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "Prestataires";
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => {
+            console.error('Error exporting data', error);
+        });
+      };
 
     const confirmDeleteSelected = () => {
         setDeletePrestatairesDialog(true);
@@ -197,7 +210,7 @@ export default function Materiels() {
     const rightToolbarTemplate = () => {
         return (
           <div className="flex flex-wrap gap-2">
-              <Button icon="pi pi-download" severity="secondary" onClick={exportCSV} />
+              <Button icon="pi pi-download" severity="secondary" onClick={exportExcel} />
           </div>
         );
     };

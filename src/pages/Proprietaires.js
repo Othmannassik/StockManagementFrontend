@@ -200,9 +200,22 @@ export default function ProprietairesDemo() {
         return id;
     };
 
-    const exportCSV = () => {
-        dt.current.exportCSV();
-    };
+    const exportExcel = () => {
+        ProprietaireService.export()
+        .then((response) => {
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "Proprietaires";
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => {
+            console.error('Error exporting data', error);
+        });
+      };
 
     const confirmDeleteSelected = () => {
         setDeleteProprietairesDialog(true);
@@ -310,7 +323,7 @@ export default function ProprietairesDemo() {
     const rightToolbarTemplate = () => {
         return (
           <div className="flex flex-wrap gap-2">
-               <Button icon="pi pi-download" severity="secondary" onClick={exportCSV} />
+               <Button icon="pi pi-download" severity="secondary" onClick={exportExcel} />
           </div>
         );
     };

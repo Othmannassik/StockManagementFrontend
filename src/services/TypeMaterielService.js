@@ -39,4 +39,10 @@ export const TypeMaterielService = {
             return response.data;
           },
 
+        // export TypeMateriels 
+        export: async () => {
+            const response = await Http.get(`/typeMateriels/export`, { responseType: 'arraybuffer' });
+            return response;
+        },
+
 };

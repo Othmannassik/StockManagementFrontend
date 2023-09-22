@@ -49,6 +49,11 @@ export const CommandeService = {
         return response.data;
     },
 
+    export: async () => {
+        const response = await Http.get(`/commandes/export`, { responseType: 'arraybuffer' });
+        return response;
+      },
+
   getCommandesWithLivraisonsData() {
       return [
         {

@@ -50,6 +50,11 @@ export const ProprietaireService = {
       return response.data;
     },
 
+    export: async () => {
+      const response = await http.get(`/proprietaires/export`, { responseType: 'arraybuffer' });
+      return response;
+    },
+
     getProprietaireData() {
         return [
             {

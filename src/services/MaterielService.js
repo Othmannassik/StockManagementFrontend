@@ -37,4 +37,10 @@ export const MaterielService = {
     return response.data;
   },
 
+  // export Materiels 
+  export: async () => {
+    const response = await Http.get(`/materiels/export`, { responseType: 'arraybuffer' });
+    return response;
+  },
+
 };

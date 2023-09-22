@@ -38,4 +38,10 @@ export const EtablissementService = {
         const response = await Http.get(`/etablissements/${id}/materiels`);
         return response.data;
       },
+
+    // export Etablissements 
+    export: async () => {
+     const response = await Http.get(`/etablissements/export`, { responseType: 'arraybuffer' });
+     return response;
+    },
 };
