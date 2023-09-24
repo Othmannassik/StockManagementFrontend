@@ -1,38 +1,25 @@
-import { useState } from 'react';
+import { useKeycloak } from 'keycloak-react-web';
+import { useEffect, useState } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover } from '@mui/material';
-// mocks_
-
-// ----------------------------------------------------------------------
-
-const account = {
-  displayName: 'Ahmed Alami',
-  role: 'Administrateur',
-  email: 'alami@gmail.com',
-  photoURL: '/assets/images/avatars/avatar_default.jpg',
-};
-
-
-const MENU_OPTIONS = [
-  {
-    label: 'Home',
-    icon: 'eva:home-fill',
-  },
-  {
-    label: 'Profile',
-    icon: 'eva:person-fill',
-  },
-  {
-    label: 'Settings',
-    icon: 'eva:settings-2-fill',
-  },
-];
 
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
+  
+const { keycloak } = useKeycloak();
+const [name, setName] = useState("");
+const [email, setEmail] = useState("");
+
+useEffect(() =>{
+  if (keycloak.authenticated) {
+    setName(keycloak.tokenParsed.name);
+    setEmail(keycloak.tokenParsed.email);
+  }
+}, [])
+// Check if the user is authenticated
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -40,6 +27,10 @@ export default function AccountPopover() {
 
   const handleClose = () => {
     setOpen(null);
+  };
+
+  const handleLogout = () => {
+    keycloak.logout();
   };
 
   return (
@@ -61,7 +52,7 @@ export default function AccountPopover() {
           }),
         }}
       >
-        <Avatar src={account.photoURL} alt="photoURL" />
+        <Avatar src="/assets/images/avatars/avatar_default.jpg" alt="photoURL" />
       </IconButton>
 
       <Popover
@@ -85,26 +76,16 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {account.displayName}
+            {name}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
+            {email}
           </Typography>
         </Box>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Stack sx={{ p: 1 }}>
-          {MENU_OPTIONS.map((option) => (
-            <MenuItem key={option.label} onClick={handleClose}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Stack>
-
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
-        <MenuItem onClick={handleClose} sx={{ m: 1 }}>
+        <MenuItem onClick={handleLogout} sx={{ m: 1 }}>
           Logout
         </MenuItem>
       </Popover>
