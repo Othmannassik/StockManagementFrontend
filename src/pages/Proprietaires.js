@@ -11,6 +11,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { Tag } from 'primereact/tag';
 import { ProprietaireService } from '../services/ProprietaireService';
+import { useAccessToken } from '../services/AccessTokenProvider';
 
 
 export default function ProprietairesDemo() {
@@ -46,14 +47,19 @@ export default function ProprietairesDemo() {
     const [modelName, setModelName] = useState("");
     const toast = useRef(null);
     const dt = useRef(null);
+    let { accessToken } = useAccessToken();
+
 
     const loadProprietaireData = () => {
-        ProprietaireService.getProprietaires().then((data) => setProprietaires(data));
+        ProprietaireService.getProprietaires(accessToken).then((data) => setProprietaires(data));
     }
 
     useEffect(() => {
+        if(!accessToken){
+            accessToken = localStorage.getItem('access_token');
+          }
         loadProprietaireData();
-        ProprietaireService.getMateriels()
+        ProprietaireService.getMateriels(accessToken)
             .then((data) => setMaterielsChoices(data))
     }, []);
 
@@ -86,13 +92,13 @@ export default function ProprietairesDemo() {
         if (Proprietaire.firstName && Proprietaire.lastName && Proprietaire.email && Proprietaire.telephone) {
 
             if (Proprietaire.idProp) {
-                ProprietaireService.updateProprietaire(Proprietaire.idProp, Proprietaire)
+                ProprietaireService.updateProprietaire(Proprietaire.idProp, Proprietaire, accessToken)
                 .then((data) => {
                     loadProprietaireData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Proprietaire Modifié', life: 3000 })
                 })                
             } else {
-                ProprietaireService.addProprietaire(Proprietaire)
+                ProprietaireService.addProprietaire(Proprietaire, accessToken)
                 .then((data) => {
                     loadProprietaireData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Proprietaire Creé', life: 3000 })
@@ -121,9 +127,9 @@ export default function ProprietairesDemo() {
                 "proprietaireDTO": Proprietaire
             }
 
-            ProprietaireService.addMaterielToProprietaire(affectationData)
+            ProprietaireService.addMaterielToProprietaire(affectationData, accessToken)
             .then((data) => {
-                ProprietaireService.getMaterielsByProprietaire(Proprietaire.idProp)
+                ProprietaireService.getMaterielsByProprietaire(Proprietaire.idProp, accessToken)
                     .then((data) => setMateriels(data));
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Affecté', life: 3000 })
             })
@@ -154,7 +160,7 @@ export default function ProprietairesDemo() {
     };
 
     const deleteProprietaire = () => {
-        ProprietaireService.deleteProprietaire(Proprietaire.idProp)
+        ProprietaireService.deleteProprietaire(Proprietaire.idProp, accessToken)
             .then(() => {
                 loadProprietaireData();
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Proprietaire Supprimé', life: 3000 });
@@ -165,9 +171,9 @@ export default function ProprietairesDemo() {
     };
 
     const deleteMateriel = () => {
-        ProprietaireService.deleteMateriel(Materiel.idAff)
+        ProprietaireService.deleteMateriel(Materiel.idAff, accessToken)
             .then(() => {
-                ProprietaireService.getMaterielsByProprietaire(Materiel.proprietaireDTO.idProp)
+                ProprietaireService.getMaterielsByProprietaire(Materiel.proprietaireDTO.idProp, accessToken)
                     .then((data) => setMateriels(data));
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Retiré', life: 3000 });
             })
@@ -201,7 +207,7 @@ export default function ProprietairesDemo() {
     };
 
     const exportExcel = () => {
-        ProprietaireService.export()
+        ProprietaireService.export(accessToken)
         .then((response) => {
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const url = window.URL.createObjectURL(blob);
@@ -223,7 +229,7 @@ export default function ProprietairesDemo() {
 
     const deleteSelectedProprietaires = () => {
         const promises = selectedProprietaires.map((prop) => {
-            return ProprietaireService.deleteProprietaire(prop.idProp);
+            return ProprietaireService.deleteProprietaire(prop.idProp, accessToken);
         });
     
         Promise.all(promises)
@@ -266,7 +272,7 @@ export default function ProprietairesDemo() {
     };
 
     const openMaterielDialog = (rowData) => {
-        ProprietaireService.getMaterielsByProprietaire(rowData.idProp)
+        ProprietaireService.getMaterielsByProprietaire(rowData.idProp, accessToken)
             .then((data) => {
                 setMateriels(data)
                 setMaterielDialogVisible(true);

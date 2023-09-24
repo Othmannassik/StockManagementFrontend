@@ -9,6 +9,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { EtablissementService } from '../services/EtablissementService';
+import { useAccessToken } from '../services/AccessTokenProvider';
 
 export default function Etablissements() {
     const emptyEtablissement = {
@@ -28,13 +29,18 @@ export default function Etablissements() {
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
+    let { accessToken } = useAccessToken();
+
  
     useEffect(() => {
+        if(!accessToken){
+            accessToken = localStorage.getItem('access_token');
+          }
         loadEtablissements();
     }, []);
 
     const loadEtablissements = () => {
-        EtablissementService.getEtablissements().then((data) => setEtablissements(data));
+        EtablissementService.getEtablissements(accessToken).then((data) => setEtablissements(data));
     }
 
     const openNew = () => {
@@ -59,13 +65,13 @@ export default function Etablissements() {
         if (etablissement.name && etablissement.adresse && etablissement.city) {
 
             if (etablissement.idEtb) {
-                EtablissementService.updateEtablissement(etablissement.idEtb, etablissement)
+                EtablissementService.updateEtablissement(etablissement.idEtb, etablissement, accessToken)
                 .then((data) => {
                     loadEtablissements();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Etablissement Modifié', life: 3000 })
                 })                
             } else {
-                EtablissementService.createEtablissement(etablissement)
+                EtablissementService.createEtablissement(etablissement, accessToken)
                 .then((data) => {
                     loadEtablissements();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Etablissement Creé', life: 3000 })
@@ -92,7 +98,7 @@ export default function Etablissements() {
 
     const deleteEtablissement = () => {
         console.log(etablissement.idEtb)
-        EtablissementService.deleteEtablissement(etablissement.idEtb)
+        EtablissementService.deleteEtablissement(etablissement.idEtb, accessToken)
             .then(() => {
                 const _Etablissements =
                     etablissements.filter((val) =>
@@ -133,7 +139,7 @@ export default function Etablissements() {
     };
 
     const exportExcel = () => {
-        EtablissementService.export()
+        EtablissementService.export(accessToken)
         .then((response) => {
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const url = window.URL.createObjectURL(blob);
@@ -155,7 +161,7 @@ export default function Etablissements() {
 
     const deleteSelectedEtablissements = () => {
         const promises = selectedEtablissements.map((etb) => {
-            return EtablissementService.deleteEtablissement(etb.idEtb);
+            return EtablissementService.deleteEtablissement(etb.idEtb, accessToken);
         });
     
         Promise.all(promises)
@@ -234,7 +240,7 @@ export default function Etablissements() {
         useEffect(() => {
           const fetchMaterielsCount = async () => {
             try {
-              const count = await EtablissementService.nbMatByEtablissement(rowData.idEtb); // Replace with your actual backend API call
+              const count = await EtablissementService.nbMatByEtablissement(rowData.idEtb, accessToken); // Replace with your actual backend API call
               setMaterielCount(count);
             } catch (error) {
               console.error('Error fetching materiels count:', error);

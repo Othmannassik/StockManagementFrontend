@@ -2,39 +2,60 @@ import Http from './Http-Comman';
 
 export const PrestataireService = {
 
-  getPrestataires : async () => {
-    const response = await Http.get('/prestataires');
+  getPrestataires : async (token) => {
+    const headers = {
+      Authorization: `Bearer ${token}`
+  };
+    const response = await Http.get('/prestataires', {headers});
     return response.data;
   },
 
-  createPrestataire : async (prestataire) => {
-    const response =  await Http.post("/prestataires", prestataire);
+  createPrestataire : async (prestataire, token) => {
+    const headers = {
+      Authorization: `Bearer ${token}`
+  };
+    const response =  await Http.post("/prestataires", prestataire, {headers});
     return response.data;
   },
 
-  getPrestataireById: async (id) => {
-    const response = await Http.get(`/prestataires/${id}`);
+  getPrestataireById: async (id, token) => {
+    const headers = {
+      Authorization: `Bearer ${token}`
+  };
+    const response = await Http.get(`/prestataires/${id}`, {headers});
     return response.data;
   },
 
-  updatePrestataire: async(id,prestataire) => {
-    const response = await Http.put(`/prestataires/${id}`,prestataire);
+  updatePrestataire: async(id,prestataire, token) => {
+    const headers = {
+      Authorization: `Bearer ${token}`
+  };
+    const response = await Http.put(`/prestataires/${id}`,prestataire, {headers});
     return response.data;
   },
 
-  deletePrestataire: async (id) => {
-    const response = await Http.delete(`/prestataires/${id}`);
+  deletePrestataire: async (id, token) => {
+    const headers = {
+      Authorization: `Bearer ${token}`
+  };
+    const response = await Http.delete(`/prestataires/${id}`, {headers});
     return response.data;
   },
 
-  nbCmdByPrestataire: async (id) => {
-    const response = await Http.get(`/prestataires/${id}/commandes`);
+  nbCmdByPrestataire: async (id, token) => {
+    const headers = {
+      Authorization: `Bearer ${token}`
+  };
+    const response = await Http.get(`/prestataires/${id}/commandes`, {headers});
     return response.data;
   },
 
           // export Prestataires 
-          export: async () => {
-            const response = await Http.get(`/prestataires/export`, { responseType: 'arraybuffer' });
+          export: async (token) => {
+            const headers = {
+              Authorization: `Bearer ${token}`
+          };
+            const response = await Http.get(`/prestataires/export`, { headers, responseType: 'arraybuffer' });
             return response;
         },
 

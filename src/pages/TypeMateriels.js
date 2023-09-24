@@ -8,6 +8,7 @@ import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { TypeMaterielService } from '../services/TypeMaterielService';
+import { useAccessToken } from '../services/AccessTokenProvider';
 
 export default function TypeMateriels() {
 
@@ -25,13 +26,17 @@ export default function TypeMateriels() {
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
   const dt = useRef(null);
+  let { accessToken } = useAccessToken();
 
   useEffect(() => {
+    if(!accessToken){
+      accessToken = localStorage.getItem('access_token');
+    }
     loadTypeMateriels();
   }, []);
 
   const loadTypeMateriels = () =>{
-    TypeMaterielService.getTypeMateriels().then((data) => setTypeMateriels(data));
+    TypeMaterielService.getTypeMateriels(accessToken).then((data) => setTypeMateriels(data));
   };
 
   const openNew = () => {
@@ -56,13 +61,13 @@ export default function TypeMateriels() {
     if (Typemateriel.name) {
 
         if (Typemateriel.idTypeMat) {
-            TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat, Typemateriel)
+            TypeMaterielService.updateTypeMateriel(Typemateriel.idTypeMat, Typemateriel, accessToken)
             .then((data) => {
               loadTypeMateriels();
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Typemateriel Modifié', life: 3000 })
             })                
         } else {
-            TypeMaterielService.createTypeMateriel(Typemateriel)
+            TypeMaterielService.createTypeMateriel(Typemateriel, accessToken)
             .then((data) => {
               loadTypeMateriels();
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Typemateriel Creé', life: 3000 })
@@ -91,7 +96,7 @@ export default function TypeMateriels() {
     setDeleteTypeMaterielDialog(true);
   };
   const deleteTypeMateriel = () => {
-    TypeMaterielService.deleteTypeMateriel(Typemateriel.idTypeMat)
+    TypeMaterielService.deleteTypeMateriel(Typemateriel.idTypeMat, accessToken)
             .then(() => {
                 loadTypeMateriels();
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'TypeMateriel Supprimé', life: 3000 });
@@ -120,7 +125,7 @@ export default function TypeMateriels() {
   };
 
   const exportExcel = () => {
-    TypeMaterielService.export()
+    TypeMaterielService.export(accessToken)
     .then((response) => {
         const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const url = window.URL.createObjectURL(blob);
@@ -144,7 +149,7 @@ export default function TypeMateriels() {
 
   const deleteSelectedTypeMateriels = () => {
     const promises = selectedTypeMateriels.map((prop) => {
-        return TypeMaterielService.deleteTypeMateriel(prop.idTypeMat);
+        return TypeMaterielService.deleteTypeMateriel(prop.idTypeMat, accessToken);
     });
 
     Promise.all(promises)
@@ -211,7 +216,7 @@ export default function TypeMateriels() {
     useEffect(() => {
       const fetchMaterielsCount = async () => {
         try {
-          const count = await TypeMaterielService.nbMatByTypeMateriel(rowData.idTypeMat); // Replace with your actual backend API call
+          const count = await TypeMaterielService.nbMatByTypeMateriel(rowData.idTypeMat, accessToken); // Replace with your actual backend API call
           setMaterielCount(count);
         } catch (error) {
           console.error('Error fetching materiels count:', error);

@@ -12,6 +12,7 @@ import { Calendar } from 'primereact/calendar';
 import { Avatar, AvatarGroup } from '@mui/material';
 import { TypeMaterielService } from '../services/TypeMaterielService';
 import { MaterielService } from '../services/MaterielService';
+import { useAccessToken } from '../services/AccessTokenProvider';
 
 
 export default function MaterielsDemo() {
@@ -36,15 +37,19 @@ export default function MaterielsDemo() {
     const [materielDetails, setMaterielDetails] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
+    let { accessToken } = useAccessToken();
 
     const loadMaterielData = () => {
-        MaterielService.getMateriels().then((data) => setMateriels(data));
+        MaterielService.getMateriels(accessToken).then((data) => setMateriels(data));
     }
 
     useEffect(() => {
+        if(!accessToken){
+            accessToken = localStorage.getItem('access_token');
+          }
         loadMaterielData();
 
-        TypeMaterielService.getTypeMateriels()
+        TypeMaterielService.getTypeMateriels(accessToken)
             .then((data) => setTypeMateriels(data))
     }, []);
 
@@ -71,13 +76,13 @@ export default function MaterielsDemo() {
         if (Materiel.model && Materiel.typeMateriel) {
 
             if (Materiel.idMat) {
-                MaterielService.updateMateriel(Materiel.idMat, Materiel)
+                MaterielService.updateMateriel(Materiel.idMat, Materiel, accessToken)
                 .then((data) => {
                     loadMaterielData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Modifié', life: 3000 })
                 })                
             } else {
-                MaterielService.createMateriel(Materiel)
+                MaterielService.createMateriel(Materiel, accessToken)
                 .then((data) => {
                     loadMaterielData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Creé', life: 3000 })
@@ -108,9 +113,9 @@ export default function MaterielsDemo() {
     };
 
     const deleteMaterielDetail = () => {
-        MaterielService.deleteMaterielDetail(MaterielDetail.idMatDet)
+        MaterielService.deleteMaterielDetail(MaterielDetail.idMatDet, accessToken)
             .then(() => {
-                MaterielService.getMaterielDetailsByMateriel(Materiel.idMat)
+                MaterielService.getMaterielDetailsByMateriel(Materiel.idMat, accessToken)
                 .then((data) => {
                     setMaterielDetails(data)
                     setDeleteMaterielDetailDialog(false);
@@ -124,8 +129,9 @@ export default function MaterielsDemo() {
 
 
     const deleteMateriel = () => {
-        MaterielService.deleteMateriel(Materiel.idMat)
+        MaterielService.deleteMateriel(Materiel.idMat, accessToken)
             .then(() => {
+                loadMaterielData();
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Materiel Supprimé', life: 3000 });
             })
 
@@ -133,7 +139,7 @@ export default function MaterielsDemo() {
     };
 
     const exportExcel = () => {
-        MaterielService.export()
+        MaterielService.export(accessToken)
         .then((response) => {
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const url = window.URL.createObjectURL(blob);
@@ -155,7 +161,7 @@ export default function MaterielsDemo() {
 
     const deleteSelectedMateriels = () => {
         const promises = selectedMateriels.map((mat) => {
-            return MaterielService.deleteMateriel(mat.idMat);
+            return MaterielService.deleteMateriel(mat.idMat, accessToken);
         });
     
         Promise.all(promises)
@@ -210,7 +216,7 @@ export default function MaterielsDemo() {
     };
 
     const openMaterielDetailDialog = (rowData) => {
-        MaterielService.getMaterielDetailsByMateriel(rowData.idMat)
+        MaterielService.getMaterielDetailsByMateriel(rowData.idMat, accessToken)
             .then((data) => {
                 setMaterielDetails(data)
                 setMaterielDetailDialogVisible(true);

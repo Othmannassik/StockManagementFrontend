@@ -8,12 +8,12 @@ const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ 
 const navConfig = [
   {
     title: 'Tableau de Bord',
-    path: '/dashboard/app',
+    path: '/dashboard',
     icon: icon('ic_analytics'),
   },
   {
     title: 'Matériels',
-    path: '/dashboard/materiels',
+    path: '/materiels',
     icon: icon('ic_materiel'),
   },
   // {
@@ -23,32 +23,32 @@ const navConfig = [
   // },
   {
     title: 'Commande',
-    path: '/dashboard/Commandes',
+    path: '/Commandes',
     icon: icon('ic_commande'),
   },
   {
     title: 'Etablissement',
-    path: '/dashboard/Etablissements',
+    path: '/Etablissements',
     icon: icon('ic_etablissement'),
   },
   {
     title: 'Livraison',
-    path: '/dashboard/Livraisons',
+    path: '/Livraisons',
     icon: icon('ic_livraison'),
   },
   {
     title: 'Prestataire',
-    path: '/dashboard/Prestataires',
+    path: '/Prestataires',
     icon: icon('ic_user'),
   },
   {
     title: 'Proprietaire',
-    path: '/dashboard/Proprietaires',
+    path: '/Proprietaires',
     icon: icon('ic_proprietaire'),
   },
   {
     title: 'Type of Materiels',
-    path: '/dashboard/typeMateriels ',
+    path: '/typeMateriels ',
     icon: icon('ic_type'),
   },
   

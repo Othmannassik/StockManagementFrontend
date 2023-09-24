@@ -3,201 +3,84 @@ import http from "./Http-Comman";
 export const ProprietaireService = {
 
   // Retrieve a list of proprietaires
-    getProprietaires: async () => {
-      const response = await http.get(`/proprietaires`);
+    getProprietaires: async (token) => {
+      const headers = {
+        Authorization: `Bearer ${token}`
+    };
+      const response = await http.get(`/proprietaires`, {headers});
       return response.data;
     },
   
   // Retrieve a list of materiels by proprietaire
-    getMaterielsByProprietaire: async (id) => {
-      const response = await http.get(`/proprietaires/${id}/affectations`);
+    getMaterielsByProprietaire: async (id, token) => {
+      const headers = {
+        Authorization: `Bearer ${token}`
+    };
+      const response = await http.get(`/proprietaires/${id}/affectations`, {headers});
       return response.data;
     },
 
     // add proprietaire
-    addProprietaire: async (proprietaire) => {
-      const response = await http.post(`/proprietaires`, proprietaire);
+    addProprietaire: async (proprietaire, token) => {
+      const headers = {
+        Authorization: `Bearer ${token}`
+    };
+      const response = await http.post(`/proprietaires`, proprietaire, {headers});
       return response.data;
     },
 
     // update proprietaire
-    updateProprietaire: async (id, proprietaire) => {
-      const response = await http.put(`/proprietaires/${id}`, proprietaire);
+    updateProprietaire: async (id, proprietaire, token) => {
+      const headers = {
+        Authorization: `Bearer ${token}`
+    };
+      const response = await http.put(`/proprietaires/${id}`, proprietaire, {headers});
       return response.data;
     },
 
     // delete proprietaire
-    deleteProprietaire: async (id) => {
-      const response = await http.delete(`/proprietaires/${id}`);
+    deleteProprietaire: async (id, token) => {
+      const headers = {
+        Authorization: `Bearer ${token}`
+    };
+      const response = await http.delete(`/proprietaires/${id}`, {headers});
       return response.data;
     },
 
     // get materiels
-    getMateriels: async () => {
-      const response = await http.get(`/materiel-details`);
+    getMateriels: async (token) => {
+      const headers = {
+        Authorization: `Bearer ${token}`
+    };
+      const response = await http.get(`/materiel-details`, {headers});
       return response.data;
     },
 
     // delete a materiel
-    deleteMateriel: async (id) => {
-      const response = await http.delete(`/affectations/${id}`);
+    deleteMateriel: async (id, token) => {
+      const headers = {
+        Authorization: `Bearer ${token}`
+    };
+      const response = await http.delete(`/affectations/${id}`, {headers});
       return response.data;
     },
 
     // add materiel to proprietaire
-    addMaterielToProprietaire: async (affectationData) => {
-      const response = await http.post(`/affectations`, affectationData);
+    addMaterielToProprietaire: async (affectationData, token) => {
+      const headers = {
+        Authorization: `Bearer ${token}`
+    };
+      const response = await http.post(`/affectations`, affectationData, {headers});
       return response.data;
     },
 
-    export: async () => {
-      const response = await http.get(`/proprietaires/export`, { responseType: 'arraybuffer' });
+    export: async (token) => {
+      const headers = {
+        Authorization: `Bearer ${token}`
+    };
+      const response = await http.get(`/proprietaires/export`, { headers, responseType: 'arraybuffer' });
       return response;
     },
 
-    getProprietaireData() {
-        return [
-            {
-                "id": 1,
-                "firstName": "Hicham",
-                "lastName": "Abassi",
-                "email": "h.abassi@gmail.com",
-                "telephone": "036383389",
-                "materiels": [
-                  {
-                    "id" : 1,
-                    "model": "Mac",
-                    "date": "19/09/2023",
-                    "motif": "affectation"
-                  }
-                ]
-              },
-              {
-                "id": 2,
-                "firstName": "Imad",
-                "lastName": "barikhi",
-                "email": "i.barikhi@gmail.com",
-                "telephone": "98850950",
-                "materiels": [
-                  {
-                    "id" : 1,
-                    "model": "Lenovo",
-                    "date": "19/09/2023",
-                    "motif": "affectation"
-                  },
-                  {
-                    "id" : 2,
-                    "model": "Dell",
-                    "date": "19/09/2023",
-                    "motif": "affectation"
-                  }
-                ]
-              },
-              {
-                "id": 3,
-                "firstName": "Nada",
-                "lastName": "Ayouti",
-                "email": "n.ayouti@gmail.com",
-                "telephone": "494984983",
-                "materiels": []
-              },
-              {
-                "id": 4,
-                "firstName": "Zineb",
-                "lastName": "Idrissi",
-                "email": "z.idrissi@gmail.com",
-                "telephone": "74009309309",
-                "materiels": [
-                  {
-                    "id" : 1,
-                    "model": "Accer",
-                    "date": "19/09/2023",
-                    "motif": "affectation"
-                  }
-                ]
-              },
-              {
-                "id": 5,
-                "firstName": "Hicham",
-                "lastName": "Abassi",
-                "email": "h.abassi@gmail.com",
-                "telephone": "036383389",
-                "materiels": []
-              },
-              {
-                "id": 6,
-                "firstName": "Yassmine",
-                "lastName": "Zaki",
-                "email": "y.zaki@gmail.com",
-                "telephone": "590589409",
-                "materiels": [
-                  {
-                    "id" : 1,
-                    "model": "HP",
-                    "date": "19/09/2023",
-                    "motif": "affectation"
-                  },
-                  {
-                    "id" : 1,
-                    "model": "Dell",
-                    "date": "19/09/2023",
-                    "motif": "affectation"
-                  },
-                  {
-                    "id" : 1,
-                    "model": "Thinkpad",
-                    "date": "19/09/2023",
-                    "motif": "affectation"
-                  }
-                ]
-              },
-              {
-                "id": 7,
-                "firstName": "Jalal",
-                "lastName": "Chabaki",
-                "email": "j.chabaki@gmail.com",
-                "telephone": "398383093",
-                "materiels": []
-              },
-              {
-                "id": 8,
-                "firstName": "Aya",
-                "lastName": "Dissaoui",
-                "email": "a.dissaoui@gmail.com",
-                "telephone": "309398409",
-                "materiels": [
-                  {
-                    "id" : 1,
-                    "model": "Dell",
-                    "date": "19/09/2023",
-                    "motif": "affectation"
-                  }
-                ]
-              },
-              {
-                "id": 9,
-                "firstName": "Omar",
-                "lastName": "Hidach",
-                "email": "o.hidach@gmail.com",
-                "telephone": "398302044",
-                "materiels": []
-              },
-              {
-                "id": 10,
-                "firstName": "Ali",
-                "lastName": "Igamane",
-                "email": "a.igamane@gmail.com",
-                "telephone": "3304843094",
-                "materiels": [
-                  {
-                    "id" : 1,
-                    "model": "Azus",
-                    "date": "19/09/2023",
-                    "motif": "affectation"
-                  }
-                ]
-              },
-        ];
-    },
 };
 

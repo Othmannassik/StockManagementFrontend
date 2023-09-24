@@ -10,6 +10,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
 import { PrestataireService } from '../services/PrestataireService';
+import { useAccessToken } from '../services/AccessTokenProvider';
 
 
 export default function Materiels() { 
@@ -30,13 +31,18 @@ export default function Materiels() {
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
+    let { accessToken } = useAccessToken();
+
 
 
     const loadPrestataireData = () => {
-        PrestataireService.getPrestataires().then((data) => setPrestataires(data));
+        PrestataireService.getPrestataires(accessToken).then((data) => setPrestataires(data));
     }
 
     useEffect(() => {
+        if(!accessToken){
+            accessToken = localStorage.getItem('access_token');
+          }
         loadPrestataireData();
     }, []);
 
@@ -64,13 +70,13 @@ export default function Materiels() {
         if (prestataire.raisonSocial && prestataire.email && prestataire.telephone) {
 
             if (prestataire.idPres) {
-                PrestataireService.updatePrestataire(prestataire.idPres, prestataire)
+                PrestataireService.updatePrestataire(prestataire.idPres, prestataire, accessToken)
                 .then((data) => {
                     loadPrestataireData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Modifié', life: 3000 })
                 })                
             } else {
-                PrestataireService.createPrestataire(prestataire)
+                PrestataireService.createPrestataire(prestataire, accessToken)
                 .then((data) => {
                     loadPrestataireData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Creé', life: 3000 })
@@ -96,7 +102,7 @@ export default function Materiels() {
     };
 
     const deletePrestataire = () => {
-        PrestataireService.deletePrestataire(prestataire.idPres)
+        PrestataireService.deletePrestataire(prestataire.idPres, accessToken)
             .then(() => {
                 loadPrestataireData();
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Prestataire Supprimé', life: 3000 });
@@ -131,7 +137,7 @@ export default function Materiels() {
     };
 
     const exportExcel = () => {
-        PrestataireService.export()
+        PrestataireService.export(accessToken)
         .then((response) => {
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const url = window.URL.createObjectURL(blob);
@@ -153,7 +159,7 @@ export default function Materiels() {
 
     const deleteSelectedPrestataires = () => {
         const promises = selectedPrestataires.map((prop) => {
-            return PrestataireService.deletePrestataire(prop.idPres);
+            return PrestataireService.deletePrestataire(prop.idPres, accessToken);
         });
     
         Promise.all(promises)
@@ -221,7 +227,7 @@ const NombreCommande = (rowData) => {
   useEffect(() => {
     const fetchCommandCount = async () => {
       try {
-        const count = await PrestataireService.nbCmdByPrestataire(rowData.idPres); // Replace with your actual backend API call
+        const count = await PrestataireService.nbCmdByPrestataire(rowData.idPres, accessToken); // Replace with your actual backend API call
         setCommandCount(count);
       } catch (error) {
         console.error('Error fetching command count:', error);

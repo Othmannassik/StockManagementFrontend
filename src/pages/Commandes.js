@@ -18,6 +18,7 @@ import { CommandeService } from '../services/CommandeService';
 import { EtablissementService } from '../services/EtablissementService';
 import { MaterielService } from '../services/MaterielService';
 import { LivraisonService } from '../services/LivraisonService';
+import { useAccessToken } from '../services/AccessTokenProvider';
 
 
 export default function CommandesDemo() {
@@ -62,23 +63,27 @@ export default function CommandesDemo() {
     const fileUploadRef2 = useRef(null);
     const toast = useRef(null);
     const dt = useRef(null);
+    let { accessToken } = useAccessToken();
+
 
     const loadCommandesData = () => {
-        CommandeService.getCommandes().then((data) => setCommandes(data))
-            .catch((err) => toast.current.show({ severity: 'error', summary: 'Echèc !', detail: err.message, life: 3000 }));
+        CommandeService.getCommandes(accessToken).then((data) => setCommandes(data));
     }
 
     useEffect(() => {
+        if(!accessToken){
+            accessToken = localStorage.getItem('access_token');
+        }
 
         loadCommandesData();
 
-        EtablissementService.getEtablissements()
+        EtablissementService.getEtablissements(accessToken)
             .then((data) => setEtablissements(data))
 
-        CommandeService.getPrestataires()
+        CommandeService.getPrestataires(accessToken)
             .then((data) => setPrestataires(data))
 
-        MaterielService.getMateriels()
+        MaterielService.getMateriels(accessToken)
             .then((data) => setMateriels(data))
     }, []);
 
@@ -124,13 +129,13 @@ export default function CommandesDemo() {
                 && commande.etablissement && commande.quantity && uploadedFile) {
 
             if (commande.idCmd) {
-                CommandeService.updateCommande(commande.idCmd, formData)
+                CommandeService.updateCommande(commande.idCmd, formData, accessToken)
                 .then((data) => {
                     loadCommandesData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Modifié', life: 3000 })
                 })                
             } else {
-                CommandeService.addCommande(formData)
+                CommandeService.addCommande(formData, accessToken)
                 .then((data) => {
                     loadCommandesData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Creé', life: 3000 })
@@ -166,7 +171,7 @@ export default function CommandesDemo() {
 
         if (livraison.numBonLiv && livraison.date && livraison.quantity && uploadedFile) {
 
-                LivraisonService.createLivraison(formData, livraison.commande.idCmd)
+                LivraisonService.createLivraison(formData, livraison.commande.idCmd, accessToken)
                 .then((data) => {
                     loadCommandesData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Creé', life: 3000 })
@@ -193,7 +198,7 @@ export default function CommandesDemo() {
     };
 
     const deleteCommande = () => {
-        CommandeService.deleteCommande(commande.idCmd)
+        CommandeService.deleteCommande(commande.idCmd, accessToken)
             .then(() => {
                 loadCommandesData();
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Commande Supprimé', life: 3000 });
@@ -204,7 +209,7 @@ export default function CommandesDemo() {
     };
 
     const downloadBC = (rowData) => {
-        CommandeService.downloadBC(rowData.bonCmd.id)
+        CommandeService.downloadBC(rowData.bonCmd.id, accessToken)
         .then((response) => {
             const blob = new Blob([response.data], { type: 'application/pdf' });
             const url = window.URL.createObjectURL(blob);
@@ -221,7 +226,7 @@ export default function CommandesDemo() {
     };
 
     const downloadBL = (rowData) => {
-        LivraisonService.downloadBL(rowData.bonLiv.id)
+        LivraisonService.downloadBL(rowData.bonLiv.id, accessToken)
         .then((response) => {
             const blob = new Blob([response.data], { type: 'application/pdf' });
             const url = window.URL.createObjectURL(blob);
@@ -238,7 +243,7 @@ export default function CommandesDemo() {
     };
 
     const exportExcel = () => {
-        CommandeService.export()
+        CommandeService.export(accessToken)
         .then((response) => {
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const url = window.URL.createObjectURL(blob);
@@ -260,7 +265,7 @@ export default function CommandesDemo() {
 
     const deleteSelectedCommandes = () => {
         const promises = selectedCommandes.map((cmd) => {
-            return CommandeService.deleteCommande(cmd.idCmd);
+            return CommandeService.deleteCommande(cmd.idCmd, accessToken);
         });
     
         Promise.all(promises)

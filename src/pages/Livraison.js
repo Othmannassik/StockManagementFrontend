@@ -16,6 +16,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
 import { LivraisonService } from '../services/LivraisonService';
 import { CommandeService } from '../services/CommandeService';
+import { useAccessToken } from '../services/AccessTokenProvider';
 
 export default function Livraisons() {
     const emptyLivraison = {
@@ -41,14 +42,18 @@ export default function Livraisons() {
     const fileUploadRef = useRef(null);
     const toast = useRef(null);
     const dt = useRef(null);
+    let { accessToken } = useAccessToken();
 
     const loadLivraisonsData = () => {
-        LivraisonService.getLivraisons().then((data) => setLivraisons(data));
+        LivraisonService.getLivraisons(accessToken).then((data) => setLivraisons(data));
     }
 
     useEffect(() => {
+        if(!accessToken){
+            accessToken = localStorage.getItem('access_token');
+        }
         loadLivraisonsData();
-        CommandeService.getCommandes().then((data) => setCommandes(data));
+        CommandeService.getCommandes(accessToken).then((data) => setCommandes(data));
     }, []);
 
     const openNew = () => {
@@ -82,7 +87,7 @@ export default function Livraisons() {
 
             if (livraison.idLiv) {
                 livraison.commande = commande
-                LivraisonService.updateLivraison(livraison.idLiv, commande.idCmd, formData)
+                LivraisonService.updateLivraison(livraison.idLiv, commande.idCmd, formData, accessToken)
                 .then((data) => {
                     loadLivraisonsData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Modifié', life: 3000 })
@@ -92,7 +97,7 @@ export default function Livraisons() {
                     toast.current.show({ severity: 'error', summary: 'Echèc !', detail: 'Veuillez Remplir Tous Les Champs', life: 3000 })
                     return;
                 }
-                LivraisonService.createLivraison(formData, livraison.commande.idCmd)
+                LivraisonService.createLivraison(formData, livraison.commande.idCmd, accessToken)
                 .then((data) => {
                     loadLivraisonsData();
                     toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Creé', life: 3000 })
@@ -112,7 +117,7 @@ export default function Livraisons() {
     
 
     const editLivraison = async (livraison) => {
-        const cmd = await LivraisonService.cmdByLivraison(livraison.idLiv); 
+        const cmd = await LivraisonService.cmdByLivraison(livraison.idLiv, accessToken); 
         setCommande(cmd);
         setLivraison(livraison);
         setLivraisonDialog(true);
@@ -126,7 +131,7 @@ export default function Livraisons() {
     };
 
     const deleteLivraison = () => {
-        LivraisonService.deletePLivraison(livraison.idLiv)
+        LivraisonService.deletePLivraison(livraison.idLiv, accessToken)
             .then(() => {
                 loadLivraisonsData();
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Livraison Supprimé', life: 3000 });
@@ -137,7 +142,7 @@ export default function Livraisons() {
     };
 
     const downloadBL = (rowData) => {
-        LivraisonService.downloadBL(rowData.bonLiv.id)
+        LivraisonService.downloadBL(rowData.bonLiv.id, accessToken)
         .then((response) => {
             const blob = new Blob([response.data], { type: 'application/pdf' });
             const url = window.URL.createObjectURL(blob);
@@ -178,7 +183,7 @@ export default function Livraisons() {
     };
 
     const exportExcel = () => {
-        LivraisonService.export()
+        LivraisonService.export(accessToken)
         .then((response) => {
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const url = window.URL.createObjectURL(blob);
@@ -200,7 +205,7 @@ export default function Livraisons() {
 
     const deleteSelectedLivraisons = () => {
         const promises = selectedLivraisons.map((liv) => {
-            return LivraisonService.deletePLivraison(liv.idLiv);
+            return LivraisonService.deletePLivraison(liv.idLiv, accessToken);
         });
     
         Promise.all(promises)
@@ -292,7 +297,7 @@ export default function Livraisons() {
         useEffect(() => {
           const fetchdata = async () => {
             try {
-              const cmd = await LivraisonService.cmdByLivraison(rowData.idLiv); // Replace with your actual backend API call
+              const cmd = await LivraisonService.cmdByLivraison(rowData.idLiv, accessToken); // Replace with your actual backend API call
               setCommande(cmd.numBonCmd);
             } catch (error) {
               console.error('Error fetching commande count:', error);

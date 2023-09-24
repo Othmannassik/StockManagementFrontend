@@ -1,14 +1,31 @@
 import { Helmet } from 'react-helmet-async';
+import { useKeycloak } from 'keycloak-react-web';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography } from '@mui/material';
 // sections
 import { AppWidgetSummary } from '../sections/@dashboard/app';
+import { useAccessToken } from '../services/AccessTokenProvider';
 
 // ----------------------------------------------------------------------
 
 export default function DashboardAppPage() {
   const theme = useTheme();
+
+  const { keycloak } = useKeycloak();
+  const { setAccessToken } = useAccessToken();
+
+  // Check if the user is authenticated
+  if (keycloak.authenticated) {
+    // Access the access token
+    const accessToken = keycloak.token;
+
+    // Store the access token in the context
+    setAccessToken(accessToken);
+
+    // ...
+  }
+
 
   return (
     <>

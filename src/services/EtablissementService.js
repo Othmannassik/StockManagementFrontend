@@ -4,44 +4,65 @@ export const EtablissementService = {
 
 
     // Retrieve a list of Etablissements
-    getEtablissements: async () => {
-        const response = await Http.get(`/etablissements`);
+    getEtablissements: async (token) => {
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+        const response = await Http.get(`/etablissements`, {headers});
         return response.data;
     },
 
     // Create a new Etablissement
-    createEtablissement: async (Etablissement) => {
-        const response = await Http.post(`/etablissements`, Etablissement);
+    createEtablissement: async (Etablissement, token) => {
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+        const response = await Http.post(`/etablissements`, Etablissement, {headers});
         return response.data;
     },
 
     // Retrieve a single Etablissement by ID
-    getEtablissementById: async (id) => {
-        const response = await Http.get(`/etablissements/${id}`);
+    getEtablissementById: async (id, token) => {
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+        const response = await Http.get(`/etablissements/${id}`, {headers});
         return response.data;
     },
 
     // Update an existing Etablissement
-    updateEtablissement: async (id, Etablissement) => {
-        const response = await Http.put(`/etablissements/${id}`, Etablissement);
+    updateEtablissement: async (id, Etablissement, token) => {
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+        const response = await Http.put(`/etablissements/${id}`, Etablissement , {headers});
         return response.data;
     },
 
     // Delete a Etablissement by ID
-    deleteEtablissement: async (id) => {
-        const response = await Http.delete(`/etablissements/${id}`);
+    deleteEtablissement: async (id, token) => {
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+        const response = await Http.delete(`/etablissements/${id}`, {headers});
         return response.data;
     },
 
     // Count Materiels by Etablissement
-    nbMatByEtablissement: async (id) => {
-        const response = await Http.get(`/etablissements/${id}/materiels`);
+    nbMatByEtablissement: async (id, token) => {
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+        const response = await Http.get(`/etablissements/${id}/materiels`, {headers});
         return response.data;
       },
 
     // export Etablissements 
-    export: async () => {
-     const response = await Http.get(`/etablissements/export`, { responseType: 'arraybuffer' });
+    export: async (token) => {
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+     const response = await Http.get(`/etablissements/export`, { headers, responseType: 'arraybuffer' });
      return response;
     },
 };
