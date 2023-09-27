@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
@@ -106,24 +105,6 @@ export default function TypeMateriels() {
         setTypeMateriel(emptyTypeMateriel);
   };
 
-  const findIndexById = (id) => {
-    let index = -1;
-
-    for (let i = 0; i < Typemateriels.length; i + 1) {
-      if (Typemateriels[i].id === id) {
-        index = i;
-        break;
-      }
-    }
-
-    return index;
-  };
-
-
-  const createId = (min, max) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
-
   const exportExcel = () => {
     TypeMaterielService.export(accessToken)
     .then((response) => {
@@ -144,8 +125,6 @@ export default function TypeMateriels() {
   const confirmDeleteSelected = () => {
     setDeleteTypeMaterielsDialog(true);
   };
-
-
 
   const deleteSelectedTypeMateriels = () => {
     const promises = selectedTypeMateriels.map((prop) => {

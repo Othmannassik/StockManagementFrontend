@@ -131,6 +131,8 @@ export default function ProprietairesDemo() {
             .then((data) => {
                 ProprietaireService.getMaterielsByProprietaire(Proprietaire.idProp, accessToken)
                     .then((data) => setMateriels(data));
+                ProprietaireService.getMateriels(accessToken)
+                    .then((data) => setMaterielsChoices(data));
                 toast.current.show({ severity: 'success', summary: 'Succès !', detail: 'Matériel Affecté', life: 3000 })
             })
 

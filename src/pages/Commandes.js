@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
@@ -12,8 +11,6 @@ import { Tag } from 'primereact/tag';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
-import { format } from 'date-fns';
-import { fr, tr } from 'date-fns/locale';
 import { CommandeService } from '../services/CommandeService';
 import { EtablissementService } from '../services/EtablissementService';
 import { MaterielService } from '../services/MaterielService';
@@ -62,7 +59,6 @@ export default function CommandesDemo() {
     const fileUploadRef = useRef(null);
     const fileUploadRef2 = useRef(null);
     const toast = useRef(null);
-    const dt = useRef(null);
     let { accessToken } = useAccessToken();
 
 

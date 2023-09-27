@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
@@ -8,8 +7,6 @@ import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { Calendar } from 'primereact/calendar';
-import { Avatar, AvatarGroup } from '@mui/material';
 import { TypeMaterielService } from '../services/TypeMaterielService';
 import { MaterielService } from '../services/MaterielService';
 import { useAccessToken } from '../services/AccessTokenProvider';

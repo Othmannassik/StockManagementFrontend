@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
-import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { Tag } from 'primereact/tag';
 import { PrestataireService } from '../services/PrestataireService';
 import { useAccessToken } from '../services/AccessTokenProvider';
 
@@ -60,7 +57,7 @@ export default function Materiels() {
         setDeletePrestataireDialog(false);
     };
 
-    const hidePrestatairesDialog = () => {
+    const hideDeletePrestatairesDialog = () => {
         setDeletePrestatairesDialog(false);
     };
 
@@ -274,7 +271,7 @@ const NombreCommande = (rowData) => {
     );
     const deletePrestatairesDialogFooter = (
         <fragment>
-            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeletePrestataireDialog} />
+            <Button label="Annuler" icon="pi pi-times" outlined onClick={hideDeletePrestatairesDialog} />
             <Button label="Oui, Supprimer" icon="pi pi-check" severity="danger" onClick={deleteSelectedPrestataires} />
         </fragment>
     );
@@ -330,7 +327,7 @@ const NombreCommande = (rowData) => {
                 </div>
             </Dialog>
 
-            <Dialog visible={deletePrestatairesDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deletePrestatairesDialogFooter} onHide={hideDeletePrestataireDialog}>
+            <Dialog visible={deletePrestatairesDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deletePrestatairesDialogFooter} onHide={hideDeletePrestatairesDialog}>
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                     {prestataire && <span>Vous Voulez Vraiment Effectuer La Suppression ?</span>}

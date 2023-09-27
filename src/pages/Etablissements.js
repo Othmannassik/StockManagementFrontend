@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
-import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { EtablissementService } from '../services/EtablissementService';
@@ -121,23 +119,6 @@ export default function Etablissements() {
             });
     };
 
-    const findIndexById = (id) => {
-        let index = -1;
-
-        for (let i = 0; i < etablissements.length; i + 1) {
-            if (etablissements[i].idEtb === id) {
-                index = i;
-                break;
-            }
-        }
-
-        return index;
-    };
-
-    const createId = (min, max) => {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-
     const exportExcel = () => {
         EtablissementService.export(accessToken)
         .then((response) => {
@@ -191,15 +172,6 @@ export default function Etablissements() {
         setEtablissement(_etablissement);
     };
 
-    const onInputNumberChange = (e, name) => {
-        const val = e.value || 0;
-        const _etablissement = { ...etablissement };
-
-        _etablissement[`${name}`] = val;
-
-        setEtablissement(_etablissement);
-    };
-
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
@@ -233,27 +205,6 @@ export default function Etablissements() {
             </>
         );
     };
-
-    const NombreMateriel = (rowData) => {
-        const [materielCount, setMaterielCount] = useState(0);
-      
-        useEffect(() => {
-          const fetchMaterielsCount = async () => {
-            try {
-              const count = await EtablissementService.nbMatByEtablissement(rowData.idEtb, accessToken); // Replace with your actual backend API call
-              setMaterielCount(count);
-            } catch (error) {
-              console.error('Error fetching materiels count:', error);
-              setMaterielCount(0);
-            }
-          };
-      
-          fetchMaterielsCount();
-        }, [rowData.idEtb]);
-      
-        return materielCount;
-      };
-
 
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">

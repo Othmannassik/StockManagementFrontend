@@ -1,7 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { classNames } from 'primereact/utils';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
@@ -41,7 +38,6 @@ export default function Livraisons() {
     const [showQteInput, setShowQteInput] = useState(true);
     const fileUploadRef = useRef(null);
     const toast = useRef(null);
-    const dt = useRef(null);
     let { accessToken } = useAccessToken();
 
     const loadLivraisonsData = () => {
@@ -156,30 +152,6 @@ export default function Livraisons() {
         .catch((error) => {
             console.error('Error downloading BL', error);
         });
-    };
-
-    const findIndexById = (id) => {
-        let index = -1;
-
-        for (let i = 0; i < livraisons.length; i+=1) {
-            if (livraisons[i].id === id) {
-                index = i;
-                break;
-            }
-        }
-
-        return index;
-    };
-
-    const createId = () => {
-        let id = '';
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-        for (let i = 0; i < 5; i+=1) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-
-        return id;
     };
 
     const exportExcel = () => {
@@ -309,20 +281,6 @@ export default function Livraisons() {
         }, [rowData.idLiv]);
       
         return commande;
-      };
-
-    const statusBodyTemplate = (rowData) => {
-        let tag;
-          if(rowData.status === "CREATED") {
-            tag = <Tag value="CRÉÉ" severity={getSeverity(rowData)} />;
-          } else if (rowData.status === "PENDING") {
-            tag = <Tag value="EN ATTENTE" severity={getSeverity(rowData)} />;
-          } else if (rowData.status === "DELIVERED") {
-            tag = <Tag value="LIVRÉ" severity={getSeverity(rowData)} />;
-          }else {
-            tag = <Tag value="ANNULÉ" severity={getSeverity(rowData)} />;
-          }
-          return tag;
       };
 
       const selectedCommandeTemplate = (option, props) => {
